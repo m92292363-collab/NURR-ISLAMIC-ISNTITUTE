@@ -1,1 +1,11 @@
-
+{
+  "name": "imam-malick-islamic-institute",
+  "version": "1.0.0",
+  "description": "Imam Malick Islamic Institute Student Portal",
+  "scripts": {
+    "build": "echo 'No build step needed'"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  }
+}
