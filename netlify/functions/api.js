@@ -16,6 +16,8 @@
 //    are upgraded to a hash automatically (on login, and in batches by init-db).
 //  - Server-side lockout: 5 wrong passwords -> account locked for 15 minutes.
 //  - init-db only works with the INIT_SECRET env var (no hard-coded fallback).
+//  - The database is updated AUTOMATICALLY when new code is deployed (ensureSchema),
+//    so running the init-db link after an update is no longer required.
 //
 // FINANCE:
 //  - fee_payments is NOT linked to students with a cascade: deleting a student
@@ -1948,15 +1950,11 @@ async function studentHistory(sql, event) {
 }
 
 // ---------------------------------------------------------------------------
-// init-db  (GET ?secret=)  — needs INIT_SECRET env var.
-// Creates/patches all tables and migrates old data. Safe to re-run any time.
+// migrate: creates / patches every table and column. Safe to run any time.
+// Runs automatically the first time the API starts after new code is
+// uploaded (see ensureSchema), so the setup link is no longer required.
 // ---------------------------------------------------------------------------
-async function initDb(sql, event) {
-  const secret = event.queryStringParameters?.secret;
-  if (!process.env.INIT_SECRET || secret !== process.env.INIT_SECRET) {
-    return json({ error: 'Forbidden' }, 403);
-  }
-  try {
+async function migrate(sql) {
     await sql`
       CREATE TABLE IF NOT EXISTS students (
         id             SERIAL PRIMARY KEY,
@@ -2294,6 +2292,47 @@ async function initDb(sql, event) {
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_fee_payments_student ON fee_payments(student_id, academic_year, term)`;
 
+}
+
+let schemaReady = false;
+async function ensureSchema(sql) {
+  if (schemaReady) return;
+  const r = await sql`
+    SELECT
+      to_regclass('public.students') IS NOT NULL
+      AND to_regclass('public.student_enrollments') IS NOT NULL
+      AND to_regclass('public.login_attempts') IS NOT NULL
+      AND to_regclass('public.results_archive') IS NOT NULL
+      AND to_regclass('public.teachers') IS NOT NULL
+      AND to_regclass('public.attendance') IS NOT NULL
+      AND to_regclass('public.fee_payments') IS NOT NULL
+      AND to_regclass('public.media') IS NOT NULL
+      AND to_regclass('public.slides') IS NOT NULL
+      AND to_regclass('public.news_history') IS NOT NULL
+      AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'students' AND column_name = 'repeat_next')
+      AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'results' AND column_name = 'entered_by')
+      AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'fee_payments' AND column_name = 'voided')
+      AS ok
+  `;
+  if (!r[0].ok) {
+    console.log('Database is missing new tables/columns — updating it automatically...');
+    await migrate(sql);
+  }
+  schemaReady = true;
+}
+
+// ---------------------------------------------------------------------------
+// init-db  (GET ?secret=)  — needs INIT_SECRET env var.
+// Creates/patches all tables and migrates old data. Safe to re-run any time.
+// ---------------------------------------------------------------------------
+async function initDb(sql, event) {
+  const secret = event.queryStringParameters?.secret;
+  if (!process.env.INIT_SECRET || secret !== process.env.INIT_SECRET) {
+    return json({ error: 'Forbidden' }, 403);
+  }
+  try {
+    await migrate(sql);
+
     // ---- Upgrade plain-text passwords to hashes ----
     const plainAdmins = await sql`SELECT id, password FROM admins WHERE password NOT LIKE 'scrypt$%'`;
     for (const a of plainAdmins) {
@@ -2421,6 +2460,11 @@ export async function handler(event) {
   } catch (err) {
     console.error('db init error:', err);
     return json({ success: false, error: 'Server misconfigured (DATABASE_URL missing)' }, 500);
+  }
+
+  // Keep the database up to date with the code automatically.
+  if (route !== 'init-db' && route !== 'image') {
+    try { await ensureSchema(sql); } catch (err) { console.error('auto-migrate error:', err); }
   }
 
   return fn(sql, event, auth);
