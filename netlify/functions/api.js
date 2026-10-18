@@ -1481,6 +1481,7 @@ async function newsHistory(sql, event) {
 // TEACHERS & ATTENDANCE
 // ===========================================================================
 const TEACHER_TOKEN_HOURS = 12;
+const TEACHER_APP_TOKEN_DAYS = 30;  // installed Teacher App stays logged in (admin can disable the teacher any time)
 const ATTENDANCE_STATUSES = ['present', 'absent', 'late', 'excused'];
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
@@ -1537,7 +1538,7 @@ async function loadClassStudents(sql, academicYear, gradeLevel, className) {
 // teacher-login (POST) — public
 async function teacherLogin(sql, event) {
   try {
-    const { username, password } = JSON.parse(event.body || '{}');
+    const { username, password, app } = JSON.parse(event.body || '{}');
     if (!username || !password) return json({ error: 'Username and password are required' }, 400);
     const key = 'teacher:' + String(username).toLowerCase();
     const mins = await lockMinutesLeft(sql, key);
@@ -1551,7 +1552,8 @@ async function teacherLogin(sql, event) {
     if (!rows[0].active) return json({ success: false, error: 'This teacher account has been disabled. Please contact the school admin.' }, 403);
     await clearFails(sql, key);
     const t = rows[0];
-    const token = signToken({ role: 'teacher', sub: t.username, tid: t.id, exp: Date.now() + TEACHER_TOKEN_HOURS * 3600 * 1000 });
+    const lifeMs = app ? TEACHER_APP_TOKEN_DAYS * 24 * 3600 * 1000 : TEACHER_TOKEN_HOURS * 3600 * 1000;
+    const token = signToken({ role: 'teacher', sub: t.username, tid: t.id, exp: Date.now() + lifeMs });
     return json({ success: true, token, teacher: { id: t.id, username: t.username, full_name: t.full_name } });
   } catch (err) {
     console.error('teacher-login error:', err);
