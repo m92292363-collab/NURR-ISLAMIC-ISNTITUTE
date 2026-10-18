@@ -1324,6 +1324,43 @@ async function revokeStaffLink(sql, event, auth) {
   }
 }
 
+// delete-teacher (POST { id }) — admin. Removes the account, its class
+// assignments and access links. Scores/attendance the teacher entered are KEPT.
+async function deleteTeacher(sql, event) {
+  try {
+    const { id } = JSON.parse(event.body || '{}');
+    if (!id) return json({ error: 'id is required' }, 400);
+    const t = await sql`SELECT id, full_name FROM teachers WHERE id = ${parseInt(id)}`;
+    if (!t.length) return json({ success: false, error: 'Teacher not found' }, 404);
+    await sql`DELETE FROM staff_links WHERE teacher_id = ${t[0].id}`;
+    await sql`DELETE FROM teacher_assignments WHERE teacher_id = ${t[0].id}`;
+    await sql`DELETE FROM teachers WHERE id = ${t[0].id}`;
+    return json({ success: true, message: `${t[0].full_name} deleted. Scores and attendance they entered are kept.` });
+  } catch (err) {
+    console.error('delete-teacher error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// delete-staff-link (POST { id } or { clearOld: true }) — admin.
+// Only expired or cancelled links can be deleted (cancel an active link first).
+async function deleteStaffLink(sql, event) {
+  try {
+    const { id, clearOld } = JSON.parse(event.body || '{}');
+    if (clearOld) {
+      const rows = await sql`DELETE FROM staff_links WHERE revoked = TRUE OR expires_at <= NOW() RETURNING id`;
+      return json({ success: true, message: rows.length + ' old link(s) deleted.' });
+    }
+    if (!id) return json({ error: 'id is required' }, 400);
+    const rows = await sql`DELETE FROM staff_links WHERE id = ${parseInt(id)} AND (revoked = TRUE OR expires_at <= NOW()) RETURNING id`;
+    if (!rows.length) return json({ success: false, error: 'Only expired or cancelled links can be deleted. Cancel it first.' }, 400);
+    return json({ success: true, message: 'Link deleted.' });
+  } catch (err) {
+    console.error('delete-staff-link error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
 // ===========================================================================
 // WEBSITE CONTENT: slideshow + news
 // ===========================================================================
@@ -2505,6 +2542,8 @@ const ROUTES = {
   'staff-links':           { auth: 'admin', GET: staffLinks },
   'create-staff-link':     { auth: 'admin', POST: createStaffLink },
   'revoke-staff-link':     { auth: 'admin', POST: revokeStaffLink },
+  'delete-staff-link':     { auth: 'admin', POST: deleteStaffLink },
+  'delete-teacher':        { auth: 'admin', POST: deleteTeacher },
   'delete-results':        { auth: 'admin', DELETE: deleteResults },
   'reset-password':        { auth: 'admin', PUT: resetPassword },
   'block-upload':          { auth: 'admin', POST: blockUpload },
