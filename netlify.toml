@@ -1,6 +1,45 @@
 [build]
   publish = "public"
 
+# Serve the pages through a function so Netlify adds nothing to "View Page Source".
+[[redirects]]
+  from = "/"
+  to = "/.netlify/functions/page?p=main"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/index.html"
+  to = "/.netlify/functions/page?p=main"
+  status = 200
+  force = true
+
+# Teacher page (teachers need their personal link from the admin)
+[[redirects]]
+  from = "/staff-be2m0iebk7/"
+  to = "/.netlify/functions/page?p=staff"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/staff-be2m0iebk7/index.html"
+  to = "/.netlify/functions/page?p=staff"
+  status = 200
+  force = true
+
+# Admin desktop app
+[[redirects]]
+  from = "/admin-xo42rqv82v/"
+  to = "/.netlify/functions/page?p=admin"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin-xo42rqv82v/index.html"
+  to = "/.netlify/functions/page?p=admin"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"

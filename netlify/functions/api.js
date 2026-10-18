@@ -44,6 +44,13 @@
 //  - Every score records who entered it (entered_by / entered_at).
 //  - Admin can view/fix attendance for any date and print attendance reports.
 //
+// TEACHER ACCESS LINKS:
+//  - Teachers can only log in through a personal access link the admin creates,
+//    valid until a date the admin chooses. The admin can cancel a link any time.
+//  - Every teacher request checks the link is still valid, so an expired or
+//    cancelled link stops working immediately, even mid-session.
+//  - Only a hash of the link key is stored in the database.
+//
 // WEBSITE CONTENT (CMS):
 //  - Admin uploads slideshow pictures and news posts; the public site loads
 //    them from "site-content". Images are stored in the database ("media")
@@ -1258,6 +1265,66 @@ async function getFeeSummary(sql, event) {
 }
 
 // ===========================================================================
+// TEACHER ACCESS LINKS (admin creates, sets expiry, can cancel)
+// ===========================================================================
+function hashKey(k) { return crypto.createHash('sha256').update(String(k)).digest('hex'); }
+
+// staff-links (GET) — admin
+async function staffLinks(sql) {
+  try {
+    const links = await sql`
+      SELECT l.id, l.teacher_id, t.full_name, t.username, l.revoked, l.created_by,
+             to_char(l.created_at, 'DD/MM/YYYY HH24:MI') AS created,
+             to_char(l.expires_at, 'DD Mon YYYY') AS expires,
+             to_char(l.last_used_at, 'DD/MM/YYYY HH24:MI') AS last_used,
+             (l.expires_at > NOW()) AS not_expired
+      FROM staff_links l JOIN teachers t ON t.id = l.teacher_id
+      ORDER BY l.created_at DESC LIMIT 300`;
+    return json({ success: true, links });
+  } catch (err) {
+    console.error('staff-links error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// create-staff-link (POST { teacherId, validUntil: 'YYYY-MM-DD' }) — admin.
+// Returns the link key ONCE (only its hash is stored).
+async function createStaffLink(sql, event, auth) {
+  try {
+    const { teacherId, validUntil } = JSON.parse(event.body || '{}');
+    if (!teacherId || !/^\d{4}-\d{2}-\d{2}$/.test(validUntil || '')) return json({ error: 'Teacher and a valid end date are required' }, 400);
+    const expires = new Date(validUntil + 'T23:59:59Z');
+    if (isNaN(expires.getTime()) || expires.getTime() <= Date.now()) return json({ error: 'The end date must be today or later' }, 400);
+    if (expires.getTime() > Date.now() + 400 * 24 * 3600 * 1000) return json({ error: 'A link can be valid for at most about one year' }, 400);
+    const t = await sql`SELECT id, full_name, username, active FROM teachers WHERE id = ${parseInt(teacherId)}`;
+    if (!t.length) return json({ success: false, error: 'Teacher not found' }, 404);
+    if (!t[0].active) return json({ success: false, error: 'This teacher is disabled. Enable them first.' }, 400);
+    const key = crypto.randomBytes(24).toString('base64url');
+    const rows = await sql`
+      INSERT INTO staff_links (teacher_id, key_hash, expires_at, created_by)
+      VALUES (${t[0].id}, ${hashKey(key)}, ${expires.toISOString()}, ${auth.sub}) RETURNING id`;
+    return json({ success: true, id: rows[0].id, key, validUntil, teacher: t[0].full_name, username: t[0].username });
+  } catch (err) {
+    console.error('create-staff-link error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// revoke-staff-link (POST { id }) — admin. Stops the link immediately.
+async function revokeStaffLink(sql, event, auth) {
+  try {
+    const { id } = JSON.parse(event.body || '{}');
+    if (!id) return json({ error: 'id is required' }, 400);
+    const rows = await sql`UPDATE staff_links SET revoked = TRUE, revoked_at = NOW(), revoked_by = ${auth.sub} WHERE id = ${parseInt(id)} AND revoked = FALSE RETURNING id`;
+    if (!rows.length) return json({ success: false, error: 'Link not found or already cancelled' }, 404);
+    return json({ success: true, message: 'Link cancelled — the teacher can no longer use it.' });
+  } catch (err) {
+    console.error('revoke-staff-link error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// ===========================================================================
 // WEBSITE CONTENT: slideshow + news
 // ===========================================================================
 const IMAGE_PATH_RE = /^[A-Za-z0-9 _.()\-]+\.(jpe?g|png|webp|gif)$/i;
@@ -1481,7 +1548,6 @@ async function newsHistory(sql, event) {
 // TEACHERS & ATTENDANCE
 // ===========================================================================
 const TEACHER_TOKEN_HOURS = 12;
-const TEACHER_APP_TOKEN_DAYS = 30;  // installed Teacher App stays logged in (admin can disable the teacher any time)
 const ATTENDANCE_STATUSES = ['present', 'absent', 'late', 'excused'];
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
@@ -1538,8 +1604,13 @@ async function loadClassStudents(sql, academicYear, gradeLevel, className) {
 // teacher-login (POST) — public
 async function teacherLogin(sql, event) {
   try {
-    const { username, password, app } = JSON.parse(event.body || '{}');
+    const { username, password, key: linkKey } = JSON.parse(event.body || '{}');
     if (!username || !password) return json({ error: 'Username and password are required' }, 400);
+    if (!linkKey) return json({ success: false, error: 'Please open the access link your school admin sent you.' }, 403);
+    const link = (await sql`SELECT id, teacher_id, revoked, expires_at FROM staff_links WHERE key_hash = ${hashKey(linkKey)} LIMIT 1`)[0];
+    if (!link) return json({ success: false, error: 'This access link is not valid. Ask the admin for a new link.' }, 403);
+    if (link.revoked) return json({ success: false, error: 'This access link was cancelled by the admin.' }, 403);
+    if (new Date(link.expires_at).getTime() <= Date.now()) return json({ success: false, error: 'This access link has expired. Ask the admin for a new link.' }, 403);
     const key = 'teacher:' + String(username).toLowerCase();
     const mins = await lockMinutesLeft(sql, key);
     if (mins) return json({ success: false, error: `Too many failed attempts. Try again in ${mins} minute(s).` }, 429);
@@ -1552,9 +1623,11 @@ async function teacherLogin(sql, event) {
     if (!rows[0].active) return json({ success: false, error: 'This teacher account has been disabled. Please contact the school admin.' }, 403);
     await clearFails(sql, key);
     const t = rows[0];
-    const lifeMs = app ? TEACHER_APP_TOKEN_DAYS * 24 * 3600 * 1000 : TEACHER_TOKEN_HOURS * 3600 * 1000;
-    const token = signToken({ role: 'teacher', sub: t.username, tid: t.id, exp: Date.now() + lifeMs });
-    return json({ success: true, token, teacher: { id: t.id, username: t.username, full_name: t.full_name } });
+    if (link.teacher_id !== t.id) return json({ success: false, error: 'This access link belongs to another teacher. Use your own link.' }, 403);
+    await sql`UPDATE staff_links SET last_used_at = NOW() WHERE id = ${link.id}`;
+    // The login lasts until the link expires (the link is re-checked on every request).
+    const token = signToken({ role: 'teacher', sub: t.username, tid: t.id, lid: link.id, exp: new Date(link.expires_at).getTime() });
+    return json({ success: true, token, teacher: { id: t.id, username: t.username, full_name: t.full_name }, accessUntil: link.expires_at });
   } catch (err) {
     console.error('teacher-login error:', err);
     return json({ success: false, error: 'Server error: ' + err.message }, 500);
@@ -1572,7 +1645,8 @@ async function teacherMe(sql, event, auth) {
       FROM teacher_assignments WHERE teacher_id = ${auth.tid}
       ORDER BY academic_year DESC, grade_level, class_name, subject
     `;
-    return json({ success: true, teacher: t[0], assignments });
+    const l = auth.lid ? await sql`SELECT to_char(expires_at, 'DD Mon YYYY') AS until FROM staff_links WHERE id = ${auth.lid}` : [];
+    return json({ success: true, teacher: t[0], assignments, accessUntil: l.length ? l[0].until : null });
   } catch (err) {
     console.error('teacher-me error:', err);
     return json({ success: false, error: 'Server error: ' + err.message }, 500);
@@ -2195,6 +2269,23 @@ async function migrate(sql) {
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_attendance_class ON attendance(academic_year, grade_level, class_name, attendance_date)`;
 
+    // ---- Teacher access links (only a hash of each key is stored) ----
+    await sql`
+      CREATE TABLE IF NOT EXISTS staff_links (
+        id           SERIAL PRIMARY KEY,
+        teacher_id   INTEGER NOT NULL REFERENCES teachers(id),
+        key_hash     TEXT UNIQUE NOT NULL,
+        expires_at   TIMESTAMPTZ NOT NULL,
+        revoked      BOOLEAN NOT NULL DEFAULT FALSE,
+        revoked_at   TIMESTAMPTZ,
+        revoked_by   TEXT,
+        last_used_at TIMESTAMPTZ,
+        created_by   TEXT,
+        created_at   TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+
+
     // ---- Security: server-side login lockout ----
     await sql`
       CREATE TABLE IF NOT EXISTS login_attempts (
@@ -2311,6 +2402,7 @@ async function ensureSchema(sql) {
       AND to_regclass('public.media') IS NOT NULL
       AND to_regclass('public.slides') IS NOT NULL
       AND to_regclass('public.news_history') IS NOT NULL
+      AND to_regclass('public.staff_links') IS NOT NULL
       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'students' AND column_name = 'repeat_next')
       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'results' AND column_name = 'entered_by')
       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'fee_payments' AND column_name = 'voided')
@@ -2410,6 +2502,9 @@ const ROUTES = {
   'get-teachers':          { auth: 'admin', GET: getTeachers },
   'save-teacher':          { auth: 'admin', POST: saveTeacher },
   'teacher-assignment':    { auth: 'admin', POST: teacherAssignment },
+  'staff-links':           { auth: 'admin', GET: staffLinks },
+  'create-staff-link':     { auth: 'admin', POST: createStaffLink },
+  'revoke-staff-link':     { auth: 'admin', POST: revokeStaffLink },
   'delete-results':        { auth: 'admin', DELETE: deleteResults },
   'reset-password':        { auth: 'admin', PUT: resetPassword },
   'block-upload':          { auth: 'admin', POST: blockUpload },
@@ -2467,6 +2562,14 @@ export async function handler(event) {
   // Keep the database up to date with the code automatically.
   if (route !== 'init-db' && route !== 'image') {
     try { await ensureSchema(sql); } catch (err) { console.error('auto-migrate error:', err); }
+  }
+
+  // Teachers: their personal access link must still be valid on every request.
+  if (auth && auth.role === 'teacher') {
+    const ok = auth.lid ? await sql`SELECT 1 FROM staff_links WHERE id = ${auth.lid} AND revoked = FALSE AND expires_at > NOW()` : [];
+    if (!ok.length) {
+      return json({ success: false, linkExpired: true, error: 'Your access link has expired or was cancelled. Ask the admin for a new link.' }, 401);
+    }
   }
 
   return fn(sql, event, auth);
