@@ -1329,7 +1329,7 @@ async function revokeStaffLink(sql, event, auth) {
 // ===========================================================================
 const IMAGE_PATH_RE = /^[A-Za-z0-9 _.()\-]+\.(jpe?g|png|webp|gif)$/i;
 const NEWS_CATEGORIES = ['Announcement', 'Event', 'Competition', 'Achievement', 'Sports', 'General'];
-function imageUrl(mediaId, imagePath) { return mediaId ? '/api/image?id=' + mediaId : (imagePath || null); }
+function imageUrl(mediaId, imagePath) { return mediaId ? '/api/image?id=' + mediaId : (imagePath ? '/' + String(imagePath).replace(/^\/+/, '') : null); }
 
 // image (GET ?id) — public. Serves an uploaded picture, cached by the browser for a year.
 async function getImage(sql, event) {
