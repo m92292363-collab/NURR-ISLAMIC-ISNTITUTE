@@ -41,6 +41,13 @@
 //    assigned subject/class, and mark TODAY's attendance for their classes.
 //  - Every score records who entered it (entered_by / entered_at).
 //  - Admin can view/fix attendance for any date and print attendance reports.
+//
+// WEBSITE CONTENT (CMS):
+//  - Admin uploads slideshow pictures and news posts; the public site loads
+//    them from "site-content". Images are stored in the database ("media")
+//    and served by "image?id=" with long browser caching.
+//  - Nothing is deleted: removed slides are kept (can be restored), news posts
+//    can only be hidden, and EVERY create/edit/hide is saved in news_history.
 
 import { neon } from '@neondatabase/serverless';
 import crypto from 'node:crypto';
@@ -357,7 +364,8 @@ async function getAllStudents(sql) {
         student_id, full_name, grade_level, class_name, academic_year, status,
         date_of_birth, gender, student_phone, guardian_name,
         guardian_phone, address, upload_blocked,
-        place_of_birth, mother_name, mother_phone, father_name, father_phone
+        place_of_birth, mother_name, mother_phone, father_name, father_phone,
+        COALESCE(repeat_next, FALSE) AS repeat_next
       FROM students
       ORDER BY grade_level, class_name, full_name
     `;
@@ -663,11 +671,11 @@ async function promoteStudents(sql, event) {
       ON CONFLICT (student_id, academic_year) DO NOTHING
     `;
 
-    // 1. Graduate students who are ALREADY grade 9.
+    // 1. Graduate students who are ALREADY grade 9 (except those marked to repeat).
     const graduated = await sql`
       UPDATE students
       SET status = 'graduated'
-      WHERE status = 'active' AND grade_level = 9
+      WHERE status = 'active' AND grade_level = 9 AND COALESCE(repeat_next, FALSE) = FALSE
       RETURNING student_id
     `;
 
@@ -681,8 +689,16 @@ async function promoteStudents(sql, event) {
             ELSE class_name
           END,
           academic_year = ${toYear}
-      WHERE status = 'active' AND grade_level IN (7, 8)
+      WHERE status = 'active' AND grade_level IN (7, 8) AND COALESCE(repeat_next, FALSE) = FALSE
       RETURNING student_id, grade_level, class_name
+    `;
+
+    // 2b. Students marked to REPEAT: same grade and class, moved into the new year.
+    const repeated = await sql`
+      UPDATE students
+      SET academic_year = ${toYear}, repeat_next = FALSE
+      WHERE status = 'active' AND COALESCE(repeat_next, FALSE) = TRUE
+      RETURNING student_id
     `;
 
     // 3. New year's enrollment rows.
@@ -699,12 +715,84 @@ async function promoteStudents(sql, event) {
 
     return json({
       success: true,
-      message: `Promoted ${promoted.length} student(s) for ${toYear}. ${graduated.length} Grade 9 student(s) marked as graduated.`,
+      message: `Promoted ${promoted.length} student(s) for ${toYear}. ${repeated.length} student(s) repeating their grade. ${graduated.length} Grade 9 student(s) marked as graduated.`,
       promotedCount: promoted.length,
+      repeatedCount: repeated.length,
       graduatedCount: graduated.length,
     });
   } catch (err) {
     console.error('promote-students error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// set-repeat (POST { studentIds: [], repeat: true|false }) — admin
+// Marks active students to REPEAT their grade at the next promotion.
+// ---------------------------------------------------------------------------
+async function setRepeat(sql, event) {
+  try {
+    const { studentIds, repeat } = JSON.parse(event.body || '{}');
+    if (!Array.isArray(studentIds) || !studentIds.length || typeof repeat !== 'boolean') {
+      return json({ error: 'studentIds (list) and repeat (true/false) are required' }, 400);
+    }
+    const rows = await sql`
+      UPDATE students SET repeat_next = ${repeat}
+      WHERE student_id = ANY(${studentIds.map(String)}) AND status = 'active'
+      RETURNING student_id
+    `;
+    return json({ success: true, updated: rows.length,
+      message: repeat ? `${rows.length} student(s) will repeat their grade at the next promotion.` : `${rows.length} student(s) will be promoted normally.` });
+  } catch (err) {
+    console.error('set-repeat error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// demote-student (POST { studentId }) — admin
+// Undo a promotion for one student:
+//  - active student: moves down one grade in the SAME academic year
+//    (class prefix follows, e.g. 8A -> 7A)
+//  - graduated student: brought back as active Grade 9 for the latest year
+// Results already entered stay exactly as they are.
+// ---------------------------------------------------------------------------
+async function demoteStudent(sql, event) {
+  try {
+    const { studentId } = JSON.parse(event.body || '{}');
+    if (!studentId) return json({ error: 'Student ID is required' }, 400);
+    const rows = await sql`SELECT student_id, full_name, grade_level, class_name, academic_year, status FROM students WHERE student_id = ${studentId}`;
+    if (!rows.length) return json({ success: false, error: 'Student not found' }, 404);
+    const st = rows[0];
+
+    if (st.status === 'graduated') {
+      const latest = await sql`SELECT MAX(academic_year) AS y FROM students WHERE status = 'active'`;
+      const year = latest[0].y || st.academic_year;
+      await sql`
+        UPDATE students SET status = 'active', grade_level = 9, academic_year = ${year}, repeat_next = FALSE
+        WHERE student_id = ${studentId}
+      `;
+      await syncEnrollment(sql, studentId);
+      return json({ success: true, message: `${st.full_name} brought back to Grade 9 for ${year} (repeating).` });
+    }
+    if (st.status !== 'active') return json({ success: false, error: `Student is ${st.status}. Restore them first.` }, 400);
+    if (!st.grade_level || st.grade_level <= 7) return json({ success: false, error: 'Student is already in the lowest grade (Grade 7).' }, 400);
+
+    const updated = await sql`
+      UPDATE students
+      SET grade_level = grade_level - 1,
+          class_name = CASE WHEN class_name IS NOT NULL
+                            THEN regexp_replace(class_name, '^[0-9]+', (grade_level - 1)::text)
+                            ELSE class_name END,
+          repeat_next = FALSE
+      WHERE student_id = ${studentId}
+      RETURNING grade_level, class_name, academic_year
+    `;
+    await syncEnrollment(sql, studentId);
+    const u = updated[0];
+    return json({ success: true, message: `${st.full_name} moved down to Grade ${u.grade_level}${u.class_name ? ' (' + u.class_name + ')' : ''} for ${u.academic_year}.` });
+  } catch (err) {
+    console.error('demote-student error:', err);
     return json({ success: false, error: 'Server error: ' + err.message }, 500);
   }
 }
@@ -1163,6 +1251,226 @@ async function getFeeSummary(sql, event) {
     return json({ success: true, summary });
   } catch (err) {
     console.error('get-fee-summary error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// ===========================================================================
+// WEBSITE CONTENT: slideshow + news
+// ===========================================================================
+const IMAGE_PATH_RE = /^[A-Za-z0-9 _.()\-]+\.(jpe?g|png|webp|gif)$/i;
+const NEWS_CATEGORIES = ['Announcement', 'Event', 'Competition', 'Achievement', 'Sports', 'General'];
+function imageUrl(mediaId, imagePath) { return mediaId ? '/api/image?id=' + mediaId : (imagePath || null); }
+
+// image (GET ?id) — public. Serves an uploaded picture, cached by the browser for a year.
+async function getImage(sql, event) {
+  try {
+    const id = parseInt((event.queryStringParameters || {}).id);
+    if (!id) return { statusCode: 400, headers: { 'Content-Type': 'text/plain' }, body: 'id required' };
+    const rows = await sql`SELECT mime, data FROM media WHERE id = ${id}`;
+    if (!rows.length) return { statusCode: 404, headers: { 'Content-Type': 'text/plain' }, body: 'Not found' };
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': rows[0].mime, 'Cache-Control': 'public, max-age=31536000, immutable', 'Access-Control-Allow-Origin': '*' },
+      body: rows[0].data,
+      isBase64Encoded: true,
+    };
+  } catch (err) {
+    console.error('image error:', err);
+    return { statusCode: 500, headers: { 'Content-Type': 'text/plain' }, body: 'Server error' };
+  }
+}
+
+// upload-image (POST { dataUrl }) — admin. Stores a picture, returns its id + url.
+async function uploadImage(sql, event, auth) {
+  try {
+    const { dataUrl } = JSON.parse(event.body || '{}');
+    const m = /^data:(image\/(?:jpeg|png|webp|gif));base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl || '');
+    if (!m) return json({ error: 'Please upload a JPG, PNG, WEBP or GIF picture' }, 400);
+    if (m[2].length > 3200000) return json({ error: 'Picture is too large (max about 2 MB after compression)' }, 400);
+    const size = Math.floor(m[2].length * 3 / 4);
+    const rows = await sql`INSERT INTO media (mime, data, size, uploaded_by) VALUES (${m[1]}, ${m[2]}, ${size}, ${auth.sub}) RETURNING id`;
+    return json({ success: true, id: rows[0].id, url: imageUrl(rows[0].id) });
+  } catch (err) {
+    console.error('upload-image error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// site-content (GET) — public. Everything the public home page and news tab need.
+async function siteContent(sql) {
+  try {
+    const slides = await sql`SELECT id, caption, media_id, image_path FROM slides WHERE active = TRUE ORDER BY sort_order, id`;
+    const news = await sql`
+      SELECT id, title, category, body, media_id, image_path, featured, author,
+             to_char(published_at, 'DD Mon YYYY') AS date
+      FROM news_posts WHERE status = 'published'
+      ORDER BY featured DESC, published_at DESC, id DESC
+      LIMIT 30
+    `;
+    return json({
+      success: true,
+      slides: slides.map(s => ({ id: s.id, caption: s.caption, url: imageUrl(s.media_id, s.image_path) })),
+      news: news.map(n => ({ id: n.id, title: n.title, category: n.category, body: n.body, featured: n.featured, author: n.author, date: n.date, image: imageUrl(n.media_id, n.image_path) })),
+    });
+  } catch (err) {
+    // Tables not created yet -> the site just keeps its built-in pictures/news.
+    console.error('site-content error:', err);
+    return json({ success: false, slides: [], news: [] });
+  }
+}
+
+// admin-slides (GET) — admin. All slides, including removed ones.
+async function adminSlides(sql) {
+  try {
+    const rows = await sql`
+      SELECT id, caption, media_id, image_path, sort_order, active, created_by,
+             to_char(created_at, 'DD/MM/YYYY') AS created
+      FROM slides ORDER BY active DESC, sort_order, id`;
+    return json({ success: true, slides: rows.map(r => Object.assign({}, r, { url: imageUrl(r.media_id, r.image_path) })) });
+  } catch (err) {
+    console.error('admin-slides error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// save-slide (POST { action: add | update | remove | restore | reorder, ... }) — admin
+async function saveSlide(sql, event, auth) {
+  try {
+    const b = JSON.parse(event.body || '{}');
+    const nextOrder = async () => (await sql`SELECT COALESCE(MAX(sort_order), 0) + 1 AS n FROM slides WHERE active = TRUE`)[0].n;
+    if (b.action === 'add') {
+      const mediaId = b.mediaId ? parseInt(b.mediaId) : null;
+      const imagePath = b.imagePath ? String(b.imagePath) : null;
+      if (!mediaId && !imagePath) return json({ error: 'A picture is required' }, 400);
+      if (imagePath && !IMAGE_PATH_RE.test(imagePath)) return json({ error: 'Invalid picture name' }, 400);
+      const rows = await sql`
+        INSERT INTO slides (media_id, image_path, caption, sort_order, created_by)
+        VALUES (${mediaId}, ${imagePath}, ${b.caption || null}, ${await nextOrder()}, ${auth.sub}) RETURNING id`;
+      return json({ success: true, id: rows[0].id, message: 'Picture added to the slideshow' });
+    }
+    if (b.action === 'update') {
+      const rows = await sql`UPDATE slides SET caption = ${b.caption || null}, updated_at = NOW() WHERE id = ${parseInt(b.id)} RETURNING id`;
+      if (!rows.length) return json({ success: false, error: 'Slide not found' }, 404);
+      return json({ success: true, message: 'Caption saved' });
+    }
+    if (b.action === 'remove' || b.action === 'restore') {
+      const active = b.action === 'restore';
+      const order = active ? await nextOrder() : 0;
+      const rows = await sql`
+        UPDATE slides SET active = ${active}, sort_order = CASE WHEN ${active} THEN ${order} ELSE sort_order END, updated_at = NOW()
+        WHERE id = ${parseInt(b.id)} RETURNING id`;
+      if (!rows.length) return json({ success: false, error: 'Slide not found' }, 404);
+      return json({ success: true, message: active ? 'Picture restored to the slideshow' : 'Picture removed from the slideshow (kept in Removed)' });
+    }
+    if (b.action === 'reorder') {
+      if (!Array.isArray(b.ids) || !b.ids.length) return json({ error: 'ids required' }, 400);
+      const ids = b.ids.map(x => parseInt(x));
+      await sql`
+        UPDATE slides s SET sort_order = o.ord, updated_at = NOW()
+        FROM unnest(${ids}::int[]) WITH ORDINALITY AS o(id, ord)
+        WHERE s.id = o.id`;
+      return json({ success: true, message: 'Order saved' });
+    }
+    return json({ error: 'Unknown action' }, 400);
+  } catch (err) {
+    console.error('save-slide error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// admin-news (GET) — admin. Every post ever made, with number of versions.
+async function adminNews(sql) {
+  try {
+    const rows = await sql`
+      SELECT p.id, p.title, p.category, p.body, p.media_id, p.image_path, p.featured, p.status, p.author,
+             to_char(p.published_at, 'DD/MM/YYYY') AS published, to_char(p.created_at, 'DD/MM/YYYY') AS created,
+             to_char(p.updated_at, 'DD/MM/YYYY HH24:MI') AS updated,
+             (SELECT COUNT(*)::int FROM news_history h WHERE h.post_id = p.id) AS versions
+      FROM news_posts p ORDER BY p.created_at DESC, p.id DESC`;
+    return json({ success: true, posts: rows.map(r => Object.assign({}, r, { image: imageUrl(r.media_id, r.image_path) })) });
+  } catch (err) {
+    console.error('admin-news error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+async function snapshotNews(sql, postId, action, actor) {
+  await sql`
+    INSERT INTO news_history (post_id, title, category, body, media_id, image_path, featured, status, action, edited_by)
+    SELECT id, title, category, body, media_id, image_path, featured, status, ${action}, ${actor}
+    FROM news_posts WHERE id = ${postId}`;
+}
+
+// save-news (POST { id?, title, category, body, status, featured, mediaId, imagePath }) — admin
+async function saveNews(sql, event, auth) {
+  try {
+    const b = JSON.parse(event.body || '{}');
+    const title = String(b.title || '').trim();
+    const body = String(b.body || '').trim();
+    if (!title || !body) return json({ error: 'Title and story are required' }, 400);
+    if (title.length > 200) return json({ error: 'Title is too long (max 200 characters)' }, 400);
+    const category = NEWS_CATEGORIES.includes(b.category) ? b.category : 'General';
+    const status = b.status === 'hidden' ? 'hidden' : 'published';
+    const featured = !!b.featured;
+    const mediaId = b.mediaId ? parseInt(b.mediaId) : null;
+    const imagePath = b.imagePath && IMAGE_PATH_RE.test(String(b.imagePath)) ? String(b.imagePath) : null;
+    let id = b.id ? parseInt(b.id) : null;
+    if (id) {
+      const rows = await sql`
+        UPDATE news_posts SET title = ${title}, category = ${category}, body = ${body}, status = ${status},
+          featured = ${featured}, media_id = ${mediaId}, image_path = ${imagePath},
+          published_at = CASE WHEN ${status} = 'published' AND published_at IS NULL THEN NOW() ELSE published_at END,
+          updated_at = NOW(), updated_by = ${auth.sub}
+        WHERE id = ${id} RETURNING id`;
+      if (!rows.length) return json({ success: false, error: 'Post not found' }, 404);
+    } else {
+      const rows = await sql`
+        INSERT INTO news_posts (title, category, body, status, featured, media_id, image_path, author, published_at, created_by, updated_by)
+        VALUES (${title}, ${category}, ${body}, ${status}, ${featured}, ${mediaId}, ${imagePath}, 'Administration',
+                CASE WHEN ${status} = 'published' THEN NOW() ELSE NULL END, ${auth.sub}, ${auth.sub})
+        RETURNING id`;
+      id = rows[0].id;
+    }
+    if (featured) await sql`UPDATE news_posts SET featured = FALSE WHERE id <> ${id} AND featured = TRUE`;
+    await snapshotNews(sql, id, b.id ? 'edited' : 'created', auth.sub);
+    return json({ success: true, id, message: b.id ? 'Post updated' : (status === 'published' ? 'Post published' : 'Post saved as hidden draft') });
+  } catch (err) {
+    console.error('save-news error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// news-status (POST { id, status: published | hidden }) — admin. Posts are never deleted.
+async function newsStatus(sql, event, auth) {
+  try {
+    const { id, status } = JSON.parse(event.body || '{}');
+    if (!id || !['published', 'hidden'].includes(status)) return json({ error: 'id and status are required' }, 400);
+    const rows = await sql`
+      UPDATE news_posts SET status = ${status}, updated_at = NOW(), updated_by = ${auth.sub},
+        published_at = CASE WHEN ${status} = 'published' AND published_at IS NULL THEN NOW() ELSE published_at END
+      WHERE id = ${parseInt(id)} RETURNING id`;
+    if (!rows.length) return json({ success: false, error: 'Post not found' }, 404);
+    await snapshotNews(sql, parseInt(id), status === 'hidden' ? 'hidden' : 'published', auth.sub);
+    return json({ success: true, message: status === 'hidden' ? 'Post hidden from the website (kept in history)' : 'Post is visible on the website' });
+  } catch (err) {
+    console.error('news-status error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// news-history (GET ?id) — admin. Every version of a post.
+async function newsHistory(sql, event) {
+  try {
+    const id = parseInt((event.queryStringParameters || {}).id);
+    if (!id) return json({ error: 'id is required' }, 400);
+    const rows = await sql`
+      SELECT id, title, category, body, status, featured, action, edited_by,
+             to_char(edited_at, 'DD/MM/YYYY HH24:MI') AS edited, media_id, image_path
+      FROM news_history WHERE post_id = ${id} ORDER BY edited_at DESC, id DESC`;
+    return json({ success: true, versions: rows.map(r => Object.assign({}, r, { image: imageUrl(r.media_id, r.image_path) })) });
+  } catch (err) {
+    console.error('news-history error:', err);
     return json({ success: false, error: 'Server error: ' + err.message }, 500);
   }
 }
@@ -1777,6 +2085,69 @@ async function initDb(sql, event) {
       )
     `;
 
+    // ---- Website content: pictures, slideshow, news (nothing is ever deleted) ----
+    await sql`
+      CREATE TABLE IF NOT EXISTS media (
+        id          SERIAL PRIMARY KEY,
+        mime        TEXT NOT NULL,
+        data        TEXT NOT NULL,
+        size        INTEGER,
+        uploaded_by TEXT,
+        created_at  TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS slides (
+        id         SERIAL PRIMARY KEY,
+        media_id   INTEGER REFERENCES media(id),
+        image_path TEXT,
+        caption    TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        active     BOOLEAN NOT NULL DEFAULT TRUE,
+        created_by TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS news_posts (
+        id           SERIAL PRIMARY KEY,
+        title        TEXT NOT NULL,
+        category     TEXT,
+        body         TEXT NOT NULL,
+        media_id     INTEGER REFERENCES media(id),
+        image_path   TEXT,
+        featured     BOOLEAN NOT NULL DEFAULT FALSE,
+        status       TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('published', 'hidden')),
+        author       TEXT,
+        published_at TIMESTAMPTZ,
+        created_by   TEXT,
+        updated_by   TEXT,
+        created_at   TIMESTAMPTZ DEFAULT NOW(),
+        updated_at   TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS news_history (
+        id         SERIAL PRIMARY KEY,
+        post_id    INTEGER NOT NULL REFERENCES news_posts(id),
+        title      TEXT,
+        category   TEXT,
+        body       TEXT,
+        media_id   INTEGER,
+        image_path TEXT,
+        featured   BOOLEAN,
+        status     TEXT,
+        action     TEXT NOT NULL,
+        edited_by  TEXT,
+        edited_at  TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_news_status ON news_posts(status, published_at DESC)`;
+
+    // ---- Repeat a grade (held back at next promotion) ----
+    await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS repeat_next BOOLEAN DEFAULT FALSE`;
+
     // ---- Teachers, assignments, attendance ----
     await sql`
       ALTER TABLE results
@@ -1973,6 +2344,17 @@ const ROUTES = {
   'update-student':        { auth: 'admin', PUT: updateStudent },
   'promote-students':      { auth: 'admin', POST: promoteStudents },
   'archive-student':       { auth: 'admin', POST: archiveStudent },
+  'set-repeat':            { auth: 'admin', POST: setRepeat },
+  'image':                 { auth: 'public', GET: getImage },
+  'site-content':          { auth: 'public', GET: siteContent },
+  'upload-image':          { auth: 'admin', POST: uploadImage },
+  'admin-slides':          { auth: 'admin', GET: adminSlides },
+  'save-slide':            { auth: 'admin', POST: saveSlide },
+  'admin-news':            { auth: 'admin', GET: adminNews },
+  'save-news':             { auth: 'admin', POST: saveNews },
+  'news-status':           { auth: 'admin', POST: newsStatus },
+  'news-history':          { auth: 'admin', GET: newsHistory },
+  'demote-student':        { auth: 'admin', POST: demoteStudent },
   'get-enrollments':       { auth: 'admin', GET: getEnrollments },
   'student-history':       { auth: 'admin', GET: studentHistory },
   'get-term-remarks':      { auth: 'admin', GET: getTermRemarks },
