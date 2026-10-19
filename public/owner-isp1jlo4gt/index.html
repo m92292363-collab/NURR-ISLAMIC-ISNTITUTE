@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Security Console</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <link rel="icon" type="image/png" href="/imam-malick-logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg:#0b1220; --panel:#131d31; --panel2:#1b2742; --line:#2a3a5c; --ink:#e7eefc; --soft:#93a4c4; --blue:#3b82f6; --ok:#22c55e; --bad:#ef4444; --warn:#f59e0b; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
+        a { color: var(--blue); }
+        .wrap { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+        /* login */
+        .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .login-card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 2rem; width: 100%; max-width: 380px; text-align: center; }
+        .login-card img { width: 64px; height: 64px; border-radius: 14px; background: #fff; padding: 6px; }
+        .login-card h1 { font-size: 1.2rem; margin: 0.8rem 0 0.2rem; }
+        .login-card p { color: var(--soft); font-size: 0.85rem; margin-bottom: 1.2rem; }
+        label { display: block; text-align: left; font-size: 0.8rem; color: var(--soft); margin: 0.7rem 0 0.3rem; font-weight: 700; }
+        input, select { width: 100%; padding: 0.7rem 0.8rem; border: 1.5px solid var(--line); border-radius: 10px; background: var(--panel2); color: var(--ink); outline: none; font-size: 0.95rem; }
+        input:focus, select:focus { border-color: var(--blue); }
+        .btn { background: var(--blue); color: #fff; border: 0; border-radius: 10px; padding: 0.7rem 1.1rem; font-weight: 800; font-size: 0.92rem; cursor: pointer; width: 100%; margin-top: 1rem; }
+        .btn.sm { width: auto; margin: 0; padding: 0.5rem 0.9rem; font-size: 0.82rem; }
+        .btn.ghost { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
+        .err { color: #fecaca; background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.4); border-radius: 10px; padding: 0.6rem; font-size: 0.85rem; margin-top: 0.8rem; display: none; }
+        .err.show { display: block; }
+        /* app */
+        #app { display: none; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 0.4rem 0 1rem; border-bottom: 1px solid var(--line); margin-bottom: 1rem; }
+        .topbar h2 { font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .topbar h2 .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px rgba(34,197,94,.2); }
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 0.8rem; margin-bottom: 1rem; }
+        .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 0.9rem 1rem; }
+        .card .n { font-size: 1.7rem; font-weight: 800; }
+        .card .l { color: var(--soft); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+        .card.bad .n { color: var(--bad); } .card.warn .n { color: var(--warn); } .card.ok .n { color: var(--ok); }
+        .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: end; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 0.8rem; margin-bottom: 1rem; }
+        .filters .f { display: flex; flex-direction: column; }
+        .filters .f label { margin: 0 0 0.2rem; }
+        .filters input, .filters select { padding: 0.5rem 0.6rem; font-size: 0.85rem; min-width: 120px; }
+        .tbl-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th, td { padding: 0.55rem 0.7rem; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+        th { background: var(--panel2); color: var(--soft); font-size: 0.74rem; text-transform: uppercase; letter-spacing: .03em; position: sticky; top: 0; }
+        tr:hover td { background: rgba(59,130,246,.06); }
+        td.detail { white-space: normal; color: var(--soft); }
+        .pill { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.72rem; font-weight: 800; }
+        .c-login { background: rgba(59,130,246,.18); color: #93c5fd; }
+        .c-finance { background: rgba(245,158,11,.18); color: #fcd34d; }
+        .c-students, .c-results { background: rgba(34,197,94,.15); color: #86efac; }
+        .c-teachers, .c-attendance { background: rgba(168,85,247,.18); color: #d8b4fe; }
+        .c-view { background: rgba(148,163,184,.15); color: #cbd5e1; }
+        .c-settings, .c-website, .c-other { background: rgba(148,163,184,.15); color: #cbd5e1; }
+        .who { font-weight: 700; }
+        .role { font-size: 0.7rem; color: var(--soft); }
+        .failed td { background: rgba(239,68,68,.08); }
+        .failed .act { color: var(--bad); font-weight: 800; }
+        .muted { color: var(--soft); }
+        .foot { display: flex; justify-content: center; padding: 1rem; }
+        .live { font-size: 0.8rem; color: var(--soft); display: flex; align-items: center; gap: 0.4rem; }
+        .live input { width: auto; }
+        .section-title { font-size: 0.8rem; color: var(--soft); text-transform: uppercase; letter-spacing: .04em; margin: 0.4rem 0; font-weight: 800; }
+        .logins-box { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 0.8rem 1rem; margin-bottom: 1rem; font-size: 0.85rem; }
+        .logins-box .row { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.25rem 0; border-bottom: 1px dashed var(--line); }
+        .logins-box .row:last-child { border: 0; }
+        @media (max-width: 760px) { th:nth-child(7), td:nth-child(7), th:nth-child(8), td:nth-child(8) { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <img src="/imam-malick-logo.png" alt="">
+            <h1><i class="fas fa-shield-halved"></i> Security Console</h1>
+            <p>Private oversight &middot; Imam Malick</p>
+            <label>Owner username</label>
+            <input type="text" id="ou" autocomplete="off" autocapitalize="none">
+            <label>Password</label>
+            <input type="password" id="op">
+            <button class="btn" id="loginBtn" onclick="doLogin()"><i class="fas fa-right-to-bracket"></i> Enter</button>
+            <div class="err" id="loginErr"></div>
+        </div>
+    </div>
+
+    <div id="app"><div class="wrap">
+        <div class="topbar">
+            <h2><span class="dot"></span> Security Console <span class="muted" style="font-size:0.8rem;">· <span id="ownerName"></span></span></h2>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+                <span class="live"><input type="checkbox" id="liveChk" checked> Live (10s)</span>
+                <button class="btn sm ghost" onclick="loadAll()"><i class="fas fa-rotate"></i> Refresh</button>
+                <button class="btn sm ghost" onclick="exportCsv()"><i class="fas fa-download"></i> CSV</button>
+                <button class="btn sm ghost" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Log out</button>
+            </div>
+        </div>
+
+        <div class="cards" id="cards"></div>
+
+        <div class="section-title">Recent logins (admin / teachers / students / owner)</div>
+        <div class="logins-box" id="loginsBox"></div>
+
+        <div class="filters">
+            <div class="f"><label>Who</label><input type="text" id="f-actor" placeholder="e.g. admin"></div>
+            <div class="f"><label>Role</label><select id="f-role"><option value="">All</option><option value="admin">Admin</option><option value="teacher">Teacher</option><option value="student">Student</option><option value="owner">Owner</option></select></div>
+            <div class="f"><label>Type</label><select id="f-cat"><option value="">All</option><option value="login">Logins</option><option value="view">Page views</option><option value="students">Students</option><option value="results">Results</option><option value="finance">Finance</option><option value="teachers">Teachers</option><option value="attendance">Attendance</option><option value="website">Website</option><option value="settings">Settings</option></select></div>
+            <div class="f"><label>Search</label><input type="text" id="f-q" placeholder="name, detail…"></div>
+            <div class="f"><label>From</label><input type="date" id="f-from"></div>
+            <div class="f"><label>To</label><input type="date" id="f-to"></div>
+            <button class="btn sm" onclick="resetFilters(); loadLog(true);">Clear</button>
+        </div>
+
+        <div class="tbl-wrap">
+            <table>
+                <thead><tr><th>Time</th><th>Who</th><th>Type</th><th>Action</th><th>Detail</th><th>Location</th><th>Device</th><th>IP</th></tr></thead>
+                <tbody id="logBody"><tr><td colspan="8" class="muted" style="padding:1rem;">Loading…</td></tr></tbody>
+            </table>
+        </div>
+        <div class="foot"><button class="btn sm ghost" id="moreBtn" onclick="loadMore()" style="display:none;">Load older</button></div>
+    </div></div>
+
+    <script>
+        var $ = function (id) { return document.getElementById(id); };
+        var TOKEN_KEY = 'imOwnerToken';
+        var token = function () { return sessionStorage.getItem(TOKEN_KEY); };
+        var timer = null, cursor = null, rowsLoaded = [];
+
+        function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+        async function api(route, qs) {
+            var q = qs ? ('?' + Object.keys(qs).filter(function (k) { return qs[k]; }).map(function (k) { return k + '=' + encodeURIComponent(qs[k]); }).join('&')) : '';
+            var res = await fetch('/api/' + route + q, { headers: { 'Authorization': 'Bearer ' + token() } });
+            if (res.status === 401 || res.status === 403) { logout(); throw new Error('auth'); }
+            return res.json();
+        }
+
+        async function doLogin() {
+            var u = $('ou').value.trim(), p = $('op').value, e = $('loginErr'), btn = $('loginBtn');
+            e.classList.remove('show');
+            if (!u || !p) { e.textContent = 'Enter your username and password'; e.classList.add('show'); return; }
+            btn.disabled = true;
+            try {
+                var res = await fetch('/api/owner-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: u, password: p }) });
+                var data = await res.json();
+                if (data.success) { sessionStorage.setItem(TOKEN_KEY, data.token); showApp(u); }
+                else { e.textContent = data.error || 'Login failed'; e.classList.add('show'); }
+            } catch (err) { e.textContent = 'Connection error'; e.classList.add('show'); }
+            btn.disabled = false;
+        }
+        $('op').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') doLogin(); });
+        $('ou').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('op').focus(); } });
+
+        function showApp(name) {
+            $('loginScreen').style.display = 'none';
+            $('app').style.display = 'block';
+            $('ownerName').textContent = name || 'owner';
+            resetFilters();
+            loadAll();
+            startLive();
+        }
+        function logout() {
+            sessionStorage.removeItem(TOKEN_KEY);
+            if (timer) clearInterval(timer);
+            $('app').style.display = 'none';
+            $('loginScreen').style.display = 'flex';
+            $('op').value = '';
+        }
+        function startLive() {
+            if (timer) clearInterval(timer);
+            timer = setInterval(function () { if ($('liveChk').checked && document.visibilityState === 'visible') { loadSummary(); loadLog(true); } }, 10000);
+        }
+
+        function resetFilters() { ['f-actor', 'f-q', 'f-from', 'f-to'].forEach(function (id) { $(id).value = ''; }); $('f-role').value = ''; $('f-cat').value = ''; }
+        function filterVals() { return { role: $('f-role').value, category: $('f-cat').value, actor: $('f-actor').value.trim(), q: $('f-q').value.trim(), from: $('f-from').value, to: $('f-to').value }; }
+        ['f-role', 'f-cat'].forEach(function (id) { document.addEventListener('DOMContentLoaded', function () {}); });
+
+        async function loadAll() { await Promise.all([loadSummary(), loadLog(true)]); }
+
+        async function loadSummary() {
+            try {
+                var d = await api('activity-summary', { days: 7 });
+                if (!d.success) return;
+                var t = d.totals;
+                $('cards').innerHTML =
+                    card(t.total, 'Events (7 days)') +
+                    card(t.logins, 'Logins', 'ok') +
+                    card(t.failed, 'Failed logins', t.failed ? 'bad' : '') +
+                    card(t.voids, 'Payments voided', t.voids ? 'warn' : '');
+                $('loginsBox').innerHTML = d.recentLogins.length ? d.recentLogins.map(function (l) {
+                    return '<div class="row"><span><b>' + esc(l.actor_name) + '</b> ' + (l.ok ? '' : '<span style="color:var(--bad);font-weight:800;">FAILED</span>') + '</span>' +
+                        '<span class="muted">' + esc(l.when) + (l.location ? ' · ' + esc(l.location) : '') + ' · ' + esc(l.device || '') + (l.ip ? ' · ' + esc(l.ip) : '') + '</span></div>';
+                }).join('') : '<span class="muted">No logins yet</span>';
+            } catch (e) {}
+        }
+        function card(n, l, cls) { return '<div class="card ' + (cls || '') + '"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; }
+
+        function rowHTML(r) {
+            var failed = r.ok === false;
+            return '<tr class="' + (failed ? 'failed' : '') + '">' +
+                '<td class="muted">' + esc(r.when) + '</td>' +
+                '<td><span class="who">' + esc(r.actor_name || '') + '</span><div class="role">' + esc(r.actor_role || '') + '</div></td>' +
+                '<td><span class="pill c-' + esc(r.category || 'other') + '">' + esc(r.category || '') + '</span></td>' +
+                '<td class="act">' + esc(r.action) + '</td>' +
+                '<td class="detail">' + esc(r.detail || '') + (failed ? ' <b style="color:var(--bad);">(blocked/failed)</b>' : '') + '</td>' +
+                '<td class="muted">' + esc(r.location || '') + '</td>' +
+                '<td class="muted">' + esc(r.device || '') + '</td>' +
+                '<td class="muted">' + esc(r.ip || '') + '</td></tr>';
+        }
+        async function loadLog(reset) {
+            try {
+                if (reset) { cursor = null; rowsLoaded = []; }
+                var d = await api('activity-log', Object.assign({ limit: 80, cursor: reset ? '' : cursor }, filterVals()));
+                if (!d.success) return;
+                if (reset) rowsLoaded = d.rows; else rowsLoaded = rowsLoaded.concat(d.rows);
+                cursor = d.nextCursor;
+                $('logBody').innerHTML = rowsLoaded.length ? rowsLoaded.map(rowHTML).join('') : '<tr><td colspan="8" class="muted" style="padding:1rem;">No activity matches these filters.</td></tr>';
+                $('moreBtn').style.display = cursor ? '' : 'none';
+            } catch (e) {}
+        }
+        function loadMore() { loadLog(false); }
+
+        function exportCsv() {
+            var head = ['Time', 'Role', 'Who', 'Type', 'Action', 'Detail', 'OK', 'Location', 'Device', 'IP'];
+            var rows = rowsLoaded.map(function (r) { return [r.when, r.actor_role, r.actor_name, r.category, r.action, r.detail, r.ok === false ? 'FAILED' : 'ok', r.location, r.device, r.ip]; });
+            var csv = '\ufeff' + [head].concat(rows).map(function (row) { return row.map(function (c) { return '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+            a.download = 'activity-log.csv'; a.click(); URL.revokeObjectURL(a.href);
+        }
+
+        // live filter typing
+        var ft = null;
+        ['f-actor', 'f-q'].forEach(function (id) { $(id).addEventListener('input', function () { clearTimeout(ft); ft = setTimeout(function () { loadLog(true); }, 400); }); });
+        ['f-role', 'f-cat', 'f-from', 'f-to'].forEach(function (id) { $(id).addEventListener('change', function () { loadLog(true); }); });
+
+        // auto-login if a valid token is already there
+        (function () {
+            if (token()) {
+                fetch('/api/activity-summary?days=1', { headers: { 'Authorization': 'Bearer ' + token() } })
+                    .then(function (r) { if (r.ok) showApp(); else sessionStorage.removeItem(TOKEN_KEY); })
+                    .catch(function () {});
+            }
+            setTimeout(function () { var u = $('ou'); if (u && $('loginScreen').style.display !== 'none') u.focus(); }, 200);
+        })();
+    </script>
+</body>
+</html>

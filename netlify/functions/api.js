@@ -261,6 +261,125 @@ async function adminLogin(sql, event) {
   }
 }
 
+async function ownerLogin(sql, event) {
+  try {
+    const { username, password } = JSON.parse(event.body || '{}');
+    if (!username || !password) return json({ error: 'Username and password are required' }, 400);
+    const key = 'owner:' + String(username).toLowerCase();
+    const mins = await lockMinutesLeft(sql, key);
+    if (mins) return json({ success: false, error: `Too many failed attempts. Try again in ${mins} minute(s).` }, 429);
+    const rows = await sql`SELECT id, username, password FROM owners WHERE username = ${username} LIMIT 1`;
+    const check = rows.length ? checkPassword(password, rows[0].password) : { ok: false };
+    if (!check.ok) { await recordFail(sql, key); return json({ success: false, error: 'Incorrect username or password' }, 401); }
+    await clearFails(sql, key);
+    const token = signToken({ role: 'owner', sub: rows[0].username, exp: Date.now() + 12 * 3600 * 1000 });
+    return json({ success: true, token });
+  } catch (err) { console.error('owner-login error:', err); return json({ success: false, error: 'Server error: ' + err.message }, 500); }
+}
+async function ownerSetup(sql, event) {
+  try {
+    const { secret, username, password } = event.queryStringParameters || {};
+    if (!process.env.INIT_SECRET || secret !== process.env.INIT_SECRET) return json({ error: 'Forbidden' }, 403);
+    if (!username || !password || String(password).length < 8) return json({ error: 'username and password (min 8 chars) are required' }, 400);
+    await sql`INSERT INTO owners (username, password) VALUES (${username}, ${hashPassword(password)}) ON CONFLICT (username) DO UPDATE SET password = EXCLUDED.password`;
+    return json({ success: true, message: `Owner "${username}" is ready. Log in at /owner.` });
+  } catch (err) { console.error('owner-setup error:', err); return json({ success: false, error: 'Server error: ' + err.message }, 500); }
+}
+async function getActivityLog(sql, event) {
+  try {
+    const { role, category, actor, q, from, to, cursor, limit } = event.queryStringParameters || {};
+    const lim = Math.min(200, Math.max(10, parseInt(limit) || 60));
+    const params = [], cond = [];
+    if (role) { params.push(role); cond.push(`actor_role = $${params.length}`); }
+    if (category) { params.push(category); cond.push(`category = $${params.length}`); }
+    if (actor) { params.push('%' + actor + '%'); cond.push(`actor_name ILIKE $${params.length}`); }
+    if (q) { params.push('%' + q + '%'); cond.push(`(detail ILIKE $${params.length} OR action ILIKE $${params.length} OR target ILIKE $${params.length})`); }
+    if (from && /^\d{4}-\d{2}-\d{2}$/.test(from)) { params.push(from); cond.push(`at >= $${params.length}::date`); }
+    if (to && /^\d{4}-\d{2}-\d{2}$/.test(to)) { params.push(to); cond.push(`at < ($${params.length}::date + 1)`); }
+    if (cursor && /^\d+$/.test(cursor)) { params.push(cursor); cond.push(`id < $${params.length}`); }
+    const where = cond.length ? 'WHERE ' + cond.join(' AND ') : '';
+    params.push(lim + 1);
+    const rows = await sql(`SELECT id, to_char(at, 'DD/MM/YYYY HH24:MI:SS') AS when, actor_role, actor_name, action, category, detail, target, ok, ip, device, location
+      FROM activity_log ${where} ORDER BY id DESC LIMIT $${params.length}`, params);
+    const more = rows.length > lim;
+    return json({ success: true, rows: rows.slice(0, lim), nextCursor: more ? rows[lim - 1].id : null });
+  } catch (err) { console.error('activity-log error:', err); return json({ success: false, error: 'Server error: ' + err.message }, 500); }
+}
+async function getActivitySummary(sql, event) {
+  try {
+    const days = Math.min(90, Math.max(1, parseInt((event.queryStringParameters || {}).days) || 7));
+    const since = `NOW() - INTERVAL '${days} days'`;
+    const totals = await sql(`SELECT COUNT(*)::int AS total, COUNT(*) FILTER (WHERE category='login')::int AS logins,
+      COUNT(*) FILTER (WHERE ok = FALSE)::int AS failed, COUNT(*) FILTER (WHERE action LIKE 'VOIDED%')::int AS voids
+      FROM activity_log WHERE at >= ${since}`);
+    const byActor = await sql(`SELECT actor_name, COUNT(*)::int AS n FROM activity_log WHERE at >= ${since} AND actor_name IS NOT NULL GROUP BY actor_name ORDER BY n DESC LIMIT 8`);
+    const recentLogins = await sql(`SELECT to_char(at,'DD/MM HH24:MI') AS when, actor_name, ok, ip, device, location FROM activity_log WHERE category='login' ORDER BY id DESC LIMIT 8`);
+    return json({ success: true, days, totals: totals[0], byActor, recentLogins });
+  } catch (err) { console.error('activity-summary error:', err); return json({ success: false, error: 'Server error: ' + err.message }, 500); }
+}
+async function adminView() { return json({ success: true }); }
+
+// sds-admin (POST) — SDS Oversight Console manages the admin account here.
+// Requires BOTH the feed key (X-SDS-Key) AND the SDS_ALLOW_ADMIN env var set to
+// 'yes' on this school, so remote management is strictly opt-in per school.
+// Everything it does is written to the activity log and is visible to the admin.
+async function sdsAdmin(sql, event) {
+  try {
+    const configured = process.env.SDS_FEED_KEY;
+    if (!configured) return json({ error: 'Feed not enabled on this site' }, 403);
+    const sent = (event.headers || {})['x-sds-key'];
+    const a = Buffer.from(String(sent || '')), b = Buffer.from(String(configured));
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return json({ error: 'Forbidden' }, 403);
+    if (String(process.env.SDS_ALLOW_ADMIN || '').toLowerCase() !== 'yes') {
+      return json({ success: false, error: 'This school has not enabled remote admin management (set SDS_ALLOW_ADMIN=yes).' }, 403);
+    }
+    const body = JSON.parse(event.body || '{}');
+    const action = body.action;
+    const by = 'sds:' + (body.by || 'owner');
+    if (action === 'list-admins') {
+      const rows = await sql`SELECT username, (password LIKE 'scrypt$%') AS hashed FROM admins ORDER BY username`;
+      return json({ success: true, admins: rows });
+    }
+    if (action === 'set-admin-password') {
+      const username = String(body.username || '').trim();
+      const newPassword = String(body.newPassword || '');
+      if (!username || newPassword.length < 8) return json({ error: 'username and newPassword (min 8 chars) are required' }, 400);
+      const rows = await sql`UPDATE admins SET password = ${hashPassword(newPassword)} WHERE username = ${username} RETURNING username`;
+      if (!rows.length) return json({ success: false, error: 'Admin not found' }, 404);
+      await clearFails(sql, 'admin:' + username.toLowerCase());
+      await logActivity(sql, event, { role: 'owner', name: by, action: 'sds-set-admin-password', ok: true, detail: 'Admin password changed remotely by SDS (' + username + ')' });
+      return json({ success: true, message: 'Admin password changed for ' + username });
+    }
+    return json({ error: 'Unknown action' }, 400);
+  } catch (err) {
+    console.error('sds-admin error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// sds-feed (GET ?since&limit) — SDS Oversight Console pulls activity from here.
+// Protected by the SDS_FEED_KEY env var (sent as the X-SDS-Key header). This is
+// the ONLY external reader of the activity log; it never exposes passwords.
+async function sdsFeed(sql, event) {
+  try {
+    const configured = process.env.SDS_FEED_KEY;
+    if (!configured) return json({ error: 'Feed not enabled on this site' }, 403);
+    const sent = (event.headers || {})['x-sds-key'] || (event.queryStringParameters || {}).key;
+    const a = Buffer.from(String(sent || '')), b = Buffer.from(String(configured));
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return json({ error: 'Forbidden' }, 403);
+    const since = parseInt((event.queryStringParameters || {}).since) || 0;
+    const limit = Math.min(1000, Math.max(1, parseInt((event.queryStringParameters || {}).limit) || 500));
+    const rows = await sql`
+      SELECT id, to_char(at, 'YYYY-MM-DD"T"HH24:MI:SSOF') AS at, actor_role, actor_name, action, category,
+             detail, target, ok, ip, device, location
+      FROM activity_log WHERE id > ${since} ORDER BY id ASC LIMIT ${limit}`;
+    return json({ success: true, events: rows });
+  } catch (err) {
+    console.error('sds-feed error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // change-admin-password  (POST)  — admin
 // ---------------------------------------------------------------------------
@@ -1094,15 +1213,77 @@ async function saveRemarks(sql, event) {
 // ---------------------------------------------------------------------------
 // FINANCE  — all admin
 // ---------------------------------------------------------------------------
+const FEE_TERMS = ['Term 1', 'Term 2', 'Term 3'];
+async function defaultFeeItemId(sql) {
+  const r = await sql`SELECT id FROM fee_items WHERE is_default ORDER BY id LIMIT 1`;
+  if (r.length) return r[0].id;
+  const any = await sql`SELECT id FROM fee_items ORDER BY sort_order, id LIMIT 1`;
+  return any.length ? any[0].id : 0;
+}
+async function findFeeItem(sql, feeItemId) {
+  const id = feeItemId ? parseInt(feeItemId) : await defaultFeeItemId(sql);
+  const r = await sql`SELECT id, name, frequency, active FROM fee_items WHERE id = ${id}`;
+  return r[0] || null;
+}
+// A yearly item is stored with term 'Year'; a termly item needs Term 1/2/3.
+function feeTermFor(item, term) {
+  if (item.frequency === 'year') return 'Year';
+  return FEE_TERMS.includes(term) ? term : null;
+}
+
+// get-fee-items (GET) — admin
+async function getFeeItems(sql) {
+  try {
+    const items = await sql`
+      SELECT i.id, i.name, i.frequency, i.active, i.is_default, i.sort_order,
+             (SELECT COUNT(*)::int FROM fee_structures f WHERE f.fee_item_id = i.id) AS amounts_set,
+             (SELECT COUNT(*)::int FROM fee_payments p WHERE p.fee_item_id = i.id) AS payments
+      FROM fee_items i ORDER BY i.sort_order, i.id`;
+    return json({ success: true, items });
+  } catch (err) {
+    console.error('get-fee-items error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// save-fee-item (POST { id?, name, frequency, active }) — admin.
+// How often an item is paid can only change while no amounts/payments use it.
+async function saveFeeItem(sql, event) {
+  try {
+    const { id, name, frequency, active } = JSON.parse(event.body || '{}');
+    const nm = String(name || '').trim();
+    if (!nm) return json({ error: 'Fee name is required' }, 400);
+    if (!['term', 'year'].includes(frequency)) return json({ error: 'Choose how often it is paid' }, 400);
+    const dup = await sql`SELECT id FROM fee_items WHERE LOWER(name) = LOWER(${nm}) AND id <> ${parseInt(id) || 0}`;
+    if (dup.length) return json({ success: false, error: 'A fee with this name already exists' }, 400);
+    if (id) {
+      const cur = await sql`SELECT id, frequency FROM fee_items WHERE id = ${parseInt(id)}`;
+      if (!cur.length) return json({ success: false, error: 'Fee item not found' }, 404);
+      if (cur[0].frequency !== frequency) {
+        const used = await sql`SELECT (SELECT COUNT(*) FROM fee_structures WHERE fee_item_id = ${cur[0].id}) + (SELECT COUNT(*) FROM fee_payments WHERE fee_item_id = ${cur[0].id}) AS n`;
+        if (Number(used[0].n) > 0) return json({ success: false, error: 'This fee already has amounts or payments, so how often it is paid cannot change. Create a new fee item instead.' }, 400);
+      }
+      await sql`UPDATE fee_items SET name = ${nm}, frequency = ${frequency}, active = ${active !== false} WHERE id = ${cur[0].id}`;
+      return json({ success: true, message: 'Fee item updated' });
+    }
+    const next = await sql`SELECT COALESCE(MAX(sort_order), 0) + 1 AS n FROM fee_items`;
+    await sql`INSERT INTO fee_items (name, frequency, active, sort_order) VALUES (${nm}, ${frequency}, TRUE, ${next[0].n})`;
+    return json({ success: true, message: 'Fee item added' });
+  } catch (err) {
+    console.error('save-fee-item error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
 async function getFeeStructures(sql, event) {
   try {
     const { academicYear } = event.queryStringParameters || {};
-    const fees = academicYear
-      ? await sql`SELECT id, academic_year, term, grade_level, amount::float AS amount, description
-                  FROM fee_structures WHERE academic_year = ${academicYear}
-                  ORDER BY grade_level, term`
-      : await sql`SELECT id, academic_year, term, grade_level, amount::float AS amount, description
-                  FROM fee_structures ORDER BY academic_year DESC, grade_level, term`;
+    const fees = await sql`
+      SELECT f.id, f.academic_year, f.term, f.grade_level, f.amount::float AS amount, f.description,
+             f.fee_item_id, COALESCE(i.name, 'Tuition') AS fee_item, COALESCE(i.frequency, 'term') AS frequency
+      FROM fee_structures f LEFT JOIN fee_items i ON i.id = f.fee_item_id
+      WHERE (${academicYear || null}::text IS NULL OR f.academic_year = ${academicYear || null})
+      ORDER BY f.academic_year DESC, COALESCE(i.sort_order, 0), f.grade_level, f.term`;
     return json({ success: true, fees });
   } catch (err) {
     console.error('get-fee-structures error:', err);
@@ -1110,19 +1291,24 @@ async function getFeeStructures(sql, event) {
   }
 }
 
+// save-fee-structure (POST { academicYear, feeItemId, term, gradeLevel, amount, description })
 async function saveFeeStructure(sql, event) {
   try {
-    const { academicYear, term, gradeLevel, amount, description } = JSON.parse(event.body || '{}');
-    if (!academicYear || !term || !gradeLevel) return json({ error: 'academicYear, term and gradeLevel are required' }, 400);
+    const { academicYear, feeItemId, term, gradeLevel, amount, description } = JSON.parse(event.body || '{}');
+    if (!academicYear || !gradeLevel) return json({ error: 'Year and grade are required' }, 400);
+    const item = await findFeeItem(sql, feeItemId);
+    if (!item) return json({ success: false, error: 'Fee item not found' }, 404);
+    const t = feeTermFor(item, term);
+    if (!t) return json({ error: 'Choose the term for ' + item.name }, 400);
     const amt = Number(amount);
     if (isNaN(amt) || amt < 0) return json({ error: 'Amount must be 0 or more' }, 400);
     await sql`
-      INSERT INTO fee_structures (academic_year, term, grade_level, amount, description)
-      VALUES (${academicYear}, ${term}, ${parseInt(gradeLevel)}, ${amt}, ${description || null})
-      ON CONFLICT (academic_year, term, grade_level)
+      INSERT INTO fee_structures (academic_year, term, grade_level, amount, description, fee_item_id)
+      VALUES (${academicYear}, ${t}, ${parseInt(gradeLevel)}, ${amt}, ${description || null}, ${item.id})
+      ON CONFLICT (academic_year, term, grade_level, fee_item_id)
       DO UPDATE SET amount = EXCLUDED.amount, description = EXCLUDED.description
     `;
-    return json({ success: true, message: 'Fee saved' });
+    return json({ success: true, message: 'Fee saved', feeItem: item.name, term: t });
   } catch (err) {
     console.error('save-fee-structure error:', err);
     return json({ success: false, error: 'Server error: ' + err.message }, 500);
@@ -1133,8 +1319,13 @@ async function saveFeeStructure(sql, event) {
 // THAT academic year, snapshotted onto the payment row.
 async function recordPayment(sql, event, auth) {
   try {
-    const { studentId, academicYear, term, amount, method, paidOn, note } = JSON.parse(event.body || '{}');
-    if (!studentId || !academicYear || !term) return json({ error: 'studentId, academicYear and term are required' }, 400);
+    const { studentId, academicYear, feeItemId, amount, method, paidOn, note } = JSON.parse(event.body || '{}');
+    if (!studentId || !academicYear) return json({ error: 'studentId and academicYear are required' }, 400);
+    const item = await findFeeItem(sql, feeItemId);
+    if (!item) return json({ success: false, error: 'Fee item not found' }, 404);
+    if (!item.active) return json({ success: false, error: item.name + ' is switched off in Fee Setup' }, 400);
+    const term = feeTermFor(item, JSON.parse(event.body || '{}').term);
+    if (!term) return json({ error: 'Choose the term for ' + item.name }, 400);
     const amt = Number(amount);
     if (!(amt > 0)) return json({ error: 'Amount must be greater than 0' }, 400);
 
@@ -1160,11 +1351,13 @@ async function recordPayment(sql, event, auth) {
     const rows = await sql`
       INSERT INTO fee_payments (
         student_id, student_name, grade_level, class_name,
-        academic_year, term, amount, method, receipt_no, note, paid_on, recorded_by
+        academic_year, term, amount, method, receipt_no, note, paid_on, recorded_by,
+        fee_item_id, fee_item_name
       ) VALUES (
         ${studentId}, ${stu[0].full_name}, ${enr[0].grade_level}, ${enr[0].class_name},
         ${academicYear}, ${term}, ${amt}, ${method || null}, ${receiptNo}, ${note || null},
-        COALESCE(${paidOn || null}::date, CURRENT_DATE), ${auth.sub}
+        COALESCE(${paidOn || null}::date, CURRENT_DATE), ${auth.sub},
+        ${item.id}, ${item.name}
       )
       RETURNING id, receipt_no
     `;
@@ -1177,11 +1370,12 @@ async function recordPayment(sql, event, auth) {
 
 async function getPayments(sql, event) {
   try {
-    const { studentId, academicYear, term } = event.queryStringParameters || {};
-    const params = [], conditions = [];
+    const { studentId, academicYear, term, feeItemId } = event.queryStringParameters || {};
+    const params = [await defaultFeeItemId(sql)], conditions = [];
     if (studentId) { params.push(studentId); conditions.push(`p.student_id = $${params.length}`); }
     if (academicYear) { params.push(academicYear); conditions.push(`p.academic_year = $${params.length}`); }
-    if (term) { params.push(term); conditions.push(`p.term = $${params.length}`); }
+    if (term && term !== 'All') { params.push(term); conditions.push(`p.term = $${params.length}`); }
+    if (feeItemId) { params.push(parseInt(feeItemId)); conditions.push(`COALESCE(p.fee_item_id, $1) = $${params.length}`); }
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
     const payments = await sql(`
       SELECT p.id, p.student_id,
@@ -1189,9 +1383,12 @@ async function getPayments(sql, event) {
              p.grade_level, p.class_name,
              p.academic_year, p.term, p.amount::float AS amount, p.method,
              p.receipt_no, p.note, to_char(p.paid_on, 'YYYY-MM-DD') AS paid_on,
-             p.recorded_by, p.voided, p.void_reason, p.voided_by
+             p.recorded_by, p.voided, p.void_reason, p.voided_by,
+             COALESCE(p.fee_item_id, $1) AS fee_item_id,
+             COALESCE(p.fee_item_name, i.name, 'Tuition') AS fee_item
       FROM fee_payments p
       LEFT JOIN students s ON s.student_id = p.student_id
+      LEFT JOIN fee_items i ON i.id = COALESCE(p.fee_item_id, $1)
       ${where}
       ORDER BY p.paid_on DESC, p.id DESC
       LIMIT 500
@@ -1230,9 +1427,13 @@ async function voidPayment(sql, event, auth) {
 // Deleted students still show if they paid anything that term.
 async function getFeeSummary(sql, event) {
   try {
-    const { academicYear, term, gradeLevel, className, studentId } = event.queryStringParameters || {};
+    const { academicYear, term, gradeLevel, className, studentId, feeItemId } = event.queryStringParameters || {};
     if (!academicYear || !term) return json({ error: 'academicYear and term are required' }, 400);
-    const params = [academicYear, term];
+    // term: 'Term 1' | 'Term 2' | 'Term 3' | 'Year' (once-a-year fees) | 'All' (whole year)
+    const params = [academicYear, await defaultFeeItemId(sql)];
+    let fCond = '', pCond = '';
+    if (term !== 'All') { params.push(term); fCond += ` AND term = $${params.length}`; pCond += ` AND term = $${params.length}`; }
+    if (feeItemId) { params.push(parseInt(feeItemId)); fCond += ` AND fee_item_id = $${params.length}`; pCond += ` AND COALESCE(fee_item_id, $2) = $${params.length}`; }
     const conditions = ['e.academic_year = $1', '(s.student_id IS NOT NULL OR p.paid IS NOT NULL)'];
     if (studentId) { params.push(studentId); conditions.push(`e.student_id = $${params.length}`); }
     if (gradeLevel) { params.push(parseInt(gradeLevel)); conditions.push(`e.grade_level = $${params.length}`); }
@@ -1246,12 +1447,14 @@ async function getFeeSummary(sql, event) {
              COALESCE(p.paid, 0)::float AS paid
       FROM student_enrollments e
       LEFT JOIN students s ON s.student_id = e.student_id
-      LEFT JOIN fee_structures f
-        ON f.grade_level = e.grade_level AND f.academic_year = e.academic_year AND f.term = $2
       LEFT JOIN (
-        SELECT student_id, SUM(amount) AS paid
-        FROM fee_payments
-        WHERE academic_year = $1 AND term = $2 AND voided = FALSE
+        SELECT grade_level, SUM(amount) AS amount FROM fee_structures
+        WHERE academic_year = $1 ${fCond} AND $2::int IS NOT NULL
+        GROUP BY grade_level
+      ) f ON f.grade_level = e.grade_level
+      LEFT JOIN (
+        SELECT student_id, SUM(amount) AS paid FROM fee_payments
+        WHERE academic_year = $1 AND voided = FALSE ${pCond}
         GROUP BY student_id
       ) p ON p.student_id = e.student_id
       WHERE ${conditions.join(' AND ')}
@@ -1600,7 +1803,90 @@ function serverScoreToGrade(score) {
   if (score >= 40) return 'E8';
   return 'F9';
 }
-function actorName(auth) { return (auth.role === 'teacher' ? 'teacher:' : 'admin:') + auth.sub; }
+function actorName(auth) { return (auth.role === 'teacher' ? 'teacher:' : auth.role === 'owner' ? 'owner:' : 'admin:') + auth.sub; }
+
+const ACTION_INFO = {
+  'admin-login': ['Admin logged in', 'login'], 'student-login': ['Student logged in', 'login'], 'teacher-login': ['Teacher logged in', 'login'], 'owner-login': ['Owner logged in', 'login'],
+  'change-admin-password': ['Changed the admin password', 'settings'], 'add-student': ['Added a student', 'students'],
+  'update-student': ['Edited a student', 'students'], 'archive-student': ['Archived / restored a student', 'students'],
+  'promote-students': ['Promoted students to a new year', 'students'], 'set-repeat': ['Marked a student to repeat', 'students'],
+  'demote-student': ['Moved a student down a grade', 'students'], 'reset-password': ['Reset a student password', 'students'],
+  'admin-upload-photo': ['Changed a student photo', 'students'], 'block-upload': ['Changed photo-upload permission', 'settings'],
+  'add-marks': ['Entered / changed marks', 'results'], 'delete-results': ['Deleted results', 'results'],
+  'save-remarks': ['Saved report remarks', 'results'], 'save-class-scores': ['Saved class scores', 'results'],
+  'record-payment': ['Recorded a payment', 'finance'], 'void-payment': ['VOIDED a payment', 'finance'],
+  'save-fee-structure': ['Set a fee amount', 'finance'], 'save-fee-item': ['Added / edited a fee item', 'finance'],
+  'delete-staff-link': ['Deleted a teacher link', 'teachers'], 'create-staff-link': ['Created a teacher link', 'teachers'],
+  'revoke-staff-link': ['Cancelled a teacher link', 'teachers'], 'save-teacher': ['Created / edited a teacher', 'teachers'],
+  'delete-teacher': ['Deleted a teacher', 'teachers'], 'teacher-assignment': ['Changed a teacher assignment', 'teachers'],
+  'save-attendance': ['Saved an attendance register', 'attendance'], 'save-holiday': ['Declared a public holiday', 'attendance'],
+  'delete-holiday': ['Removed a public holiday', 'attendance'], 'save-term-dates': ['Set term dates', 'attendance'],
+  'save-slide': ['Changed the slideshow', 'website'], 'save-news': ['Changed a news post', 'website'],
+  'news-status': ['Showed / hid a news post', 'website'], 'upload-image': ['Uploaded a picture', 'website'],
+  'admin-view': ['Opened a page', 'view'],
+  'sds-set-admin-password': ['Admin password changed remotely (SDS)', 'settings'],
+};
+function clientIp(event) {
+  const h = event.headers || {};
+  return (h['x-nf-client-connection-ip'] || h['client-ip'] || (h['x-forwarded-for'] || '').split(',')[0] || '').trim() || null;
+}
+function shortDevice(event) {
+  const ua = (event.headers || {})['user-agent'] || '';
+  const os = /Windows/.test(ua) ? 'Windows' : /iPhone|iPad|iOS/.test(ua) ? 'iPhone/iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Linux/.test(ua) ? 'Linux' : '';
+  const br = /Edg\//.test(ua) ? 'Edge' : /OPR\/|Opera/.test(ua) ? 'Opera' : /Chrome/.test(ua) ? 'Chrome' : /Safari/.test(ua) ? 'Safari' : /Firefox/.test(ua) ? 'Firefox' : '';
+  return [br, os].filter(Boolean).join(' / ') || (ua ? ua.slice(0, 40) : null);
+}
+// Turn an IP into "City, Region, Country · Network". Cached; failures are ignored.
+const IP_CACHE = new Map();
+const PRIVATE_IP = /^(10\.|127\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1|fc|fd)/i;
+async function ipLocation(ip) {
+  if (!ip || PRIVATE_IP.test(ip)) return null;
+  if (IP_CACHE.has(ip)) return IP_CACHE.get(ip);
+  let loc = null;
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 2500);
+    const res = await fetch('https://ipwho.is/' + encodeURIComponent(ip) + '?fields=success,city,region,country,connection', { signal: ctrl.signal });
+    clearTimeout(timer);
+    const d = await res.json();
+    if (d && d.success) {
+      const place = [d.city, d.region, d.country].filter(Boolean).join(', ');
+      const net = d.connection && (d.connection.isp || d.connection.org);
+      loc = [place, net].filter(Boolean).join(' · ') || null;
+    }
+  } catch (e) { loc = null; }
+  if (IP_CACHE.size > 500) IP_CACHE.clear();
+  IP_CACHE.set(ip, loc);
+  return loc;
+}
+async function logActivity(sql, event, o) {
+  try {
+    const info = ACTION_INFO[o.action] || [o.action, 'other'];
+    const ip = clientIp(event);
+    // Location lookup only for logins and data changes, to stay well under the free quota.
+    const loc = (info[1] === 'login' || (o.role !== 'student' && info[1] !== 'view')) ? await ipLocation(ip) : null;
+    await sql`INSERT INTO activity_log (actor_role, actor_name, action, category, detail, target, method, route, ok, ip, device, location)
+      VALUES (${o.role || null}, ${o.name || null}, ${info[0]}, ${info[1]}, ${o.detail || null}, ${o.target || null},
+              ${event.httpMethod || null}, ${o.action}, ${o.ok !== false}, ${ip}, ${shortDevice(event)}, ${loc || null})`;
+  } catch (err) { console.error('activity-log write failed:', err.message); }
+}
+function logDetailFor(route, event) {
+  let b = {}; try { b = JSON.parse(event.body || '{}'); } catch (e) {}
+  switch (route) {
+    case 'add-student': case 'update-student': case 'reset-password': case 'archive-student':
+    case 'set-repeat': case 'demote-student': case 'admin-upload-photo': return b.studentId ? 'Student ' + b.studentId : null;
+    case 'add-marks': return b.studentId ? b.studentId + ' / ' + (b.subject || '') + ' = ' + (b.score != null ? b.score : '') : null;
+    case 'delete-results': return b.studentId ? 'Student ' + b.studentId : null;
+    case 'record-payment': return b.studentId ? b.studentId + ' / ' + (b.amount != null ? 'D' + b.amount : '') : null;
+    case 'void-payment': return b.reason ? 'Reason: ' + b.reason : (b.id ? 'Payment #' + b.id : null);
+    case 'save-fee-structure': return 'Grade ' + (b.gradeLevel || '') + ' / ' + (b.term || '');
+    case 'save-holiday': return b.name ? b.name + (b.from ? ' (' + b.from + (b.to ? ' to ' + b.to : '') + ')' : '') : null;
+    case 'create-staff-link': case 'save-teacher': case 'delete-teacher': return b.teacherId ? 'Teacher #' + b.teacherId : (b.id ? 'Teacher #' + b.id : (b.username || null));
+    case 'save-attendance': return 'Grade ' + (b.gradeLevel || '') + ' / ' + (b.className || '') + ' / ' + (b.date || '');
+    case 'admin-view': return b.label || b.tab || null;
+    default: return null;
+  }
+}
 
 // Admin can access any class. A teacher only classes (and subjects) assigned
 // to them for that academic year, and only while their account is active.
@@ -1799,7 +2085,8 @@ async function getAttendance(sql, event, auth) {
         AND s.status <> 'archived'
       ORDER BY full_name
     `;
-    return json({ success: true, date, today: todayISO(), students });
+    const hol = await sql`SELECT name FROM school_holidays WHERE holiday_date = ${date}::date`;
+    return json({ success: true, date, today: todayISO(), students, holiday: hol.length ? hol[0].name : null });
   } catch (err) {
     console.error('get-attendance error:', err);
     return json({ success: false, error: 'Server error: ' + err.message }, 500);
@@ -1820,6 +2107,8 @@ async function saveAttendance(sql, event, auth) {
     if (!(await staffCanAccessClass(sql, auth, academicYear, gradeLevel, className))) {
       return json({ success: false, error: 'You are not assigned to this class.' }, 403);
     }
+    const hol = await sql`SELECT name FROM school_holidays WHERE holiday_date = ${date}::date`;
+    if (hol.length) return json({ success: false, holiday: hol[0].name, error: `${date} is a public holiday (${hol[0].name}). No register is needed.` }, 400);
     const students = await loadClassStudents(sql, academicYear, gradeLevel, className);
     const classOf = {};
     students.forEach(s => { classOf[s.student_id] = s.class_name; });
@@ -1830,6 +2119,14 @@ async function saveAttendance(sql, event, auth) {
       ids.push(r.studentId); statuses.push(r.status); classes.push(classOf[r.studentId]);
     }
     if (!ids.length) return json({ success: false, error: 'Mark at least one student' }, 400);
+    // Corrections: keep the previous mark in attendance_history before it is replaced.
+    await sql`
+      INSERT INTO attendance_history (student_id, attendance_date, old_status, new_status, old_marked_by, changed_by)
+      SELECT a.student_id, a.attendance_date, a.status, n.status, a.marked_by, ${actorName(auth)}
+      FROM attendance a
+      JOIN unnest(${ids}::text[], ${statuses}::text[]) AS n(student_id, status) ON n.student_id = a.student_id
+      WHERE a.attendance_date = ${date}::date AND a.status <> n.status
+    `;
     await sql`
       INSERT INTO attendance (student_id, attendance_date, academic_year, grade_level, class_name, status, marked_by, marked_at)
       SELECT n.student_id, ${date}::date, ${academicYear}, ${parseInt(gradeLevel)}, n.class_name, n.status, ${actorName(auth)}, NOW()
@@ -1869,6 +2166,7 @@ async function attendanceReport(sql, event, auth) {
         AND a.academic_year = e.academic_year
         AND (${fromD}::date IS NULL OR a.attendance_date >= ${fromD}::date)
         AND (${toD}::date IS NULL OR a.attendance_date <= ${toD}::date)
+        AND NOT EXISTS (SELECT 1 FROM school_holidays h WHERE h.holiday_date = a.attendance_date)
       WHERE e.academic_year = ${academicYear}
         AND e.grade_level = ${parseInt(gradeLevel)}
         AND UPPER(e.class_name) = ${normClass(className)}
@@ -1878,6 +2176,217 @@ async function attendanceReport(sql, event, auth) {
     return json({ success: true, rows });
   } catch (err) {
     console.error('attendance-report error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// ===========================================================================
+// PUBLIC HOLIDAYS + STUDENT / WHOLE-SCHOOL ATTENDANCE
+// ===========================================================================
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+// get-holidays (GET ?from&to) — staff (teachers see them too)
+async function getHolidays(sql, event) {
+  try {
+    const { from, to } = event.queryStringParameters || {};
+    const f = from && ISO_DATE.test(from) ? from : null, t = to && ISO_DATE.test(to) ? to : null;
+    const holidays = await sql`
+      SELECT to_char(holiday_date, 'YYYY-MM-DD') AS date, to_char(holiday_date, 'Dy DD Mon YYYY') AS label, name, created_by
+      FROM school_holidays
+      WHERE (${f}::date IS NULL OR holiday_date >= ${f}::date) AND (${t}::date IS NULL OR holiday_date <= ${t}::date)
+      ORDER BY holiday_date`;
+    return json({ success: true, holidays });
+  } catch (err) {
+    console.error('get-holidays error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// save-holiday (POST { from, to?, name }) — admin. A range declares every day in it.
+async function saveHoliday(sql, event, auth) {
+  try {
+    const { from, to, name } = JSON.parse(event.body || '{}');
+    const nm = String(name || '').trim();
+    if (!from || !ISO_DATE.test(from) || (to && !ISO_DATE.test(to))) return json({ error: 'Choose the holiday date' }, 400);
+    if (!nm) return json({ error: 'Give the holiday a name (e.g. Independence Day)' }, 400);
+    const end = to || from;
+    const days = Math.round((new Date(end + 'T00:00:00Z') - new Date(from + 'T00:00:00Z')) / 86400000) + 1;
+    if (days < 1) return json({ error: 'The end date must be on or after the start date' }, 400);
+    if (days > 60) return json({ error: 'A holiday period can be at most 60 days' }, 400);
+    const rows = await sql`
+      INSERT INTO school_holidays (holiday_date, name, created_by)
+      SELECT d::date, ${nm}, ${auth.sub} FROM generate_series(${from}::date, ${end}::date, interval '1 day') AS d
+      ON CONFLICT (holiday_date) DO UPDATE SET name = EXCLUDED.name
+      RETURNING holiday_date`;
+    const marked = await sql`SELECT COUNT(*)::int AS n FROM attendance WHERE attendance_date BETWEEN ${from}::date AND ${end}::date`;
+    return json({ success: true, days: rows.length,
+      message: `${nm}: ${rows.length} day(s) declared a public holiday.` + (marked[0].n ? ` ${marked[0].n} register mark(s) already on those days are kept but no longer counted.` : '') });
+  } catch (err) {
+    console.error('save-holiday error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// delete-holiday (POST { date }) — admin. The day becomes a normal school day again.
+async function deleteHoliday(sql, event) {
+  try {
+    const { date } = JSON.parse(event.body || '{}');
+    if (!date || !ISO_DATE.test(date)) return json({ error: 'date is required' }, 400);
+    const rows = await sql`DELETE FROM school_holidays WHERE holiday_date = ${date}::date RETURNING name`;
+    if (!rows.length) return json({ success: false, error: 'Holiday not found' }, 404);
+    return json({ success: true, message: `${date} is a school day again.` });
+  } catch (err) {
+    console.error('delete-holiday error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// student-attendance (GET ?studentId&academicYear[&from&to]) — admin
+async function studentAttendance(sql, event) {
+  try {
+    const { studentId, academicYear, from, to } = event.queryStringParameters || {};
+    if (!studentId || !academicYear) return json({ error: 'studentId and academicYear are required' }, 400);
+    const f = from && ISO_DATE.test(from) ? from : null, t = to && ISO_DATE.test(to) ? to : null;
+    const stu = await sql`
+      SELECT s.student_id, s.full_name, e.grade_level, e.class_name
+      FROM students s LEFT JOIN student_enrollments e ON e.student_id = s.student_id AND e.academic_year = ${academicYear}
+      WHERE LOWER(s.student_id) = LOWER(${studentId})`;
+    if (!stu.length) return json({ success: false, error: 'Student not found' }, 404);
+    const id = stu[0].student_id;
+    const records = await sql`
+      SELECT to_char(a.attendance_date, 'YYYY-MM-DD') AS date, to_char(a.attendance_date, 'Dy DD Mon YYYY') AS label,
+             to_char(a.attendance_date, 'YYYY-MM') AS month, a.status, a.marked_by
+      FROM attendance a
+      WHERE a.student_id = ${id} AND a.academic_year = ${academicYear}
+        AND (${f}::date IS NULL OR a.attendance_date >= ${f}::date) AND (${t}::date IS NULL OR a.attendance_date <= ${t}::date)
+        AND NOT EXISTS (SELECT 1 FROM school_holidays h WHERE h.holiday_date = a.attendance_date)
+      ORDER BY a.attendance_date DESC`;
+    const holidays = await sql`
+      SELECT to_char(holiday_date, 'YYYY-MM-DD') AS date, name FROM school_holidays
+      WHERE (${f}::date IS NULL OR holiday_date >= ${f}::date) AND (${t}::date IS NULL OR holiday_date <= ${t}::date)`;
+    return json({ success: true, student: stu[0], records, holidays });
+  } catch (err) {
+    console.error('student-attendance error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// school-attendance (GET ?academicYear[&from&to]) — admin. Every class in one table + today's registers.
+async function schoolAttendance(sql, event) {
+  try {
+    const { academicYear, from, to } = event.queryStringParameters || {};
+    if (!academicYear) return json({ error: 'academicYear is required' }, 400);
+    const f = from && ISO_DATE.test(from) ? from : null, t = to && ISO_DATE.test(to) ? to : null;
+    const today = todayISO();
+    const classes = await sql`
+      WITH cls AS (
+        SELECT e.grade_level, UPPER(e.class_name) AS class_key, MIN(e.class_name) AS class_name, COUNT(*)::int AS students
+        FROM student_enrollments e JOIN students s ON s.student_id = e.student_id
+        WHERE e.academic_year = ${academicYear} AND s.status <> 'archived' AND e.class_name IS NOT NULL
+        GROUP BY e.grade_level, UPPER(e.class_name)
+      ),
+      att AS (
+        SELECT a.grade_level, UPPER(a.class_name) AS class_key,
+               COUNT(DISTINCT a.attendance_date)::int AS days_marked,
+               COUNT(*) FILTER (WHERE a.status = 'present')::int AS present,
+               COUNT(*) FILTER (WHERE a.status = 'absent')::int  AS absent,
+               COUNT(*) FILTER (WHERE a.status = 'late')::int    AS late,
+               COUNT(*) FILTER (WHERE a.status = 'excused')::int AS excused,
+               COUNT(*)::int AS marks
+        FROM attendance a
+        WHERE a.academic_year = ${academicYear}
+          AND (${f}::date IS NULL OR a.attendance_date >= ${f}::date) AND (${t}::date IS NULL OR a.attendance_date <= ${t}::date)
+          AND NOT EXISTS (SELECT 1 FROM school_holidays h WHERE h.holiday_date = a.attendance_date)
+        GROUP BY a.grade_level, UPPER(a.class_name)
+      ),
+      tod AS (
+        SELECT a.grade_level, UPPER(a.class_name) AS class_key,
+               COUNT(*) FILTER (WHERE a.status <> 'absent')::int AS here, COUNT(*) FILTER (WHERE a.status = 'absent')::int AS away
+        FROM attendance a WHERE a.academic_year = ${academicYear} AND a.attendance_date = ${today}::date
+        GROUP BY a.grade_level, UPPER(a.class_name)
+      )
+      SELECT c.grade_level, c.class_name, c.students,
+             COALESCE(att.days_marked, 0) AS days_marked, COALESCE(att.present, 0) AS present, COALESCE(att.absent, 0) AS absent,
+             COALESCE(att.late, 0) AS late, COALESCE(att.excused, 0) AS excused, COALESCE(att.marks, 0) AS marks,
+             (tod.class_key IS NOT NULL) AS marked_today, COALESCE(tod.here, 0) AS today_present, COALESCE(tod.away, 0) AS today_absent
+      FROM cls c
+      LEFT JOIN att ON att.grade_level = c.grade_level AND att.class_key = c.class_key
+      LEFT JOIN tod ON tod.grade_level = c.grade_level AND tod.class_key = c.class_key
+      ORDER BY c.grade_level, c.class_name`;
+    const hol = await sql`SELECT name FROM school_holidays WHERE holiday_date = ${today}::date`;
+    return json({ success: true, today, todayHoliday: hol.length ? hol[0].name : null, classes });
+  } catch (err) {
+    console.error('school-attendance error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// get-term-dates (GET ?academicYear) — staff
+async function getTermDates(sql, event) {
+  try {
+    const { academicYear } = event.queryStringParameters || {};
+    if (!academicYear) return json({ error: 'academicYear is required' }, 400);
+    const terms = await sql`
+      SELECT term, to_char(start_date, 'YYYY-MM-DD') AS start, to_char(end_date, 'YYYY-MM-DD') AS "end"
+      FROM term_dates WHERE academic_year = ${academicYear} ORDER BY term`;
+    return json({ success: true, terms });
+  } catch (err) {
+    console.error('get-term-dates error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// save-term-dates (POST { academicYear, terms: [{ term, start, end }] }) — admin
+async function saveTermDates(sql, event) {
+  try {
+    const { academicYear, terms } = JSON.parse(event.body || '{}');
+    if (!/^\d{4}-\d{4}$/.test(academicYear || '') || !Array.isArray(terms)) return json({ error: 'Academic year (e.g. 2026-2027) and terms are required' }, 400);
+    const ok = terms.filter(t => t && ['Term 1', 'Term 2', 'Term 3'].includes(t.term) && ISO_DATE.test(t.start || '') && ISO_DATE.test(t.end || ''));
+    if (!ok.length) return json({ error: 'Enter the start and end date of at least one term' }, 400);
+    for (const t of ok) if (t.end < t.start) return json({ error: `${t.term}: the end date is before the start date` }, 400);
+    const sorted = ok.slice().sort((a, b) => a.start.localeCompare(b.start));
+    for (let i = 1; i < sorted.length; i++) if (sorted[i].start <= sorted[i - 1].end) return json({ error: `${sorted[i - 1].term} and ${sorted[i].term} overlap` }, 400);
+    for (const t of ok) {
+      await sql`
+        INSERT INTO term_dates (academic_year, term, start_date, end_date) VALUES (${academicYear}, ${t.term}, ${t.start}::date, ${t.end}::date)
+        ON CONFLICT (academic_year, term) DO UPDATE SET start_date = EXCLUDED.start_date, end_date = EXCLUDED.end_date`;
+    }
+    return json({ success: true, message: `Term dates saved for ${academicYear}` });
+  } catch (err) {
+    console.error('save-term-dates error:', err);
+    return json({ success: false, error: 'Server error: ' + err.message }, 500);
+  }
+}
+
+// attendance-book (GET ?academicYear&gradeLevel&className&from&to) — admin.
+// Like the paper register: every student x every school day in the period (max ~4 months).
+async function attendanceBook(sql, event) {
+  try {
+    const { academicYear, gradeLevel, className, from, to } = event.queryStringParameters || {};
+    if (!academicYear || !gradeLevel || !className || !ISO_DATE.test(from || '') || !ISO_DATE.test(to || '')) {
+      return json({ error: 'Year, grade, class and the period are required' }, 400);
+    }
+    const days = Math.round((new Date(to + 'T00:00:00Z') - new Date(from + 'T00:00:00Z')) / 86400000) + 1;
+    if (days < 1 || days > 130) return json({ error: 'Choose a period of up to about 4 months (one term)' }, 400);
+    const students = await sql`
+      SELECT e.student_id, COALESCE(s.full_name, e.full_name) AS full_name, COALESCE(s.status, 'deleted') AS status
+      FROM student_enrollments e LEFT JOIN students s ON s.student_id = e.student_id
+      WHERE e.academic_year = ${academicYear} AND e.grade_level = ${parseInt(gradeLevel)} AND UPPER(e.class_name) = ${normClass(className)}
+      ORDER BY full_name`;
+    const marks = await sql`
+      SELECT a.student_id, to_char(a.attendance_date, 'YYYY-MM-DD') AS date, a.status
+      FROM attendance a
+      WHERE a.academic_year = ${academicYear} AND a.attendance_date BETWEEN ${from}::date AND ${to}::date
+        AND a.student_id IN (SELECT e.student_id FROM student_enrollments e WHERE e.academic_year = ${academicYear} AND e.grade_level = ${parseInt(gradeLevel)} AND UPPER(e.class_name) = ${normClass(className)})`;
+    const holidays = await sql`
+      SELECT to_char(holiday_date, 'YYYY-MM-DD') AS date, name FROM school_holidays WHERE holiday_date BETWEEN ${from}::date AND ${to}::date`;
+    const changes = await sql`
+      SELECT COUNT(*)::int AS n FROM attendance_history h
+      WHERE h.attendance_date BETWEEN ${from}::date AND ${to}::date
+        AND h.student_id IN (SELECT e.student_id FROM student_enrollments e WHERE e.academic_year = ${academicYear} AND e.grade_level = ${parseInt(gradeLevel)} AND UPPER(e.class_name) = ${normClass(className)})`;
+    return json({ success: true, from, to, students, marks, holidays, corrections: changes[0].n });
+  } catch (err) {
+    console.error('attendance-book error:', err);
     return json({ success: false, error: 'Server error: ' + err.message }, 500);
   }
 }
@@ -2305,6 +2814,61 @@ async function migrate(sql) {
       )
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_attendance_class ON attendance(academic_year, grade_level, class_name, attendance_date)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_attendance_student ON attendance(student_id, academic_year)`;
+
+    // ---- Activity log (security): who did what, when. Stored forever, owner-only. ----
+    await sql`
+      CREATE TABLE IF NOT EXISTS activity_log (
+        id          BIGSERIAL PRIMARY KEY,
+        at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        actor_role  TEXT, actor_name TEXT, action TEXT NOT NULL, category TEXT,
+        detail TEXT, target TEXT, method TEXT, route TEXT, ok BOOLEAN, ip TEXT, device TEXT
+      )
+    `;
+    await sql`ALTER TABLE activity_log ADD COLUMN IF NOT EXISTS location TEXT`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_activity_at ON activity_log(at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_activity_actor ON activity_log(actor_name, at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_activity_cat ON activity_log(category, at DESC)`;
+    await sql`
+      CREATE TABLE IF NOT EXISTS owners (
+        id SERIAL PRIMARY KEY, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+
+    // ---- Attendance history: a corrected mark keeps its old value here (nothing is ever lost) ----
+    await sql`
+      CREATE TABLE IF NOT EXISTS attendance_history (
+        id              SERIAL PRIMARY KEY,
+        student_id      TEXT NOT NULL,
+        attendance_date DATE NOT NULL,
+        old_status      TEXT,
+        new_status      TEXT,
+        old_marked_by   TEXT,
+        changed_by      TEXT,
+        changed_at      TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    // ---- Term dates (per academic year) — used for "Term 1 / 2 / 3" filters ----
+    await sql`
+      CREATE TABLE IF NOT EXISTS term_dates (
+        academic_year TEXT NOT NULL,
+        term          TEXT NOT NULL,
+        start_date    DATE NOT NULL,
+        end_date      DATE NOT NULL,
+        PRIMARY KEY (academic_year, term)
+      )
+    `;
+
+    // ---- Public holidays: no register on these days, never counted in attendance ----
+    await sql`
+      CREATE TABLE IF NOT EXISTS school_holidays (
+        id           SERIAL PRIMARY KEY,
+        holiday_date DATE UNIQUE NOT NULL,
+        name         TEXT NOT NULL,
+        created_by   TEXT,
+        created_at   TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
 
     // ---- Teacher access links (only a hash of each key is stored) ----
     await sql`
@@ -2400,6 +2964,7 @@ async function migrate(sql) {
     // If fee_payments was created by the earlier version (with ON DELETE CASCADE), remove that link.
     await sql`ALTER TABLE fee_payments DROP CONSTRAINT IF EXISTS fee_payments_student_id_fkey`;
     await sql`
+
       ALTER TABLE fee_payments
         ADD COLUMN IF NOT EXISTS student_name TEXT,
         ADD COLUMN IF NOT EXISTS grade_level  INTEGER,
@@ -2410,6 +2975,35 @@ async function migrate(sql) {
         ADD COLUMN IF NOT EXISTS voided_at    TIMESTAMPTZ,
         ADD COLUMN IF NOT EXISTS voided_by    TEXT
     `;
+
+    // ---- Fee items (Tuition, Registration, School Development, ...) ----
+    // Each item is paid either every term or once a year (admin chooses).
+    await sql`
+      CREATE TABLE IF NOT EXISTS fee_items (
+        id          SERIAL PRIMARY KEY,
+        name        TEXT UNIQUE NOT NULL,
+        frequency   TEXT NOT NULL DEFAULT 'term' CHECK (frequency IN ('term', 'year')),
+        active      BOOLEAN NOT NULL DEFAULT TRUE,
+        is_default  BOOLEAN NOT NULL DEFAULT FALSE,
+        sort_order  INTEGER NOT NULL DEFAULT 0,
+        created_at  TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    // First time only: create the school's three items. Tuition is the default item,
+    // so fee amounts and payments recorded before fee items existed count as Tuition.
+    await sql`
+      INSERT INTO fee_items (name, frequency, is_default, sort_order)
+      SELECT v.name, v.frequency, v.is_default, v.sort_order
+      FROM (VALUES ('Tuition', 'term', TRUE, 1), ('Registration', 'year', FALSE, 2), ('School Development', 'year', FALSE, 3))
+           AS v(name, frequency, is_default, sort_order)
+      WHERE NOT EXISTS (SELECT 1 FROM fee_items)
+    `;
+    await sql`ALTER TABLE fee_structures ADD COLUMN IF NOT EXISTS fee_item_id INTEGER`;
+    await sql`UPDATE fee_structures SET fee_item_id = (SELECT id FROM fee_items WHERE is_default ORDER BY id LIMIT 1) WHERE fee_item_id IS NULL`;
+    await sql`ALTER TABLE fee_structures DROP CONSTRAINT IF EXISTS fee_structures_academic_year_term_grade_level_key`;
+    await sql`CREATE UNIQUE INDEX IF NOT EXISTS uq_fee_structures_item ON fee_structures (academic_year, term, grade_level, fee_item_id)`;
+    // Payments keep their original rows untouched; older payments (no item) are read as the default item.
+    await sql`ALTER TABLE fee_payments ADD COLUMN IF NOT EXISTS fee_item_id INTEGER, ADD COLUMN IF NOT EXISTS fee_item_name TEXT`;
     await sql`
       UPDATE fee_payments p SET student_name = s.full_name
       FROM students s
@@ -2440,9 +3034,16 @@ async function ensureSchema(sql) {
       AND to_regclass('public.slides') IS NOT NULL
       AND to_regclass('public.news_history') IS NOT NULL
       AND to_regclass('public.staff_links') IS NOT NULL
+      AND to_regclass('public.fee_items') IS NOT NULL
+      AND to_regclass('public.school_holidays') IS NOT NULL
+      AND to_regclass('public.attendance_history') IS NOT NULL
+      AND to_regclass('public.term_dates') IS NOT NULL
+      AND to_regclass('public.activity_log') IS NOT NULL
+      AND to_regclass('public.owners') IS NOT NULL
       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'students' AND column_name = 'repeat_next')
       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'results' AND column_name = 'entered_by')
       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'fee_payments' AND column_name = 'voided')
+      AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'activity_log' AND column_name = 'location')
       AS ok
   `;
   if (!r[0].ok) {
@@ -2497,6 +3098,13 @@ async function initDb(sql, event) {
 // ---------------------------------------------------------------------------
 const ROUTES = {
   'admin-login':           { auth: 'public', POST: adminLogin },
+  'owner-login':           { auth: 'public', POST: ownerLogin },
+  'owner-setup':           { auth: 'public', GET: ownerSetup },
+  'activity-log':          { auth: 'owner',  GET: getActivityLog },
+  'activity-summary':      { auth: 'owner',  GET: getActivitySummary },
+  'admin-view':            { auth: 'admin',  POST: adminView },
+  'sds-feed':              { auth: 'public', GET: sdsFeed },
+  'sds-admin':             { auth: 'public', POST: sdsAdmin },
   'student-login':         { auth: 'public', POST: studentLogin },
   'init-db':               { auth: 'public', GET: initDb },
 
@@ -2536,6 +3144,14 @@ const ROUTES = {
   'get-attendance':        { auth: 'staff', GET: getAttendance },
   'save-attendance':       { auth: 'staff', POST: saveAttendance },
   'attendance-report':     { auth: 'staff', GET: attendanceReport },
+  'get-holidays':          { auth: 'staff', GET: getHolidays },
+  'save-holiday':          { auth: 'admin', POST: saveHoliday },
+  'delete-holiday':        { auth: 'admin', POST: deleteHoliday },
+  'student-attendance':    { auth: 'admin', GET: studentAttendance },
+  'school-attendance':     { auth: 'admin', GET: schoolAttendance },
+  'attendance-book':       { auth: 'admin', GET: attendanceBook },
+  'get-term-dates':        { auth: 'staff', GET: getTermDates },
+  'save-term-dates':       { auth: 'admin', POST: saveTermDates },
   'get-teachers':          { auth: 'admin', GET: getTeachers },
   'save-teacher':          { auth: 'admin', POST: saveTeacher },
   'teacher-assignment':    { auth: 'admin', POST: teacherAssignment },
@@ -2550,6 +3166,8 @@ const ROUTES = {
   'save-remarks':          { auth: 'admin', POST: saveRemarks },
   'get-student-photo':     { auth: 'admin', GET: getStudentPhoto },
   'admin-upload-photo':    { auth: 'admin', POST: adminUploadPhoto },
+  'get-fee-items':         { auth: 'admin', GET: getFeeItems },
+  'save-fee-item':         { auth: 'admin', POST: saveFeeItem },
   'get-fee-structures':    { auth: 'admin', GET: getFeeStructures },
   'save-fee-structure':    { auth: 'admin', POST: saveFeeStructure },
   'record-payment':        { auth: 'admin', POST: recordPayment },
@@ -2585,6 +3203,9 @@ export async function handler(event) {
     if (entry.auth === 'admin' && auth.role !== 'admin') {
       return json({ success: false, error: 'Admins only' }, 403);
     }
+    if (entry.auth === 'owner' && auth.role !== 'owner') {
+      return json({ success: false, error: 'Owner only' }, 403);
+    }
     if (entry.auth === 'staff' && auth.role !== 'admin' && auth.role !== 'teacher') {
       return json({ success: false, error: 'Staff only' }, 403);
     }
@@ -2611,5 +3232,20 @@ export async function handler(event) {
     }
   }
 
-  return fn(sql, event, auth);
+  const result = await fn(sql, event, auth);
+
+  // ---- Activity log: logins, failed logins, and every change an admin/teacher makes ----
+  try {
+    let ok = true; try { ok = JSON.parse((result && result.body) || '{}').success !== false; } catch (e) {}
+    if (route === 'admin-login' || route === 'owner-login' || route === 'teacher-login' || route === 'student-login') {
+      let who = {}; try { who = JSON.parse(event.body || '{}'); } catch (e) {}
+      const name = (route === 'student-login' ? 'student:' : route === 'teacher-login' ? 'teacher:' : route === 'owner-login' ? 'owner:' : 'admin:') + (who.adminId || who.username || who.studentId || '?');
+      await logActivity(sql, event, { role: route.split('-')[0], name, action: route, ok, detail: ok ? null : 'Failed login attempt' });
+    } else if (auth && (auth.role === 'admin' || auth.role === 'teacher') && event.httpMethod !== 'GET' && ACTION_INFO[route]) {
+      let tgt = null; try { const b = JSON.parse(event.body || '{}'); tgt = b.studentId || b.id || null; } catch (e) {}
+      await logActivity(sql, event, { role: auth.role, name: actorName(auth), action: route, ok, detail: logDetailFor(route, event), target: tgt });
+    }
+  } catch (err) { console.error('activity-log hook failed:', err.message); }
+
+  return result;
 }

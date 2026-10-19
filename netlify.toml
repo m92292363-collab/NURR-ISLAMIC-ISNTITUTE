@@ -40,6 +40,19 @@
   status = 200
   force = true
 
+# Security console (owner only)
+[[redirects]]
+  from = "/owner-isp1jlo4gt/"
+  to = "/.netlify/functions/page-owner"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/owner-isp1jlo4gt/index.html"
+  to = "/.netlify/functions/page-owner"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
