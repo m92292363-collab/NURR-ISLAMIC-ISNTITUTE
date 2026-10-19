@@ -1,0 +1,20 @@
+# =====================================================================
+#  Nurr Islamic Institute — Netlify configuration
+#  Saho Digital Services
+# =====================================================================
+[build]
+  publish   = "."
+  functions = "netlify/functions"
+
+# Browser calls /api/get-all-students  ->  the api function
+[[redirects]]
+  from   = "/api/*"
+  to     = "/.netlify/functions/api/:splat"
+  status = 200
+  force  = true
+
+# Keep the admin panel out of search engines
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>معهد النور الإسلامي بكانفينج الجنوبي · التميز في التعليم العربي والإسلامي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="color-scheme" content="light only">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="shortcut icon" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    <meta name="theme-color" content="#2f6f9e">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Nurr Islamic Institute">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root {
+            color-scheme: light only;
+            /* ---- SKY BLUE + SLATE GREY PALETTE ---- */
+            --primary-dark: #234152; --primary-teal: #2f6f9e; --primary-accent: #5BA7D6;
+            --accent-secondary: #8FC4E6; --accent-bright: #7FB8E0; --accent-glow: rgba(91,167,214,0.5);
+            --text-dark: #222a33; --text-soft: #3a4450; --text-light: #6b7580;
+            --bg-soft: #f6f8fa; --bg-teal-soft: #e3edf4; --islamic-green: #2f6f9e; /* "brand" = sky deep */
+            --search-border: #dde3e9; --tab-bg: #2f6f9e; --tab-hover: #3d82b3;
+            --tab-active: #ffffff; --tab-border: #cdd6df;
+            --nusrat-accent: #5BA7D6;
+            --footer-bg: #2b3a47; --footer-text: #f0f3f6; --footer-text-light: #d6deE6;
+            --footer-heading: #5BA7D6; --facebook-color: #1877f2; --instagram-color: #e4405f;
+            --youtube-color: #ff0000;
+            --search-results-bg: white; --search-results-shadow: 0 10px 25px rgba(35,65,82,0.12);
+            --search-result-hover: #f2f6fa; --search-result-border: #eaeff4;
+            --highlight-color: rgba(91,167,214,0.3);
+            --grey-soft: #8a96a3; --grey-line: #dce3ea;
+        }
+        html { font-size: 16px; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-behavior: smooth; }
+        body { background-color: var(--bg-soft); color: var(--text-dark); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Arabic', Arial, sans-serif; line-height: 1.5; overflow-x: hidden; width: 100%; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 1rem; width: 100%; }
+        button, a { touch-action: manipulation; cursor: pointer; }
+
+        /* NAVBAR */
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 0.4rem 0; width: 100%; border-bottom: 1px solid rgba(47,111,158,0.12); margin-bottom: 0.5rem; flex-wrap: wrap; }
+        .nav-left { display: flex; align-items: center; }
+        .lang-switch { display: flex; align-items: center; gap: 0.2rem; background: var(--bg-teal-soft); padding: 0.15rem; border-radius: 30px; transform: scale(0.9); }
+        .lang-switch button { background: transparent; border: none; padding: 0.3rem 0.8rem; border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--text-dark); transition: all 0.2s; }
+        .lang-switch button.active { background: var(--islamic-green) !important; color: white !important; }
+        .nav-right { display: flex; align-items: center; gap: 0.2rem; }
+        .school-logo { width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .school-logo .logo-circle { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-accent), var(--primary-teal)); display: grid; place-items: center; color: white; font-family: 'Amiri','Noto Naskh Arabic',serif; font-size: 2.1rem; font-weight: 700; box-shadow: 0 6px 18px rgba(47,111,158,0.3); }
+        .school-logo .logo-img { width: 200px; height: 200px; object-fit: contain; background: transparent; display: block; }
+        .school-logo.logo-row { width: auto; gap: 0.4rem; }
+        .school-logo.logo-row .logo-img { width: 130px; height: 130px; }
+        .school-logo .logo-img.logo-side { width: 105px; height: 105px; }
+        .institute-name { font-size: 1.35rem; font-weight: 800; color: var(--islamic-green); letter-spacing: 0.5px; white-space: nowrap; text-shadow: 1px 1px 3px rgba(0,0,0,0.04); line-height: 1.15; display: flex; flex-direction: column; }
+        .institute-name .title-line1 { font-size: inherit; font-weight: inherit; color: inherit; }
+        .institute-name .title-line2 { font-size: 0.82em; font-weight: 700; color: var(--primary-teal); letter-spacing: 2px; }
+
+        /* SEARCH */
+        .search-section { margin: 0.2rem 0 0.8rem; width: 100%; display: flex; justify-content: center; align-items: center; position: relative; z-index: 1000; }
+        .search-container { width: 75%; max-width: 300px; margin: 0 auto; position: relative; }
+        .search-wrapper { position: relative; display: flex; align-items: center; background: white; border-radius: 30px; border: 1px solid var(--search-border); transition: all 0.2s; height: 36px; box-shadow: 0 1px 4px rgba(35,65,82,0.04); }
+        .search-wrapper:focus-within { border-color: var(--primary-accent); box-shadow: 0 0 0 3px rgba(91,167,214,0.15); }
+        .search-icon { position: absolute; left: 12px; color: var(--grey-soft); font-size: 0.85rem; pointer-events: none; z-index: 1; }
+        .search-wrapper:focus-within .search-icon { color: var(--primary-accent); }
+        .search-input { width: 100%; height: 100%; padding: 0 35px 0 35px; border: none; border-radius: 30px; font-size: 16px; background: transparent; outline: none; color: var(--text-dark); text-align: right; appearance: none; }
+        .search-input::placeholder { color: var(--grey-soft); font-weight: 400; font-size: 14px; }
+        .search-results { position: absolute; top: calc(100% + 5px); left: 0; right: 0; background: white; border-radius: 15px; box-shadow: var(--search-results-shadow); max-height: 400px; overflow-y: auto; display: none; z-index: 1001; border: 1px solid var(--search-result-border); direction: rtl; }
+        .search-results.active { display: block; }
+        .search-result-item { padding: 12px 15px; border-bottom: 1px solid var(--search-result-border); cursor: pointer; transition: background-color 0.2s; text-align: right; }
+        .search-result-item:last-child { border-bottom: none; }
+        .search-result-item:hover { background-color: var(--search-result-hover); }
+        .search-result-item .result-title { font-weight: 600; color: var(--islamic-green); margin-bottom: 4px; font-size: 14px; }
+        .search-result-item .result-category { font-size: 12px; color: var(--primary-accent); margin-bottom: 4px; font-weight: 500; }
+        .search-result-item .result-preview { font-size: 13px; color: var(--text-light); line-height: 1.4; }
+        .no-results { padding: 20px; text-align: center; color: var(--text-light); font-size: 14px; }
+
+        @keyframes highlightPulse {
+            0% { background-color: var(--highlight-color); box-shadow: 0 0 0 0 rgba(91,167,214,0.4); }
+            50% { background-color: rgba(91,167,214,0.5); box-shadow: 0 0 20px 5px rgba(91,167,214,0.3); }
+            100% { background-color: var(--highlight-color); box-shadow: 0 0 0 0 rgba(91,167,214,0.4); }
+        }
+        .section-highlight { animation: highlightPulse 1.5s ease-in-out; border-radius: 10px; }
+
+        /* TABS */
+        .tabs-section { margin: 0.2rem 0 1.5rem; width: 100%; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(35,65,82,0.06); overflow: hidden; }
+        .tabs-header { background: var(--tab-bg); border-bottom: 1px solid var(--tab-border); padding: 0; overflow-x: auto; overflow-y: hidden; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; display: flex; align-items: center; justify-content: center; width: 100%; direction: ltr; }
+        .tabs-header::-webkit-scrollbar { display: none; }
+        .tab-item { display: inline-flex; align-items: center; justify-content: center; padding: 0.7rem 1rem; font-size: 0.85rem; font-weight: 500; color: white; border-bottom: 3px solid transparent; cursor: pointer; transition: all 0.2s; white-space: nowrap; gap: 0.4rem; position: relative; flex: 0 0 auto; direction: rtl; }
+        .tab-item:not(:last-child)::after { content: ''; position: absolute; right: -2px; top: 20%; height: 60%; width: 1.5px; background: rgba(255,255,255,0.4); }
+        .tab-item i { color: white; font-size: 0.85rem; }
+        .tab-item:hover { background: var(--tab-hover); }
+        .tab-item.active { color: var(--islamic-green); border-bottom-color: var(--primary-accent); background: var(--tab-active); font-weight: 600; }
+        .tab-item.active i { color: var(--islamic-green); }
+        .tab-item.active::after { display: none; }
+        .tab-content { padding: 1.5rem 0 0 0; background: white; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        /* CAROUSEL */
+        .nusrat-image-box { background: #eef2f5; overflow: hidden; margin-bottom: 0; border-top: 1px solid var(--grey-line); width: 100%; }
+        .carousel-container { position: relative; width: 100%; overflow: hidden; }
+        .carousel-slides { position: relative; width: 100%; height: 0; padding-bottom: 56.25%; background: #dde6ed; min-height: 180px; }
+        .carousel-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; visibility: hidden; transition: opacity 1.5s ease-in-out, visibility 1.5s ease-in-out; z-index: 1; }
+        .carousel-slide.active { opacity: 1; visibility: visible; z-index: 2; }
+        .image-container { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        /* gradient placeholder slides */
+        .slide-graphic { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; color: white; text-align: center; padding: 1rem; }
+        .image-container img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .slide-caption { position: absolute; top: 50%; left: 0; transform: translateY(-50%); background: rgba(47,111,158,0.72); color: #fff; padding: 1rem 2.8rem 1rem 2.2rem; border-radius: 0 999px 999px 0; font-size: clamp(1.05rem, 2.6vw, 1.7rem); font-weight: 700; letter-spacing: 0.3px; max-width: 60%; text-align: left; line-height: 1.5; z-index: 5; backdrop-filter: blur(4px); box-shadow: 0 4px 18px rgba(35,65,82,0.25); }
+        .slide-caption:empty { display: none; }
+        .slide-caption::after { content: ""; position: absolute; top: 50%; right: -16px; transform: translateY(-50%); height: calc(100% + 26px); aspect-ratio: 1 / 1; border: 3px solid transparent; border-right-color: rgba(255,255,255,0.95); border-radius: 50%; pointer-events: none; }
+        @media (max-width: 820px) { .slide-caption { padding: 0.55rem 1.7rem 0.55rem 1.1rem; max-width: 70%; } }
+        .slide-graphic i { font-size: clamp(2.5rem, 8vw, 4.5rem); opacity: 0.95; }
+        .slide-graphic span { font-size: clamp(1rem, 3.5vw, 1.6rem); font-weight: 700; letter-spacing: 0.5px; }
+        .sg1 { background: linear-gradient(135deg, #2f6f9e, #234152); }
+        .sg2 { background: linear-gradient(135deg, #5BA7D6, #2f6f9e); }
+        .sg3 { background: linear-gradient(135deg, #3d82b3, #2b3a47); }
+        .sg4 { background: linear-gradient(135deg, #6b7580, #234152); }
+        .carousel-dots { display: flex; justify-content: center; gap: 0.5rem; padding: 0.8rem; background: white; border-top: 1px solid var(--grey-line); }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #c3ccd5; cursor: pointer; transition: all 0.3s; }
+        .dot.active { background: var(--nusrat-accent); transform: scale(1.2); }
+        .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; background: rgba(35,65,82,0.5); color: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; transition: all 0.3s; font-size: 1.2rem; }
+        .carousel-arrow:hover { background: rgba(35,65,82,0.8); }
+        .carousel-arrow.prev { right: 10px; }
+        .carousel-arrow.next { left: 10px; }
+
+        /* WELCOME */
+        .welcome-section { background: var(--islamic-green); padding: 3rem 1rem; margin: 0; width: 100%; }
+        .welcome-card { max-width: 1000px; margin: 0 auto; background: white; border-radius: 2rem; padding: 2.5rem 2rem; box-shadow: 0 20px 40px -15px rgba(47,111,158,0.3); border: 1px solid rgba(91,167,214,0.2); position: relative; overflow: hidden; }
+        .welcome-card::before { content: '﷽'; font-family: 'Arial', sans-serif; position: absolute; top: -10px; left: -10px; font-size: 120px; color: rgba(91,167,214,0.1); transform: rotate(-15deg); pointer-events: none; font-weight: bold; }
+        .welcome-content { position: relative; z-index: 2; text-align: center; }
+        .welcome-title { font-size: 2.2rem; color: var(--islamic-green); margin-bottom: 2rem; font-weight: 700; position: relative; display: inline-block; }
+        .welcome-title:after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 60px; height: 3px; background: var(--primary-accent); border-radius: 2px; }
+        .welcome-text { max-width: 800px; margin: 0 auto; }
+        .welcome-text p { color: var(--text-dark); line-height: 1.9; margin-bottom: 1.5rem; font-size: 1.2rem; text-align: center; padding: 0 1rem; }
+        .welcome-text p:first-of-type { font-weight: 500; border-bottom: 2px solid rgba(91,167,214,0.2); padding-bottom: 1.5rem; }
+        .welcome-decoration { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 2rem; }
+        .welcome-decoration i { color: var(--primary-accent); font-size: 1.2rem; opacity: 0.6; }
+
+        /* MISSION */
+        .mission-section-home { background: white; padding: 0; margin: 0; border-top: 1px solid var(--grey-line); border-bottom: 1px solid var(--grey-line); width: 100%; }
+        .mission-card-home { background: linear-gradient(145deg, #2f6f9e 0%, #3d82b3 100%); color: white; padding: 3.5rem 1rem; width: 100%; text-align: center; }
+        .mission-content { max-width: 900px; margin: 0 auto; padding: 0 1rem; }
+        .mission-card-home h3 { font-size: 2.5rem; margin-bottom: 2.5rem; color: white; font-weight: 700; letter-spacing: 2px; position: relative; display: inline-block; text-transform: uppercase; }
+        .mission-card-home h3:after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 80px; height: 3px; background: var(--primary-accent); border-radius: 2px; }
+        .mission-list-home { list-style: none; display: flex; flex-direction: column; gap: 1.5rem; text-align: center; max-width: 800px; margin: 0 auto; }
+        .mission-list-home li { display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 0.5rem 1rem; font-size: 1.3rem; line-height: 1.6; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .mission-list-home li:last-child { border-bottom: none; }
+        .mission-list-home i { color: var(--accent-secondary); font-size: 1.5rem; flex-shrink: 0; }
+        .mission-list-home span { font-size: 1.3rem; line-height: 1.6; font-weight: 500; }
+
+        /* VISION */
+        .vision-section-home { background: white; padding: 0; margin: 0; border-bottom: 1px solid var(--grey-line); width: 100%; }
+        .vision-card-home { background: linear-gradient(145deg, #234152 0%, #2f6f9e 100%); color: white; padding: 3.5rem 1rem; width: 100%; text-align: center; }
+        .vision-content { max-width: 900px; margin: 0 auto; padding: 0 1rem; }
+        .vision-card-home h3 { font-size: 2.5rem; margin-bottom: 2.5rem; color: white; font-weight: 700; letter-spacing: 2px; position: relative; display: inline-block; text-transform: uppercase; }
+        .vision-card-home h3:after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 80px; height: 3px; background: var(--primary-accent); border-radius: 2px; }
+        .vision-text { display: flex; flex-direction: column; gap: 1.5rem; }
+        .vision-main { font-size: 1.4rem; line-height: 1.8; font-weight: 500; max-width: 800px; margin: 0 auto; padding: 0 1rem; }
+        .vision-middle { font-size: 1.2rem; line-height: 1.7; max-width: 750px; margin: 0 auto; border-top: 1px solid rgba(91,167,214,0.3); border-bottom: 1px solid rgba(91,167,214,0.3); padding: 1.5rem 1rem; }
+        .vision-last { font-size: 1.2rem; line-height: 1.7; max-width: 750px; margin: 0 auto; padding: 0 1rem; opacity: 0.9; font-style: italic; }
+
+        /* ABOUT */
+        .about-section { background: linear-gradient(135deg, #f6fafc 0%, #e6f0f6 100%); border-radius: 1.5rem; padding: 3rem 2rem; margin: 1rem 0; box-shadow: 0 15px 35px -10px rgba(47,111,158,0.15); width: 100%; text-align: center; position: relative; overflow: hidden; }
+        .about-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary-accent), var(--islamic-green), var(--primary-accent)); opacity: 0.6; }
+        .about-content { max-width: 800px; margin: 0 auto; position: relative; z-index: 2; }
+        .about-content h2 { font-size: 2.2rem; color: var(--islamic-green); margin-bottom: 2rem; font-weight: 700; position: relative; display: inline-block; }
+        .about-content h2 i { color: var(--primary-accent); margin-left: 0.5rem; }
+        .about-content h2:after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 60px; height: 3px; background: var(--primary-accent); border-radius: 2px; }
+        .about-content p { color: var(--text-dark); line-height: 1.9; margin-bottom: 1.5rem; font-size: 1.2rem; font-weight: 600; text-align: center; }
+        .about-highlight { background: linear-gradient(145deg, #2f6f9e 0%, #3d82b3 100%); padding: 2rem; border-radius: 1rem; margin-top: 2.5rem; color: white; box-shadow: 0 10px 25px -8px rgba(47,111,158,0.4); }
+        .about-highlight p { color: white; font-size: 1.3rem; font-weight: 700; margin-bottom: 0; }
+
+        /* VERSE CARD (replaces Gambia Union block) */
+        .verse-card { background: linear-gradient(135deg, #eef5fa, #fff); border-radius: 1.5rem; padding: 2.5rem; margin: 2rem auto; border: 3px solid var(--primary-accent); text-align: center; max-width: 800px; position: relative; overflow: hidden; box-shadow: 0 20px 40px -10px rgba(91,167,214,0.3); }
+        .verse-icon { width: 100px; height: 100px; background: linear-gradient(135deg, var(--islamic-green), var(--primary-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--accent-secondary); font-size: 3rem; border: 4px solid var(--primary-accent); position: relative; z-index: 2; box-shadow: 0 10px 20px rgba(91,167,214,0.3); }
+        .verse-card h3 { color: var(--islamic-green); font-size: 2rem; margin-bottom: 0.5rem; font-weight: 800; }
+        .verse-card .verse-ar { font-family: 'Amiri','Noto Naskh Arabic',serif; color: var(--primary-teal); font-size: 1.9rem; line-height: 2.2; margin: 1.5rem auto; max-width: 600px; }
+        .verse-card .verse-ref { color: var(--primary-accent); font-size: 1.1rem; font-weight: 600; border-top: 2px solid rgba(91,167,214,0.3); padding-top: 1rem; display: inline-block; }
+
+        /* ADMISSION */
+        .admission-section { background: white; border-radius: 1.5rem; padding: 2.5rem; margin: 1rem 0; box-shadow: 0 10px 30px -10px rgba(35,55,52,0.1); width: 100%; }
+        .admission-header { text-align: center; margin-bottom: 2.5rem; }
+        .admission-header h2 { font-size: 2.2rem; color: var(--islamic-green); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .admission-header h2 i { color: var(--primary-accent); }
+        .admission-header p { color: var(--text-light); font-size: 1.2rem; max-width: 700px; margin: 0 auto; line-height: 1.8; }
+        .programs-card, .documents-card { background: linear-gradient(145deg, #f6fafc 0%, #e6f0f6 100%); border-radius: 1rem; padding: 2.5rem; margin-bottom: 2.5rem; border: 1px solid rgba(47,111,158,0.1); max-width: 800px; margin-left: auto; margin-right: auto; transition: transform 0.3s, box-shadow 0.3s; }
+        .programs-card:hover, .documents-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px -10px rgba(47,111,158,0.2); border-color: var(--primary-accent); }
+        .programs-card .requirement-icon, .documents-card .requirement-icon { width: 70px; height: 70px; background: linear-gradient(135deg, var(--islamic-green), var(--primary-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--accent-secondary); font-size: 2rem; border: 3px solid var(--primary-accent); }
+        .programs-card h3, .documents-card h3 { color: var(--islamic-green); font-size: 1.6rem; margin-bottom: 1.5rem; font-weight: 700; text-align: center; }
+        .programs-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+        .program-tag { background: white; padding: 0.8rem 1rem; border-radius: 30px; font-size: 0.95rem; color: var(--text-dark); border: 1px solid rgba(47,111,158,0.2); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s; }
+        .program-tag i { color: var(--primary-accent); font-size: 0.8rem; }
+        .program-tag:hover { background: var(--islamic-green); color: white; }
+        .program-tag:hover i { color: white; }
+        .documents-list { list-style: none; text-align: center; margin-top: 1rem; }
+        .documents-list li { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1.2rem; color: var(--text-light); font-size: 1.1rem; padding: 0.5rem; border-bottom: 1px solid rgba(47,111,158,0.1); }
+        .documents-list li:last-child { border-bottom: none; }
+        .documents-list li i { color: var(--primary-accent); font-size: 1.2rem; }
+        .deadline-box { background: linear-gradient(135deg, #f6fafc 0%, #e6f0f6 100%); border-radius: 1rem; padding: 2rem; margin: 2rem auto; border: 2px dashed var(--primary-accent); text-align: center; max-width: 800px; }
+        .deadline-box h4 { color: var(--islamic-green); font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .deadline-box .date { color: var(--primary-accent); font-size: 2rem; font-weight: 700; margin: 1rem 0; }
+        .deadline-box p { color: var(--text-dark); font-size: 1.1rem; font-weight: 600; }
+        .apply-button { text-align: center; margin-top: 2rem; }
+        .apply-button .btn { background: linear-gradient(145deg, #2f6f9e 0%, #3d82b3 100%); color: white; padding: 1.2rem 3rem; font-size: 1.2rem; border-radius: 50px; text-decoration: none; display: inline-flex; align-items: center; gap: 1rem; transition: all 0.3s; border: 2px solid var(--primary-accent); }
+        .apply-button .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -10px rgba(47,111,158,0.4); }
+
+        /* NEWS */
+        .news-section { background: white; border-radius: 1.5rem; padding: 2.5rem; margin: 1rem 0; box-shadow: 0 10px 30px -10px rgba(35,55,52,0.1); width: 100%; }
+        .news-header { text-align: center; margin-bottom: 2.5rem; position: relative; }
+        .news-header h2 { font-size: 2.2rem; color: var(--islamic-green); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .news-header h2 i { color: var(--primary-accent); }
+        .news-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+        .news-card { background: linear-gradient(145deg, #f6fafc 0%, #e6f0f6 100%); border-radius: 1.2rem; overflow: hidden; transition: all 0.4s; border: 1px solid rgba(47,111,158,0.1); display: flex; flex-direction: column; box-shadow: 0 5px 15px rgba(35,65,82,0.05); }
+        .news-card:hover { transform: translateY(-8px); box-shadow: 0 20px 30px -10px rgba(47,111,158,0.25); border-color: var(--primary-accent); }
+        .news-image { width: 100%; height: 220px; overflow: hidden; }
+        .news-image .img-graphic { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; }
+        .news-content { padding: 1.8rem 1.5rem; flex: 1; display: flex; flex-direction: column; }
+        .news-category { display: inline-block; background: var(--primary-accent); color: #fff; padding: 0.4rem 1.2rem; border-radius: 30px; font-size: 0.85rem; font-weight: 700; margin-bottom: 1.2rem; align-self: flex-start; }
+        .news-title { color: var(--islamic-green); font-size: 1.4rem; margin-bottom: 1rem; font-weight: 700; line-height: 1.4; }
+        .news-excerpt { color: var(--text-light); font-size: 1rem; line-height: 1.7; margin-bottom: 1.8rem; flex: 1; }
+        .news-meta { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 1.2rem; border-top: 1px solid rgba(47,111,158,0.15); }
+        .news-author { display: flex; align-items: center; gap: 0.5rem; color: var(--text-light); font-size: 0.9rem; }
+        .news-author i { color: var(--primary-accent); }
+        .read-more { color: var(--primary-accent); text-decoration: none; font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; background: rgba(91,167,214,0.12); padding: 0.4rem 1rem; border-radius: 30px; transition: all 0.2s; }
+        .read-more:hover { background: var(--primary-accent); color: #fff; }
+        .news-card.featured { grid-column: span 2; display: grid; grid-template-columns: 1.2fr 0.8fr; background: white; }
+        .news-card.featured .news-image { height: 100%; min-height: 320px; }
+        .news-card.featured .news-content { padding: 2.5rem; }
+        .news-card.featured .news-title { font-size: 1.9rem; }
+        .newsletter-banner { grid-column: span 2; background: linear-gradient(135deg, var(--islamic-green), #3d82b3); border-radius: 1.2rem; padding: 2.5rem; color: white; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem; margin-top: 1.5rem; }
+        .newsletter-banner h3 { font-size: 1.6rem; display: flex; align-items: center; gap: 0.8rem; font-weight: 700; }
+        .newsletter-banner h3 i { color: var(--accent-secondary); font-size: 2rem; }
+        .newsletter-input { display: flex; gap: 0.5rem; background: white; border-radius: 60px; padding: 0.3rem; }
+        .newsletter-input input { border: none; padding: 1rem 1.5rem; border-radius: 60px; font-size: 16px; min-width: 280px; outline: none; background: transparent; }
+        .newsletter-input button { background: var(--primary-accent); border: none; padding: 1rem 2rem; border-radius: 60px; font-weight: 700; color: #fff; cursor: pointer; transition: all 0.2s; }
+        .newsletter-input button:hover { background: var(--primary-teal); }
+
+        /* STUDENT PORTAL (Portal tab) */
+        .more-section { background: white; border-radius: 1.5rem; padding: 2.5rem; margin: 1rem 0; box-shadow: 0 10px 30px -10px rgba(35,55,52,0.1); width: 100%; }
+        .more-header { text-align: center; margin-bottom: 2.5rem; }
+        .more-header h2 { font-size: 2.2rem; color: var(--islamic-green); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .more-header h2 i { color: var(--primary-accent); }
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 950px; margin: 0 auto; }
+        .contact-card { background: linear-gradient(145deg, #f6fafc 0%, #e6f0f6 100%); border-radius: 1.5rem; padding: 2rem; border: 1px solid rgba(47,111,158,0.1); }
+        .contact-card h3 { color: var(--islamic-green); font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .contact-card h3 i { color: var(--primary-accent); }
+        .contact-detail { display: flex; align-items: center; gap: 1rem; padding: 0.9rem 0; border-bottom: 1px solid rgba(47,111,158,0.1); }
+        .contact-detail:last-child { border-bottom: none; }
+        .contact-detail .ic { width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: white; border: 1px solid rgba(47,111,158,0.15); display: grid; place-items: center; color: var(--primary-teal); font-size: 1.1rem; }
+        .contact-detail .ct-label { font-size: 0.78rem; color: var(--text-light); }
+        .contact-detail .ct-value { font-size: 1rem; color: var(--text-dark); font-weight: 600; }
+        .contact-form .cf-field { margin-bottom: 1rem; }
+        .contact-form label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-soft); margin-bottom: 0.4rem; }
+        .contact-form input, .contact-form textarea { width: 100%; padding: 0.8rem 1rem; border: 1px solid rgba(47,111,158,0.2); border-radius: 12px; font-size: 16px; outline: none; background: white; transition: all 0.2s; font-family: inherit; }
+        .contact-form input:focus, .contact-form textarea:focus { border-color: var(--primary-accent); box-shadow: 0 0 0 3px rgba(91,167,214,0.15); }
+        .contact-form textarea { resize: vertical; min-height: 90px; }
+        .contact-form button { width: 100%; background: linear-gradient(145deg, #2f6f9e 0%, #3d82b3 100%); color: white; padding: 0.9rem; border: none; border-radius: 30px; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s; }
+        .contact-form button:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(47,111,158,0.3); }
+        .cf-note { font-size: 0.82rem; color: var(--text-light); text-align: center; margin-top: 0.8rem; }
+
+        /* FOOTER */
+        .footer { background: var(--footer-bg); color: var(--footer-text); padding: 2.5rem 0 2rem; margin-top: 3rem; width: 100%; border-top: 4px solid var(--primary-accent); position: relative; }
+        .footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--primary-accent), transparent); }
+        .footer-content { display: flex; flex-direction: column; align-items: center; gap: 2rem; max-width: 1100px; margin: 0 auto; }
+        .footer-brand { text-align: center; }
+        .footer-brand .fb-name { font-size: 1.5rem; font-weight: 800; color: white; }
+        .footer-brand .fb-ar { font-family: 'Amiri','Noto Naskh Arabic',serif; color: var(--accent-secondary); font-size: 1.4rem; margin-top: 0.3rem; }
+        .contact-stack { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
+        .footer .contact-item { display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: var(--footer-text-light); font-size: 1rem; opacity: 0.9; direction: ltr; }
+        .footer .contact-item i { color: var(--accent-secondary); font-size: 1.1rem; order: -1; }
+        .footer-social { display: flex; gap: 1rem; align-items: center; justify-content: center; }
+        .footer-social a { display: inline-flex; align-items: center; justify-content: center; width: 45px; height: 45px; border-radius: 50%; transition: all 0.3s; font-size: 1.3rem; color: white; }
+        .footer-social a[aria-label="Facebook"] { background: var(--facebook-color); }
+        .footer-social a[aria-label="Instagram"] { background: var(--instagram-color); }
+        .footer-social a[aria-label="YouTube"] { background: var(--youtube-color); }
+        .footer-social a[aria-label="TikTok"] { background: #010101; }
+        .footer-social a:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        .footer-legal { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; text-align: center; }
+        .copyright { color: var(--footer-text-light); font-size: 0.9rem; opacity: 0.8; }
+        .footer-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .footer-links a { color: var(--footer-text-light); text-decoration: none; transition: color 0.2s; opacity: 0.8; font-size: 0.9rem; }
+        .footer-links a:hover { color: var(--primary-accent); opacity: 1; }
+
+        /* WHATSAPP */
+        .whatsapp-float { position: fixed; bottom: max(15px, env(safe-area-inset-bottom)); right: max(15px, env(safe-area-inset-right)); background-color: #25d366; color: white; width: clamp(50px, 12vw, 60px); height: clamp(50px, 12vw, 60px); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: clamp(2rem, 6vw, 2.5rem); box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 100; transition: all 0.3s; text-decoration: none; }
+        .whatsapp-float:active { background-color: #20b859; transform: scale(0.95); }
+
+        /* ===== STUDENT PORTAL — FULL SCREEN TAKEOVER =====
+           Once a student logs in the site chrome gets out of the way
+           entirely: no navbar, no search, no tabs, no footer. The portal
+           becomes its own page, the way a real student system should feel. */
+        body.sp-open .navbar,
+        body.sp-open .search-section,
+        body.sp-open .tabs-header,
+        body.sp-open .footer,
+        body.sp-open .whatsapp-float { display: none !important; }
+        body.sp-open .container { padding: 0; max-width: none; }
+        body.sp-open .tabs-section { margin: 0; border-radius: 0; box-shadow: none; background: var(--bg-soft); }
+        body.sp-open .tab-content { padding: 0; background: var(--bg-soft); }
+        body.sp-open #portal-section { padding: 0 !important; margin: 0; }
+        body.sp-open { background: var(--bg-soft); }
+
+        /* top bar */
+        .sp-bar { background: linear-gradient(135deg, var(--primary-dark), var(--primary-teal)); color: #fff; padding: .85rem 1.2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: sticky; top: 0; z-index: 30; }
+        .sp-bar-name { font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: .5rem; min-width: 0; }
+        .sp-bar-name i { color: var(--accent-secondary); flex-shrink: 0; }
+        .sp-bar-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .sp-out { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff; padding: .45rem 1.1rem; border-radius: 30px; cursor: pointer; font-size: .85rem; font-family: inherit; display: flex; align-items: center; gap: .45rem; flex-shrink: 0; }
+        .sp-out:hover { background: rgba(255,255,255,.25); }
+        .sp-wrap { max-width: 900px; margin: 0 auto; padding: 1.4rem 1rem 3rem; }
+
+        /* hero */
+        .sp-hero { background: linear-gradient(135deg, var(--primary-teal), var(--primary-accent)); border-radius: 1.4rem; padding: 1.6rem 1.8rem; display: flex; align-items: center; gap: 1.4rem; margin-bottom: 1.4rem; }
+        .sp-av { width: 84px; height: 84px; border-radius: 50%; background: rgba(255,255,255,.18); border: 3px solid var(--accent-secondary); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.1rem; flex-shrink: 0; }
+        .sp-hero-name { font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1.3; }
+        .sp-hero-line { font-size: .95rem; color: #e2eef7; margin-top: .3rem; }
+
+        /* detail rows */
+        .sp-info { background: #fff; border-radius: 1.4rem; border: 1px solid rgba(47,111,158,.12); padding: .3rem 1.4rem; margin-bottom: 1.8rem; }
+        .sp-info-row { display: flex; align-items: center; gap: 1rem; padding: .85rem 0; border-bottom: 1px solid rgba(47,111,158,.09); }
+        .sp-info-row:last-child { border-bottom: none; }
+        .sp-info-ic { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-teal-soft); color: var(--primary-teal); display: grid; place-items: center; font-size: .95rem; flex-shrink: 0; }
+        .sp-info-lbl { font-size: .78rem; color: var(--text-light); }
+        .sp-info-val { font-size: 1rem; font-weight: 600; color: var(--text-dark); }
+
+        /* term picker */
+        .sp-pick { text-align: center; font-size: 1.3rem; font-weight: 800; color: var(--islamic-green); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: .6rem; }
+        .sp-pick i { color: var(--primary-accent); }
+        .sp-year-chip { display: block; width: fit-content; margin: 0 auto 1.4rem; background: var(--islamic-green); color: #fff; padding: .5rem 1.5rem; border-radius: 30px; font-size: .95rem; font-weight: 700; }
+        .sp-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+        .sp-card { background: #fff; border: 1px solid rgba(47,111,158,.14); border-radius: 1.2rem; overflow: hidden; display: flex; flex-direction: column; }
+        .sp-card-hd { background: linear-gradient(135deg, var(--primary-teal), var(--primary-accent)); color: #fff; padding: 1rem; text-align: center; }
+        .sp-card-hd .t { font-size: 1.2rem; font-weight: 800; }
+        .sp-card-hd .y { font-size: .85rem; opacity: .9; margin-top: .15rem; }
+        .sp-card.off .sp-card-hd { background: #aab6c0; }
+        .sp-card-bd { padding: 1.4rem 1rem; text-align: center; border-bottom: 1px solid rgba(47,111,158,.09); }
+        .sp-file { width: 62px; height: 78px; margin: 0 auto .7rem; border: 2px solid var(--primary-accent); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem; color: var(--primary-teal); }
+        .sp-file i { font-size: 1.7rem; }
+        .sp-file span { font-size: .62rem; font-weight: 800; letter-spacing: .5px; }
+        .sp-card.off .sp-file { border-color: #d2dae1; color: #b6c0c9; border-style: dashed; }
+        .sp-card-bd .cap { font-size: .9rem; font-weight: 600; color: var(--text-soft); }
+        .sp-card.off .sp-card-bd .cap { color: var(--grey-soft); }
+        .sp-stats { display: flex; }
+        .sp-stat { flex: 1; text-align: center; padding: 1rem .4rem; }
+        .sp-stat + .sp-stat { border-right: 1px solid rgba(47,111,158,.09); }
+        .sp-stat b { display: block; font-size: 1.45rem; font-weight: 900; color: var(--islamic-green); line-height: 1; }
+        .sp-stat span { font-size: .76rem; color: var(--text-light); }
+        .sp-view { margin: 0 1rem 1.2rem; background: linear-gradient(145deg, var(--primary-teal), var(--primary-accent)); color: #fff; border: none; border-radius: 30px; padding: .75rem; font-size: .95rem; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; }
+        .sp-view:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(47,111,158,.28); }
+        .sp-none { padding: 1.2rem 1rem 1.6rem; text-align: center; font-size: .88rem; color: var(--grey-soft); }
+        .sp-empty { text-align: center; color: var(--text-light); padding: 3rem 1rem; }
+        .sp-empty i { display: block; font-size: 2.6rem; color: #cfdae3; margin-bottom: .8rem; }
+
+        /* ===== A4 SHEET (screen + print) ===== */
+        .sp-sheet { background: #fff; color: #000; font-family: 'Times New Roman', serif; direction: rtl; padding: 22px; box-sizing: border-box; }
+        .sp-bism { text-align: center; font-size: 13px; margin-bottom: 14px; }
+        .sp-hd { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .sp-ar, .sp-en { flex: 1 1 0; }
+        .sp-ar { text-align: right; font-size: 14px; font-weight: bold; line-height: 1.7; }
+        .sp-ar span { font-size: 10px; font-weight: normal; }
+        .sp-en { direction: ltr; text-align: left; font-size: 9.5px; line-height: 1.6; }
+        .sp-seal { width: 110px; height: 110px; object-fit: contain; flex-shrink: 0; }
+        .sp-ttl { text-align: center; font-size: 17px; font-weight: bold; text-decoration: underline; margin: 10px 0; }
+        .sp-meta { display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px; }
+        .sp-nm { font-size: 12.5px; margin-bottom: 10px; }
+        .sp-tbl { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+        .sp-tbl th, .sp-tbl td { border: 1px solid #000; padding: 4px; text-align: center; }
+        .sp-sub { text-align: right !important; font-weight: bold; font-size: 15px; padding: 7px 9px !important; }
+        .sp-got { background: #e9f5e9; font-weight: bold; }
+        .sp-sum td { font-weight: bold; font-size: 12.5px; }
+        .sp-cert { font-size: 10.5px; margin-top: 12px; line-height: 1.9; }
+        .sp-sig { display: flex; justify-content: space-between; font-size: 10.5px; margin-top: 30px; }
+
+        /* ===== A4 VIEWER OVERLAY ===== */
+        #sp-viewer { position: fixed; inset: 0; background: rgba(20,35,48,.75); z-index: 400; display: flex; flex-direction: column; }
+        .spv-bar { background: #2b2b2a; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-shrink: 0; }
+        .spv-name { color: #e8e8e6; font-size: .82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .spv-btn { all: unset; cursor: pointer; border: 1px solid #6a6a68; border-radius: 6px; padding: 5px 11px; color: #e8e8e6; font-size: .8rem; }
+        .spv-btn:hover { background: #3d3d3b; }
+        .spv-body { flex: 1; overflow: auto; padding: 18px 12px; display: flex; justify-content: center; align-items: flex-start; -webkit-overflow-scrolling: touch; }
+        .spv-page { width: 100%; max-width: 640px; }
+
+        /* MOBILE */
+        @media (max-width: 820px) {
+            .container { padding: 0 0.8rem; }
+            .navbar { flex-direction: column; gap: 0; padding: 0.1rem 0; margin-bottom: 0.2rem; }
+            .nav-left, .nav-right { width: 100%; justify-content: center; }
+            .nav-right { gap: 0; flex-direction: column-reverse; }
+            .institute-name { font-size: 1.5rem; letter-spacing: 0.5px; text-align: center; white-space: normal; line-height: 1.1; }
+            .institute-name .title-line1 { display: block; }
+            .institute-name .title-line2 { letter-spacing: 3px; }
+            .school-logo { width: 170px; height: 122px; }
+            .school-logo.logo-row { width: auto; height: auto; gap: 0.3rem; margin-bottom: 0.35rem; }
+            .school-logo .logo-circle { width: 50px; height: 50px; font-size: 1.6rem; }
+            .school-logo .logo-img { width: 170px; height: 170px; margin: -24px 0; }
+            .school-logo.logo-row .logo-img { width: 78px; height: 78px; margin: 0; }
+            .school-logo.logo-row .logo-img.logo-side { width: 70px; height: 70px; }
+            .search-container { width: 70%; max-width: 250px; }
+            .tab-item { padding: 0.6rem 0.8rem; font-size: 0.8rem; }
+            .welcome-section { padding: 1.2rem 0.5rem; }
+            .welcome-card { padding: 1.2rem 1rem; }
+            .welcome-title { font-size: 1.4rem; }
+            .mission-card-home h3, .vision-card-home h3, .about-content h2, .admission-header h2, .news-header h2, .more-header h2 { font-size: 1.6rem; }
+            .mission-list-home li, .mission-list-home span { font-size: 1.05rem; }
+            .vision-main { font-size: 1.15rem; }
+            .programs-list { grid-template-columns: 1fr; }
+            .news-grid { grid-template-columns: 1fr; }
+            .news-card.featured { grid-template-columns: 1fr; }
+            .news-card.featured .news-image { min-height: 200px; }
+            .contact-grid { grid-template-columns: 1fr; }
+            .newsletter-input { flex-direction: column; background: transparent; }
+            .newsletter-input input { min-width: unset; width: 100%; }
+            .verse-card .verse-ar { font-size: 1.5rem; }
+            .sp-sheet { padding: 14px; }
+            .sp-ar { font-size: 12px; }
+            .sp-en { font-size: 8px; }
+            .sp-seal { width: 66px; height: 66px; }
+            .sp-ttl { font-size: 15px; }
+            .sp-tbl { font-size: 10px; }
+            .sp-sub { font-size: 13px; padding: 6px 7px !important; }
+            .spv-body { padding: 10px 6px; }
+        }
+        @media (max-width: 480px) {
+            .institute-name { font-size: 1.43rem; letter-spacing: 0.4px; }
+            .tab-item { padding: 0.5rem 0.55rem; font-size: 0.72rem; gap: 0.25rem; }
+            .sp-pct { width: 42px; font-size: .8rem; }
+        }
+        button, input, select, textarea { -webkit-appearance: none; appearance: none; }
+        *:focus { outline: none; }
+        *:focus-visible { outline: 2px solid var(--primary-accent); outline-offset: 2px; }
+    </style>
+</head>
+<body>
+
+<!-- FLOATING WHATSAPP -->
+<a href="https://wa.me/2202594282" class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+</a>
+
+<div class="container">
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="lang-switch">
+                <button class="lang-btn" id="lang-ar" data-lang="ar">العربية</button>
+                <button class="lang-btn" id="lang-en" data-lang="en">EN</button>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="institute-name" id="mainTitle">
+                <span class="title-line1">NURR ISLAMIC INSTITUTE</span>
+                <span class="title-line2">KANIFING SOUTH</span>
+            </div>
+            <div class="school-logo logo-row">
+                <img class="logo-img logo-side" src="images/log1.png" alt="Badge 1" onerror="this.style.display='none';">
+                <img class="logo-img" src="images/log.png" alt="معهد النور الإسلامي" onerror="this.style.display='none';">
+                <img class="logo-img logo-side" src="images/log2.png" alt="Badge 2" onerror="this.style.display='none';">
+            </div>
+        </div>
+    </nav>
+
+    <!-- SEARCH -->
+    <div class="search-section">
+        <div class="search-container" id="searchContainer">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="البحث في معهد النور..." autocomplete="off">
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-section">
+        <div class="tabs-header">
+            <div class="tab-item active" data-tab="tab1"><i class="fas fa-home"></i><span class="tab-text" data-en="Home" data-ar="الرئيسية">الرئيسية</span></div>
+            <div class="tab-item" data-tab="tab2"><i class="fas fa-info-circle"></i><span class="tab-text" data-en="About" data-ar="عن المعهد">عن المعهد</span></div>
+            <div class="tab-item" data-tab="tab3"><i class="fas fa-graduation-cap"></i><span class="tab-text" data-en="Admission" data-ar="القبول">القبول</span></div>
+            <div class="tab-item" data-tab="tab4"><i class="fas fa-newspaper"></i><span class="tab-text" data-en="News" data-ar="الأخبار">الأخبار</span></div>
+            <div class="tab-item" data-tab="tab5"><i class="fas fa-user-graduate"></i><span class="tab-text" data-en="Portal" data-ar="البوابة">البوابة</span></div>
+        </div>
+
+        <div class="tab-content">
+            <!-- TAB 1: HOME -->
+            <div class="tab-pane active" id="tab1">
+                <div class="nusrat-image-box">
+                    <div class="carousel-container" id="meccaCarousel">
+                        <div class="carousel-slides">
+                            <div class="carousel-slide active"><div class="image-container"><img src="images/slide1.jpg" onerror="this.onerror=null;this.src='slide1.jpg.jpeg';" alt="Slide 1" fetchpriority="high" decoding="async"><div class="slide-caption" id="cap1" data-ar="الطلاب" data-en="Students">الطلاب</div></div></div>
+                            <div class="carousel-slide"><div class="image-container"><img src="images/slide2.jpg" onerror="this.onerror=null;this.src='slide2.jpg.jpeg';" alt="Slide 2" loading="lazy" decoding="async"><div class="slide-caption" id="cap2" data-ar="الطالبات" data-en="Students">الطالبات</div></div></div>
+                            <div class="carousel-slide"><div class="image-container"><img src="images/slide3.jpg" onerror="this.onerror=null;this.src='slide3.jpg.jpeg';" alt="Slide 3" loading="lazy" decoding="async"><div class="slide-caption" id="cap3" data-ar="مبنى المعهد" data-en="The school campus">مبنى المعهد</div></div></div>
+                            <div class="carousel-slide"><div class="image-container"><img src="images/slide4.jpg" onerror="this.onerror=null;this.src='slide4.jpg.jpeg';" alt="Slide 4" loading="lazy" decoding="async"><div class="slide-caption" id="cap4" data-ar="مدير المعهد" data-en="The Principal">مدير المعهد</div></div></div>
+                            <div class="carousel-slide"><div class="image-container"><img src="images/slide5.jpg" onerror="this.onerror=null;this.src='slide5.jpg.jpeg';" alt="Slide 5" loading="lazy" decoding="async"><div class="slide-caption" id="cap5" data-ar="مسجد المعهد" data-en="The school mosque">مسجد المعهد</div></div></div>
+                            <div class="carousel-slide"><div class="image-container"><img src="images/slide6.jpg" onerror="this.onerror=null;this.src='slide6.jpg.jpeg';" alt="Slide 6" loading="lazy" decoding="async"><div class="slide-caption" id="cap6" data-ar="مسجد المعهد" data-en="The school mosque">مسجد المعهد</div></div></div>
+                            <div class="carousel-slide"><div class="image-container"><img src="images/slide7.jpg" onerror="this.onerror=null;this.src='slide7.jpg.jpeg';" alt="Slide 7" loading="lazy" decoding="async"><div class="slide-caption" id="cap7" data-ar="زيارة وزير التعليم الأساسي" data-en="Visit of the Minister of Basic Education">زيارة وزير التعليم الأساسي</div></div></div>
+                            <div class="carousel-slide"><div class="image-container"><img src="images/slide8.jpg" onerror="this.onerror=null;this.src='slide8.jpg.jpeg';" alt="Slide 8" loading="lazy" decoding="async"><div class="slide-caption" id="cap8" data-ar="زيارة وزير التعليم الأساسي" data-en="Visit of the Minister of Basic Education">زيارة وزير التعليم الأساسي</div></div></div>
+                            <div class="carousel-slide"><div class="image-container"><img src="images/slide9.jpg" onerror="this.onerror=null;this.src='slide9.jpg.jpeg';" alt="Slide 9" loading="lazy" decoding="async"><div class="slide-caption" id="cap9" data-ar="مبنى المعهد" data-en="The school campus">مبنى المعهد</div></div></div>
+                            <div class="carousel-slide"><div class="image-container"><img src="images/slide10.jpg" onerror="this.onerror=null;this.src='slide10.jpg.jpeg';" alt="Slide 10" loading="lazy" decoding="async"><div class="slide-caption" id="cap10" data-ar="مكتب المدير" data-en="The Principal&#39;s office">مكتب المدير</div></div></div>
+                            <div class="carousel-slide"><div class="image-container"><img src="images/slide11.jpg" onerror="this.onerror=null;this.src='slide11.jpg.jpeg';" alt="Slide 11" loading="lazy" decoding="async"><div class="slide-caption" id="cap11" data-ar="مرحباً بكم في معهد النور الإسلامي" data-en="Welcome to Nurr Islamic Institute">مرحباً بكم في معهد النور الإسلامي</div></div></div>
+                        </div>
+                        <button class="carousel-arrow prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-right"></i></button>
+                        <button class="carousel-arrow next" onclick="changeSlide(1)"><i class="fas fa-chevron-left"></i></button>
+                        <div class="carousel-dots" id="carouselDots">
+                            <span class="dot active" onclick="currentSlide(1)"></span>
+                            <span class="dot" onclick="currentSlide(2)"></span>
+                            <span class="dot" onclick="currentSlide(3)"></span>
+                            <span class="dot" onclick="currentSlide(4)"></span>
+                            <span class="dot" onclick="currentSlide(5)"></span>
+                            <span class="dot" onclick="currentSlide(6)"></span>
+                            <span class="dot" onclick="currentSlide(7)"></span>
+                            <span class="dot" onclick="currentSlide(8)"></span>
+                            <span class="dot" onclick="currentSlide(9)"></span>
+                            <span class="dot" onclick="currentSlide(10)"></span>
+                            <span class="dot" onclick="currentSlide(11)"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="welcome-section" id="welcome-section">
+                    <div class="welcome-card">
+                        <div class="welcome-content">
+                            <h2 class="welcome-title" data-en="Welcome to Nurr Islamic Institute" data-ar="مرحباً بكم في معهد النور الإسلامي"><span>مرحباً بكم في معهد النور الإسلامي</span></h2>
+                            <div class="welcome-text">
+                                <p data-en="Nurr Islamic Institute is an Arabic and Islamic school in Kanifing South, The Gambia, providing quality religious education rooted in the Arabic language and the sciences of the Qur'an." data-ar="معهد النور الإسلامي مدرسة عربية وإسلامية في غامبيا، تقدم تعليماً دينياً عالي الجودة يرتكز على اللغة العربية وعلوم القرآن الكريم.">معهد النور الإسلامي مدرسة عربية وإسلامية في غامبيا، تقدم تعليماً دينياً عالي الجودة يرتكز على اللغة العربية وعلوم القرآن الكريم.</p>
+                                <p data-en="We are committed to nurturing young minds with sound knowledge, good character, and a love for their faith." data-ar="نحن ملتزمون برعاية العقول الشابة بالعلم النافع وحسن الخلق ومحبة الدين.">نحن ملتزمون برعاية العقول الشابة بالعلم النافع وحسن الخلق ومحبة الدين.</p>
+                            </div>
+                            <div class="welcome-decoration"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mission-section-home" id="vision-section">
+                    <div class="mission-card-home">
+                        <div class="mission-content">
+                            <h3 data-en="OUR VISION" data-ar="رُؤْيَتُنَا">رُؤْيَتُنَا</h3>
+                            <p style="max-width:820px;margin:0 auto 2.2rem;font-size:1.2rem;line-height:1.9;font-weight:500;">يهدف المعهد إلى نشر الإسلام في جميع أنحاء غامبيا بجميع الوسائل الممكنة، ومن أبرز تلك الأهداف:</p>
+                            <ul class="mission-list-home" style="text-align:right;">
+                                <li style="justify-content:flex-start;"><i class="fas fa-check-circle"></i><span>التعريف بالقرآن الكريم والعمل على تعليمه وتحفيظه ونشره بكل الوسائل المتاحة.</span></li>
+                                <li style="justify-content:flex-start;"><i class="fas fa-check-circle"></i><span>التعريف بالسيرة النبوية العطرة واستجلاء المثل العليا في حياة الرسول صلى الله عليه وسلم، ودراسة الأحاديث النبوية الصحيحة والعلوم الإسلامية.</span></li>
+                                <li style="justify-content:flex-start;"><i class="fas fa-check-circle"></i><span>عرض الإسلام عرضاً شاملاً لجميع جوانبه في العقيدة والأخلاق والعبادات والمعاملات، مبرأً من المفاهيم المشوهة والجدليات والتأويلات الغريبة عن جوهره.</span></li>
+                                <li style="justify-content:flex-start;"><i class="fas fa-check-circle"></i><span>الاتصال بالهيئات والمؤسسات الدينية والعلمية في جميع أنحاء العالم بما يحقق نشر الدعوة الإسلامية.</span></li>
+                                <li style="justify-content:flex-start;"><i class="fas fa-check-circle"></i><span>نشر اللغة العربية بجميع الوسائل باعتبارها لغة القرآن الكريم، وتدريسها في جميع مراحل التعليم.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="vision-section-home" id="mission-section">
+                    <div class="vision-card-home">
+                        <div class="vision-content">
+                            <h3 data-en="OUR MISSION" data-ar="رِسَالَتُنَا">رِسَالَتُنَا</h3>
+                            <div class="vision-text">
+                                <p class="vision-main">الإسهام في تطوير التعليم من خلال المناهج التعليمية الإسلامية والعربية المتكاملة في بنائها وأهدافها بأبعادها التربوية والنفسية والسلوكية، ومن خلال المراقبة والمتابعة المستمرة للعملية التعليمية، وتدريب المعلمين والمسؤولين، وتوفير البنى التحتية للبيئة المدرسية.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: ABOUT -->
+            <div class="tab-pane" id="tab2">
+                <div class="about-section" id="about-section">
+                    <div class="about-content">
+                        <h2><i class="fas fa-info-circle"></i> <span data-en="About Our School" data-ar="عن المعهد">عن المعهد</span></h2>
+                        <p data-en="Nurr Islamic Institute is an Arabic and Islamic school in Kanifing South, The Gambia, founded to give children a firm footing in their religion and the language of the Qur'an." data-ar="معهد النور الإسلامي مدرسة عربية وإسلامية في غامبيا، أُسِّس ليمنح الأطفال أساساً متيناً في دينهم ولغة القرآن الكريم.">معهد النور الإسلامي مدرسة عربية وإسلامية في غامبيا، أُسِّس ليمنح الأطفال أساساً متيناً في دينهم ولغة القرآن الكريم.</p>
+                        <p data-en="Our teachers combine classical Islamic scholarship with thoughtful teaching, so students understand and live what they learn." data-ar="يجمع معلمونا بين العلم الشرعي الأصيل والتعليم المدروس، حتى يفهم الطلاب ما يتعلمونه ويعملوا به.">يجمع معلمونا بين العلم الشرعي الأصيل والتعليم المدروس، حتى يفهم الطلاب ما يتعلمونه ويعملوا به.</p>
+                        <div class="about-highlight"><p data-en="Knowledge that illuminates the heart — that is what we strive for." data-ar="علمٌ يُنوّر القلب — هذا ما نسعى إليه.">علمٌ يُنوّر القلب — هذا ما نسعى إليه.</p></div>
+                    </div>
+                </div>
+                <div class="verse-card" id="verse-section" style="margin-top:2rem;">
+                    <div class="verse-icon"><i class="fas fa-seedling"></i></div>
+                    <h3 data-en="Give your child a firm foundation" data-ar="امنحوا أبناءكم أساساً متيناً">امنحوا أبناءكم أساساً متيناً</h3>
+                    <div class="verse-ar" style="font-size:1.35rem;line-height:2;" data-en="The best gift a parent can give a child is knowledge of their religion, the language of the Qur'an, and good character. Since 1988, families in Kanifing South have trusted us with that trust." data-ar="أعظم هدية يقدمها الوالدان لطفلهما هي معرفة دينه، ولغة القرآن، وحسن الخلق. منذ عام ١٩٨٨ والأسر في كانفينج الجنوبي تضع ثقتها فينا.">أعظم هدية يقدمها الوالدان لطفلهما هي معرفة دينه، ولغة القرآن، وحسن الخلق. منذ عام ١٩٨٨ والأسر في كانفينج الجنوبي تضع ثقتها فينا.</div>
+                    <div class="verse-ref" data-en="Enrollment is open — apply via WhatsApp" data-ar="التسجيل مفتوح — قدّموا عبر واتساب">التسجيل مفتوح — قدّموا عبر واتساب</div>
+                </div>
+            </div>
+
+            <!-- TAB 3: ADMISSION -->
+            <div class="tab-pane" id="tab3">
+                <div class="admission-section" id="admission-section">
+                    <div class="admission-header">
+                        <h2><i class="fas fa-graduation-cap"></i><span data-en="Admissions" data-ar="القبول">القبول</span></h2>
+                        <p data-en="Join our community of learners. Applications are open for the new academic year." data-ar="انضموا إلى مجتمعنا التعليمي. باب القبول مفتوح للعام الدراسي الجديد.">انضموا إلى مجتمعنا التعليمي. باب القبول مفتوح للعام الدراسي الجديد.</p>
+                    </div>
+                    <div class="programs-card" id="programs-section">
+                        <div class="requirement-icon"><i class="fas fa-book-open"></i></div>
+                        <h3 data-en="Programs" data-ar="البرامج">البرامج</h3>
+                        <div class="programs-list">
+                            <div class="program-tag"><i class="fas fa-circle"></i><span>القرآن الكريم</span></div>
+                            <div class="program-tag"><i class="fas fa-circle"></i><span>التجويد</span></div>
+                            <div class="program-tag"><i class="fas fa-circle"></i><span>التفسير</span></div>
+                            <div class="program-tag"><i class="fas fa-circle"></i><span>الحديث</span></div>
+                            <div class="program-tag"><i class="fas fa-circle"></i><span>التوحيد</span></div>
+                            <div class="program-tag"><i class="fas fa-circle"></i><span>الفقه</span></div>
+                            <div class="program-tag"><i class="fas fa-circle"></i><span>النحو</span></div>
+                            <div class="program-tag"><i class="fas fa-circle"></i><span>البلاغة</span></div>
+                            <div class="program-tag"><i class="fas fa-circle"></i><span>الأدب</span></div>
+                        </div>
+                    </div>
+                    <div class="documents-card" id="documents-section">
+                        <div class="requirement-icon"><i class="fas fa-file-alt"></i></div>
+                        <h3 data-en="Required Documents" data-ar="الوثائق المطلوبة">الوثائق المطلوبة</h3>
+                        <ul class="documents-list">
+                            <li><i class="fas fa-check-circle"></i><span>شهادة الميلاد</span></li>
+                            <li><i class="fas fa-check-circle"></i><span>أربع صور شخصية</span></li>
+                            <li><i class="fas fa-check-circle"></i><span>تقارير مدرسية سابقة</span></li>
+                            <li><i class="fas fa-check-circle"></i><span>وثيقة هوية ولي الأمر</span></li>
+                        </ul>
+                    </div>
+                    <div class="deadline-box" id="deadline-section">
+                        <h4 data-en="Application Deadline" data-ar="الموعد النهائي للتقديم">الموعد النهائي للتقديم</h4>
+                        <div class="date" data-en="Contact us for dates" data-ar="تواصلوا معنا لمعرفة المواعيد">تواصلوا معنا لمعرفة المواعيد</div>
+                        <p data-en="Late applications may be considered on a case-by-case basis." data-ar="قد يُنظر في الطلبات المتأخرة حسب كل حالة.">قد يُنظر في الطلبات المتأخرة حسب كل حالة.</p>
+                    </div>
+                    <div class="apply-button"><a href="https://wa.me/2202594282" target="_blank" rel="noopener noreferrer" class="btn"><i class="fab fa-whatsapp"></i><span data-en="Apply via WhatsApp" data-ar="قدّموا عبر واتساب">قدّموا عبر واتساب</span></a></div>
+                </div>
+            </div>
+
+            <!-- TAB 4: NEWS -->
+            <div class="tab-pane" id="tab4">
+                <div class="news-section" id="news-section">
+                    <div class="news-header"><h2><i class="fas fa-newspaper"></i><span data-en="Latest News" data-ar="آخر الأخبار">آخر الأخبار</span></h2></div>
+                    <div class="news-grid">
+                        <div class="news-card featured">
+                            <div class="news-image"><div class="img-graphic sg1"><i class="fas fa-bullhorn"></i></div></div>
+                            <div class="news-content">
+                                <span class="news-category" data-en="Announcement" data-ar="إعلان">إعلان</span>
+                                <h3 class="news-title" data-en="New Academic Year — Enrollment Open" data-ar="العام الدراسي الجديد — التسجيل مفتوح">العام الدراسي الجديد — التسجيل مفتوح</h3>
+                                <p class="news-excerpt" data-en="Registration for the new academic year is now open. Reach out to reserve a place for your child." data-ar="التسجيل للعام الدراسي الجديد مفتوح الآن. تواصلوا معنا لحجز مكان لطفلكم.">التسجيل للعام الدراسي الجديد مفتوح الآن. تواصلوا معنا لحجز مكان لطفلكم.</p>
+                                <div class="news-meta">
+                                    <div class="news-author"><i class="fas fa-user-circle"></i><span data-en="Administration" data-ar="الإدارة">الإدارة</span></div>
+                                    <a href="#" class="read-more"><span data-en="Read more" data-ar="اقرأ المزيد">اقرأ المزيد</span><i class="fas fa-arrow-left"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-card">
+                            <div class="news-image"><div class="img-graphic sg2"><i class="fas fa-trophy"></i></div></div>
+                            <div class="news-content">
+                                <span class="news-category" data-en="Competition" data-ar="مسابقة">مسابقة</span>
+                                <h3 class="news-title" data-en="Annual Qur'an Competition" data-ar="مسابقة القرآن السنوية">مسابقة القرآن السنوية</h3>
+                                <p class="news-excerpt" data-en="Students of all levels are invited to take part in our annual Qur'an recitation competition." data-ar="الطلاب من جميع المستويات مدعوون للمشاركة في مسابقة تلاوة القرآن السنوية.">الطلاب من جميع المستويات مدعوون للمشاركة في مسابقة تلاوة القرآن السنوية.</p>
+                                <div class="news-meta">
+                                    <div class="news-author"><i class="fas fa-user-circle"></i><span data-en="Qur'an Dept." data-ar="قسم القرآن الكريم">قسم القرآن الكريم</span></div>
+                                    <a href="#" class="read-more"><span data-en="Read more" data-ar="اقرأ المزيد">اقرأ المزيد</span><i class="fas fa-arrow-left"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-card">
+                            <div class="news-image"><div class="img-graphic sg3"><i class="fas fa-chalkboard-teacher"></i></div></div>
+                            <div class="news-content">
+                                <span class="news-category" data-en="Event" data-ar="مناسبة">مناسبة</span>
+                                <h3 class="news-title" data-en="Open Day for Families" data-ar="يوم مفتوح للأسر">يوم مفتوح للأسر</h3>
+                                <p class="news-excerpt" data-en="Visit the school, meet our teachers, and learn about our approach to Arabic and Islamic education." data-ar="زوروا المعهد، والتقوا بمعلمينا، وتعرّفوا على منهجنا في التعليم العربي والإسلامي.">زوروا المعهد، والتقوا بمعلمينا، وتعرّفوا على منهجنا في التعليم العربي والإسلامي.</p>
+                                <div class="news-meta">
+                                    <div class="news-author"><i class="fas fa-user-circle"></i><span data-en="Administration" data-ar="الإدارة">الإدارة</span></div>
+                                    <a href="#" class="read-more"><span data-en="Read more" data-ar="اقرأ المزيد">اقرأ المزيد</span><i class="fas fa-arrow-left"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="newsletter-banner" id="newsletter-section">
+                            <div>
+                                <h3><i class="fas fa-envelope-open-text"></i><span data-en="Stay Updated" data-ar="ابقوا على اطلاع">ابقوا على اطلاع</span></h3>
+                                <p data-en="Subscribe for the latest news and events." data-ar="اشتركوا ليصلكم آخر الأخبار والفعاليات.">اشتركوا ليصلكم آخر الأخبار والفعاليات.</p>
+                            </div>
+                            <div class="newsletter-input">
+                                <input type="email" placeholder="your.email@example.com">
+                                <button data-en="Subscribe" data-ar="اشتركوا">اشتركوا</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: STUDENT PORTAL -->
+            <div class="tab-pane" id="tab5">
+                <div class="more-section" id="portal-section" style="background:transparent;box-shadow:none;padding:1.5rem 0;">
+                    <div id="sp-login" style="max-width:330px;margin:0 auto;">
+                        <div class="contact-card">
+                            <h3><i class="fas fa-right-to-bracket"></i><span data-en="Student Login" data-ar="تسجيل دخول الطالب">تسجيل دخول الطالب</span></h3>
+                            <div class="contact-form">
+                                <div class="cf-field"><label data-en="Student number" data-ar="رقم الطالب">رقم الطالب</label><input type="text" id="sp-num" autocomplete="off"></div>
+                                <div class="cf-field"><label data-en="Password" data-ar="كلمة المرور">كلمة المرور</label><input type="password" id="sp-pass" autocomplete="off" onkeydown="if(event.key==='Enter')studentLogin()"></div>
+                                <button id="sp-btn" onclick="studentLogin()"><i class="fas fa-right-to-bracket"></i><span data-en="Login" data-ar="دخول">دخول</span></button>
+                                <p class="cf-note" id="sp-msg" data-en="Your number is on your ID card (e.g. NR0002). Password: student" data-ar="رقمكم مكتوب على بطاقتكم (مثال: NR0002). كلمة المرور: student">رقمكم مكتوب على بطاقتكم (مثال: NR0002). كلمة المرور: student</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="sp-portal" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer" id="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="fb-name">Nurr Islamic Institute</div>
+                <div class="fb-ar">مَعْهَد النُّور الإِسْلَامِي بكانفينج الجنوبي</div>
+                <div style="color:var(--footer-text-light);font-size:0.85rem;margin-top:0.4rem;opacity:0.75;letter-spacing:1px;">EST. 1988</div>
+            </div>
+            <div class="contact-stack">
+                <div class="contact-item"><i class="fas fa-phone-alt"></i><span>+220 259 4282</span></div>
+                <div class="contact-item"><i class="fas fa-envelope"></i><span>ummahislamic2@gmail.com</span></div>
+            </div>
+            <div class="footer-social">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://www.tiktok.com/@mahadnurrtv1" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <div class="footer-legal">
+                <div class="copyright"><i class="far fa-copyright"></i> <span id="yr"></span> <span data-en="Nurr Islamic Institute, Kanifing South. All rights reserved." data-ar="معهد النور الإسلامي. جميع الحقوق محفوظة.">معهد النور الإسلامي. جميع الحقوق محفوظة.</span></div>
+                <div class="footer-links"><a href="#" data-en="Privacy Policy" data-ar="سياسة الخصوصية">سياسة الخصوصية</a><a href="#" data-en="Terms" data-ar="شروط الخدمة">شروط الخدمة</a></div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+(function() {
+    'use strict';
+
+    // LANGUAGE
+    const langButtons = document.querySelectorAll('.lang-btn');
+    function setLang(lang) {
+        langButtons.forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-lang') === lang));
+        document.querySelectorAll('[data-en][data-ar]').forEach(el => { el.textContent = el.getAttribute(lang === 'en' ? 'data-en' : 'data-ar'); });
+        const si = document.getElementById('searchInput');
+        if (si) si.placeholder = lang === 'en' ? 'Search Nurr Islamic Institute...' : 'البحث في معهد النور...';
+        if (SP) spBuild();
+    }
+    langButtons.forEach(btn => btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang'))));
+
+    // TABS
+    document.querySelectorAll('.tab-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            item.classList.add('active');
+            document.getElementById(item.dataset.tab).classList.add('active');
+        });
+    });
+
+    /* =======================================================================
+       STUDENT PORTAL — talks to /api/student-results (Neon)
+
+       Login  ->  one row per term, grouped by academic year
+       Row    ->  opens the official كشف الدرجات as a full A4 page
+       Print  ->  the exact same sheet, sized for paper
+    ======================================================================= */
+    const SP_TERMS = ['الفترة الأولى', 'الفترة الثانية'];
+    const SEAL_URL = location.origin + '/nurry.png';
+    let SP = null;
+
+    const spLang = () => {
+        const b = document.querySelector('.lang-btn.active');
+        return b ? b.getAttribute('data-lang') : 'ar';
+    };
+    const spEsc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+    function spNote(text, isError) {
+        const el = document.getElementById('sp-msg');
+        if (!el) return;
+        el.textContent = text;
+        el.style.color = isError ? '#c0392b' : 'var(--text-light)';
+    }
+    function spGrade(pct) {
+        const en = spLang() === 'en';
+        return pct >= 90 ? (en ? 'Excellent' : 'ممتاز')
+             : pct >= 75 ? (en ? 'Very good' : 'جيد جداً')
+             : pct >= 60 ? (en ? 'Good' : 'جيد')
+             : pct >= 50 ? (en ? 'Pass' : 'مقبول')
+             : (en ? 'Weak' : 'ضعيف');
+    }
+    function spGradeAr(pct) {
+        return pct >= 90 ? 'ممتاز' : pct >= 75 ? 'جيد جداً' : pct >= 60 ? 'جيد' : pct >= 50 ? 'مقبول' : 'ضعيف';
+    }
+
+    window.studentLogin = async function() {
+        const num = (document.getElementById('sp-num').value || '').trim();
+        const pass = (document.getElementById('sp-pass').value || '').trim();
+        const en = spLang() === 'en';
+        const btn = document.getElementById('sp-btn');
+        if (!num || !pass) {
+            spNote(en ? 'Please enter your student number and password.' : 'يرجى إدخال رقم الطالب وكلمة المرور.', true);
+            return;
+        }
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        try {
+            const res = await fetch('/api/student-results', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentId: num, password: pass })
+            });
+            const d = await res.json();
+            if (!d.success) throw new Error(d.error || (en ? 'Login failed' : 'فشل تسجيل الدخول'));
+            SP = d;
+            document.getElementById('sp-login').style.display = 'none';
+            document.body.classList.add('sp-open');
+            spBuild();
+            window.scrollTo({ top: 0 });
+        } catch (err) {
+            spNote(err.message, true);
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-right-to-bracket"></i> ' + (en ? 'Login' : 'دخول');
+    };
+
+    // { year: { term: [rows] } }
+    function spGroups() {
+        const g = {};
+        (SP.results || []).forEach(function(r) {
+            g[r.academic_year] = g[r.academic_year] || {};
+            (g[r.academic_year][r.term] = g[r.academic_year][r.term] || []).push(r);
+        });
+        return g;
+    }
+    function spTotals(rows) {
+        const total = rows.reduce(function(a, r) { return a + (r.score || 0) }, 0);
+        const max = rows.length * 100;
+        return { total: total, max: max, pct: max ? (total / max) * 100 : 0 };
+    }
+
+    function spInfoRow(icon, label, value) {
+        return '<div class="sp-info-row"><div class="sp-info-ic"><i class="fas ' + icon + '"></i></div>' +
+            '<div><div class="sp-info-lbl">' + label + '</div>' +
+            '<div class="sp-info-val">' + (value ? spEsc(value) : '—') + '</div></div></div>';
+    }
+
+    function spBuild() {
+        const en = spLang() === 'en';
+        const s = SP.student;
+        const box = document.getElementById('sp-portal');
+        const groups = spGroups();
+        const years = Object.keys(groups).sort().reverse();
+        const dob = s.date_of_birth ? String(s.date_of_birth).slice(0, 10) : '';
+
+        let html =
+            // top bar
+            '<div class="sp-bar">' +
+            '<div class="sp-bar-name"><i class="fas fa-user-graduate"></i><span>' + spEsc(s.full_name) + '</span></div>' +
+            '<button class="sp-out" onclick="studentLogout()"><i class="fas fa-right-from-bracket"></i>' +
+            (en ? 'Log out' : 'تسجيل الخروج') + '</button></div>' +
+            '<div class="sp-wrap">' +
+            // hero
+            '<div class="sp-hero"><div class="sp-av"><i class="fas fa-user-graduate"></i></div>' +
+            '<div><div class="sp-hero-name">' + spEsc(s.full_name) + '</div>' +
+            '<div class="sp-hero-line">' + (en ? 'Student number: ' : 'رقم الطالب: ') + spEsc(s.student_id) + '</div>' +
+            '<div class="sp-hero-line">' + (en ? 'Class: ' : 'الفصل: ') + spEsc(s.class_name) +
+            ' · ' + spEsc(s.grade_level) + '</div></div></div>' +
+            // details
+            '<div class="sp-info">' +
+            spInfoRow('fa-calendar', en ? 'Date of birth' : 'تاريخ الميلاد', dob) +
+            spInfoRow('fa-user-shield', en ? 'Guardian' : 'ولي الأمر', s.guardian_name) +
+            spInfoRow('fa-phone', en ? "Guardian's phone" : 'هاتف ولي الأمر', s.guardian_phone) +
+            '</div>';
+
+        if (!years.length) {
+            html += '<div class="sp-empty"><i class="fas fa-inbox"></i>' +
+                (en ? 'No results published yet.' : 'لم تُنشر أي نتائج بعد.') + '</div></div>';
+            box.innerHTML = html;
+            box.style.display = 'block';
+            return;
+        }
+
+        html += '<div class="sp-pick"><i class="fas fa-book-open"></i>' +
+            (en ? 'Choose a term to view the results' : 'اختر الفصل الدراسي لعرض النتائج') + '</div>';
+
+        years.forEach(function(year) {
+            html += '<span class="sp-year-chip"><i class="fas fa-calendar-days"></i> ' +
+                (en ? 'Academic year: ' : 'العام الدراسي: ') + spEsc(year) + '</span><div class="sp-cards">';
+            SP_TERMS.forEach(function(term) {
+                const rows = groups[year][term];
+                if (!rows) {
+                    html += '<div class="sp-card off"><div class="sp-card-hd"><div class="t">' + term + '</div>' +
+                        '<div class="y">' + spEsc(year) + '</div></div>' +
+                        '<div class="sp-card-bd"><div class="sp-file"><i class="fas fa-file"></i></div>' +
+                        '<div class="cap">' + (en ? 'No results yet' : 'لم تُنشر بعد') + '</div></div>' +
+                        '<div class="sp-none">' + (en ? 'Not yet available' : 'غير متاحة حالياً') + '</div></div>';
+                    return;
+                }
+                const t = spTotals(rows);
+                html += '<div class="sp-card"><div class="sp-card-hd"><div class="t">' + term + '</div>' +
+                    '<div class="y">' + spEsc(year) + '</div></div>' +
+                    '<div class="sp-card-bd">' +
+                    '<div class="sp-file"><i class="fas fa-file-pdf"></i><span>PDF</span></div>' +
+                    '<div class="cap">' + (en ? 'Results ready' : 'النتيجة جاهزة') + ' · ' + spGrade(t.pct) + '</div></div>' +
+                    '<div class="sp-stats">' +
+                    '<div class="sp-stat"><b>' + rows.length + '</b><span>' + (en ? 'Subjects' : 'المواد') + '</span></div>' +
+                    '<div class="sp-stat"><b>' + t.total + '</b><span>' + (en ? 'Total' : 'المجموع') + '</span></div>' +
+                    '<div class="sp-stat"><b>' + t.pct.toFixed(0) + '%</b><span>' + (en ? 'Percent' : 'النسبة') + '</span></div>' +
+                    '</div>' +
+                    '<button class="sp-view" onclick="spOpen(\'' + spEsc(year) + '\',\'' + spEsc(term) + '\')">' +
+                    '<i class="fas fa-eye"></i>' + (en ? 'View results' : 'عرض النتيجة') + '</button></div>';
+            });
+            html += '</div>';
+        });
+
+        html += '</div>';
+        box.innerHTML = html;
+        box.style.display = 'block';
+    }
+
+    // The official كشف الدرجات — identical markup on screen and on paper
+    function spSheet(year, term) {
+        const s = SP.student;
+        const rows = (spGroups()[year] || {})[term] || [];
+        const t = spTotals(rows);
+        // the class stored on the mark itself — never the student's current one
+        const sheetClass = (rows[0] && rows[0].class_name) || s.class_name;
+        const rk = (SP.ranks || {})[year + '|' + term + '|' + sheetClass] || {};
+        return '<div class="sp-sheet">' +
+            '<div class="sp-bism">بسم الله الرحمن الرحيم</div>' +
+            '<div class="sp-hd">' +
+            '<div class="sp-ar">معهد النور الإسلامي<br><span>التابع لجمعية الأمة الإسلامية لنشر الثقافة الإسلامية<br>كانفينج — غامبيا — غرب إفريقيا</span></div>' +
+            '<img class="sp-seal" src="' + SEAL_URL + '" alt="" onerror="this.style.display=\'none\'">' +
+            '<div class="sp-en">AN-NURR ISLAMIC INSTITUTE<br>UNDER THE ISLAMIC UMMAH SOCIETY<br>FOR SPREADING ISLAMIC CULTURE<br>KANIFING SOUTH - THE GAMBIA W/A</div>' +
+            '</div>' +
+            '<div class="sp-ttl">كشف الدرجات</div>' +
+            '<div class="sp-meta"><span>' + spEsc(year) + ' م</span>' +
+            '<span>نتائج الامتحانات للصف: ' + spEsc(sheetClass) + ' — ' + spEsc(term) + '</span></div>' +
+            '<div class="sp-nm">اسم الطالب(ة): <b>' + spEsc(s.full_name) + '</b> · الرقم: ' + spEsc(s.student_id) + '</div>' +
+            '<table class="sp-tbl">' +
+            '<tr><th style="width:26px">م</th><th>المواد</th><th style="width:52px">الصغرى</th>' +
+            '<th style="width:52px">الكبرى</th><th style="width:78px">الدرجات المكتسبة</th><th style="width:80px">الملحوظات</th></tr>' +
+            rows.map(function(r, i) {
+                return '<tr><td>' + (i + 1) + '</td><td class="sp-sub">' + spEsc(r.subject) + '</td>' +
+                    '<td>50</td><td>100</td><td class="sp-got">' + r.score + '</td>' +
+                    '<td>' + (r.score >= 50 ? '' : 'راسب') + '</td></tr>';
+            }).join('') +
+            '<tr class="sp-sum"><td colspan="2" class="sp-sub">المجموع</td><td colspan="4">' + t.total + ' / ' + t.max + '</td></tr>' +
+            '<tr class="sp-sum"><td colspan="2" class="sp-sub">النسبة</td><td colspan="4">' + t.pct.toFixed(1) + '%</td></tr>' +
+            '<tr class="sp-sum"><td colspan="2" class="sp-sub">النتيجة</td><td colspan="4">' + (t.pct >= 50 ? 'ناجح' : 'راسب') + '</td></tr>' +
+            '<tr class="sp-sum"><td colspan="2" class="sp-sub">التقدير</td><td colspan="4">' + spGradeAr(t.pct) + '</td></tr>' +
+            '<tr class="sp-sum"><td colspan="2" class="sp-sub">الترتيب</td><td colspan="4">' + (rk.rank || '—') + '</td></tr>' +
+            '<tr class="sp-sum"><td colspan="2" class="sp-sub">عدد الطلبة في الفصل</td><td colspan="4">' + (rk.of || '—') + '</td></tr>' +
+            '</table>' +
+            '<div class="sp-cert">تشهد إدارة معهد النور الإسلامي بأن الطالب(ة) المذكور(ة) قد نجح(ت) في امتحان الدور الأول، ولذلك أعطي له (لها) هذه الوثيقة.</div>' +
+            '<div class="sp-sig"><span>الختم الرسمي</span><span>توقيع مدير الامتحانات</span><span>توقيع مدير المعهد</span></div>' +
+            '</div>';
+    }
+
+    // pulled out of the page's own <style> so the print window can reuse it verbatim
+    function spSheetCss() {
+        const sheet = document.querySelector('style');
+        const css = sheet ? sheet.textContent : '';
+        const start = css.indexOf('.sp-sheet {');
+        const end = css.indexOf('/* ===== A4 VIEWER OVERLAY ===== */');
+        return (start > -1 && end > start) ? css.slice(start, end) : '';
+    }
+
+    window.spOpen = function(year, term) {
+        const en = spLang() === 'en';
+        spCloseViewer();
+        const v = document.createElement('div');
+        v.id = 'sp-viewer';
+        v.innerHTML =
+            '<div class="spv-bar">' +
+            '<span class="spv-name"><i class="fas fa-file-lines"></i> ' + spEsc(year) + ' — ' + spEsc(term) + '</span>' +
+            '<span style="display:flex;gap:6px;flex-shrink:0;">' +
+            '<button class="spv-btn" onclick="spPrint(\'' + spEsc(year) + '\',\'' + spEsc(term) + '\')">' +
+            '<i class="fas fa-print"></i> ' + (en ? 'Print' : 'طباعة') + '</button>' +
+            '<button class="spv-btn" onclick="spCloseViewer()" aria-label="إغلاق"><i class="fas fa-xmark"></i></button>' +
+            '</span></div>' +
+            '<div class="spv-body"><div class="spv-page">' + spSheet(year, term) + '</div></div>';
+        document.body.appendChild(v);
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.spCloseViewer = function() {
+        const v = document.getElementById('sp-viewer');
+        if (v) v.remove();
+        document.body.style.overflow = '';
+    };
+
+    // A sheet with 5 subjects and one with 18 both have to fill the same A4.
+    // Rather than one compromise size, the print CSS is picked from the row
+    // count: few subjects get tall, generous rows; a full secondary sheet gets
+    // tight ones. Either way the page is used properly instead of leaving two
+    // thirds of it blank.
+    function spPrintScale(n) {
+        // Only the marks table stretches to fill the page. The letterhead —
+        // seal, both institute names, the title — is identical on every sheet
+        // and stays fixed, so a five-subject كشف and an eighteen-subject one
+        // are recognisably the same document.
+        const head = { seal:32, ar:14, en:8.4, ttl:17, bism:12, nm:11.5, meta:10.5 };
+        if (n <= 7)  return Object.assign({ sub:20,   tbl:14,  pad:'4.4mm 2mm', sum:14,  cert:10.5, sig:11,  gap:'6mm' }, head);
+        if (n <= 10) return Object.assign({ sub:17,   tbl:12,  pad:'3.2mm 2mm', sum:12.5,cert:10,   sig:10,  gap:'5mm' }, head);
+        if (n <= 14) return Object.assign({ sub:14,   tbl:10.5,pad:'2.1mm 2mm', sum:11,  cert:9,    sig:9,   gap:'5mm' }, head);
+        return          Object.assign({ sub:11.5, tbl:9,   pad:'1.1mm 2mm', sum:9.5, cert:8.2,  sig:8.2, gap:'4mm' }, head);
+    }
+
+    window.spPrint = function(year, term) {
+        const nRows = ((spGroups()[year] || {})[term] || []).length;
+        const z = spPrintScale(nRows);
+        const w = window.open('', '_blank');
+        if (!w) { alert('يرجى السماح بالنوافذ المنبثقة'); return }
+        w.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">' +
+            '<title>كشف الدرجات — ' + spEsc(SP.student.full_name) + '</title><style>' +
+            'body{margin:0;padding:0;background:#fff}@page{size:A4 portrait;margin:9mm}' +
+            spSheetCss() +
+            /* One sheet, always. 18 subjects plus six summary rows plus the
+               certificate and signatures have to clear 297mm, so the print
+               layout is tightened well below the on-screen sizes. */
+            '.sp-sheet{border:2px solid #000;padding:6mm 7mm;min-height:calc(297mm - 18mm - 12mm);display:flex;flex-direction:column}' +
+            '.sp-bism{font-size:' + z.bism + 'pt;margin-bottom:' + z.gap + '}' +
+            '.sp-hd{margin-bottom:3mm}.sp-ar{font-size:' + z.ar + 'pt;line-height:1.5}' +
+            '.sp-ar span{font-size:' + (z.ar*0.62).toFixed(1) + 'pt}' +
+            '.sp-en{font-size:' + z.en + 'pt;line-height:1.4}' +
+            '.sp-seal{width:' + z.seal + 'mm;height:' + z.seal + 'mm}' +
+            '.sp-ttl{font-size:' + z.ttl + 'pt;margin:' + z.gap + ' 0}' +
+            '.sp-meta{font-size:' + z.meta + 'pt;margin-bottom:2mm}' +
+            '.sp-nm{font-size:' + z.nm + 'pt;margin-bottom:3mm}' +
+            '.sp-tbl{font-size:' + z.tbl + 'pt}' +
+            '.sp-tbl th,.sp-tbl td{padding:' + z.pad + '}' +
+            '.sp-sub{font-size:' + z.sub + 'pt;padding:' + z.pad + ' !important}' +
+            '.sp-sum td{font-size:' + z.sum + 'pt}' +
+            '.sp-cert{font-size:' + z.cert + 'pt;margin-top:auto;padding-top:' + z.gap + ';line-height:1.7}' +
+            '.sp-sig{font-size:' + z.sig + 'pt;margin-top:14mm}' +
+            '@media print{button{display:none!important}' +
+            '  html,body{height:auto}.sp-sheet{page-break-inside:avoid;break-inside:avoid}}' +
+            '</style></head><body>' +
+            spSheet(year, term) +
+            '<div style="text-align:center;margin-top:16px">' +
+            '<button onclick="window.print()" style="background:#2f6f9e;color:#fff;padding:10px 26px;border:none;border-radius:8px;cursor:pointer;font-size:1rem">طباعة</button>' +
+            '<p style="font-family:sans-serif;font-size:.8rem;color:#666;margin-top:8px">' +
+            'لطباعة نظيفة: في نافذة الطباعة اختاروا «المزيد من الإعدادات» ثم أزيلوا علامة «الرؤوس والتذييلات».</p></div>' +
+            '</body></html>');
+        w.document.close();
+    };
+
+    window.studentLogout = function() {
+        spCloseViewer();
+        SP = null;
+        document.body.classList.remove('sp-open');
+        const portal = document.getElementById('sp-portal');
+        portal.style.display = 'none';
+        portal.innerHTML = '';
+        document.getElementById('sp-login').style.display = 'block';
+        document.getElementById('sp-num').value = '';
+        document.getElementById('sp-pass').value = '';
+        spNote(spLang() === 'en'
+            ? 'Your number is on your ID card (e.g. NR0002). Password: student'
+            : 'رقمكم مكتوب على بطاقتكم (مثال: NR0002). كلمة المرور: student');
+    };
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('sp-viewer')) spCloseViewer();
+    });
+
+    // language buttons need SP defined before the first setLang call
+    setLang('ar');
+
+    // CAROUSEL
+    let currentSlideIndex = 0;
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.dot');
+    function showSlide(index) {
+        if (!slides.length) return;
+        if (index >= slides.length) index = 0;
+        if (index < 0) index = slides.length - 1;
+        slides.forEach(s => s.classList.remove('active'));
+        dots.forEach(d => d.classList.remove('active'));
+        slides[index].classList.add('active');
+        if (dots[index]) dots[index].classList.add('active');
+        currentSlideIndex = index;
+    }
+    window.changeSlide = d => showSlide(currentSlideIndex + d);
+    window.currentSlide = i => showSlide(i - 1);
+    let slideInterval = setInterval(() => showSlide(currentSlideIndex + 1), 3000);
+    const carousel = document.querySelector('.carousel-container');
+    if (carousel) {
+        carousel.addEventListener('mouseenter', () => clearInterval(slideInterval));
+        carousel.addEventListener('mouseleave', () => { clearInterval(slideInterval); slideInterval = setInterval(() => showSlide(currentSlideIndex + 1), 3000); });
+    }
+    showSlide(0);
+
+    // SEARCH
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const searchDb = [
+        { title:{en:'Welcome',ar:'الرئيسية'}, category:{en:'Home',ar:'الرئيسية'}, preview:{en:'Arabic & Islamic education',ar:'تعليم عربي وإسلامي'}, tab:'tab1', elementId:'welcome-section', keywords:['welcome','home','مرحبا','الرئيسية','تعليم'] },
+        { title:{en:'Mission',ar:'مهمتنا'}, category:{en:'Home',ar:'الرئيسية'}, preview:{en:'Our mission',ar:'مهمتنا'}, tab:'tab1', elementId:'mission-section', keywords:['mission','مهمة','قيم','values'] },
+        { title:{en:'Vision',ar:'رؤيتنا'}, category:{en:'Home',ar:'الرئيسية'}, preview:{en:'Our vision',ar:'رؤيتنا'}, tab:'tab1', elementId:'vision-section', keywords:['vision','رؤية'] },
+        { title:{en:'About',ar:'عن المعهد'}, category:{en:'About',ar:'عن المعهد'}, preview:{en:'Who we are',ar:'من نحن'}, tab:'tab2', elementId:'about-section', keywords:['about','عن','نور','noor','history'] },
+        { title:{en:'Admissions',ar:'القبول'}, category:{en:'Admission',ar:'القبول'}, preview:{en:'Apply now',ar:'قدم الآن'}, tab:'tab3', elementId:'admission-section', keywords:['admission','apply','قبول','تقديم','programs','برامج'] },
+        { title:{en:'News',ar:'الأخبار'}, category:{en:'News',ar:'أخبار'}, preview:{en:'Latest news',ar:'آخر الأخبار'}, tab:'tab4', elementId:'news-section', keywords:['news','أخبار','event','مسابقة'] },
+        { title:{en:'Student Portal',ar:'بوابة الطالب'}, category:{en:'Portal',ar:'البوابة'}, preview:{en:'Student login',ar:'تسجيل دخول الطالب'}, tab:'tab5', elementId:'portal-section', keywords:['portal','login','student','بوابة','دخول','طالب','تسجيل','نتيجة','results','كشف'] },
+    ];
+    function scrollToAndHighlight(elementId) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        document.querySelectorAll('.section-highlight').forEach(e => e.classList.remove('section-highlight'));
+        el.classList.add('section-highlight');
+        el.scrollIntoView({ behavior:'smooth', block:'center' });
+        setTimeout(() => el.classList.remove('section-highlight'), 2000);
+    }
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const q = this.value.trim().toLowerCase();
+            const lang = document.querySelector('.lang-btn.active') ? document.querySelector('.lang-btn.active').getAttribute('data-lang') : 'ar';
+            if (q.length < 2) { searchResults.classList.remove('active'); return; }
+            const results = searchDb.filter(item => item.keywords.some(k => k.toLowerCase().includes(q))).slice(0, 5);
+            if (results.length > 0) {
+                searchResults.innerHTML = results.map(r => '<div class="search-result-item" data-tab="'+(r.tab||'')+'" data-element="'+(r.elementId||'')+'"><div class="result-category"><i class="fas fa-tag"></i> '+r.category[lang]+'</div><div class="result-title">'+r.title[lang]+'</div><div class="result-preview">'+r.preview[lang]+'</div></div>').join('');
+                searchResults.classList.add('active');
+                document.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const tabId = this.dataset.tab;
+                        if (tabId) { const tabItem = document.querySelector('.tab-item[data-tab="'+tabId+'"]'); if (tabItem) { tabItem.click(); setTimeout(() => scrollToAndHighlight(this.dataset.element), 100); } }
+                        searchInput.value = ''; searchResults.classList.remove('active');
+                    });
+                });
+            } else {
+                searchResults.innerHTML = '<div class="no-results"><i class="fas fa-search"></i> '+(lang==='en'?'No results found':'لا توجد نتائج')+'</div>';
+                searchResults.classList.add('active');
+            }
+        });
+        document.addEventListener('click', e => { if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) searchResults.classList.remove('active'); });
+        searchInput.addEventListener('keyup', function() { if (!this.value.trim()) searchResults.classList.remove('active'); });
+    }
+
+    // YEAR
+    document.getElementById('yr').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
