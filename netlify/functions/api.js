@@ -2529,7 +2529,7 @@ async function studentHistory(sql, event) {
     if (!studentId) return json({ error: 'studentId is required' }, 400);
     const [studentRows, enrollments, results, payments, remarks] = await Promise.all([
       sql`SELECT student_id, full_name, grade_level, class_name, academic_year, status, archived_at, archive_reason,
-                 date_of_birth, gender, place_of_birth, address, guardian_name, father_name, mother_name
+                 date_of_birth, gender, place_of_birth, address, guardian_name, father_name, mother_name, profile_photo
           FROM students WHERE student_id = ${studentId} LIMIT 1`,
       sql`SELECT academic_year, grade_level, class_name, full_name
           FROM student_enrollments WHERE student_id = ${studentId} ORDER BY academic_year DESC`,
