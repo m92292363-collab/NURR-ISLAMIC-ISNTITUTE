@@ -1,12 +1,12 @@
 {
-  "name": "Imam Malick Admin",
-  "short_name": "IM Admin",
+  "name": "IMAM",
+  "short_name": "IMAM",
   "description": "Admin panel — Imam Malick Conventional Upper Basic School",
   "id": "/admin-xo42rqv82v/",
   "start_url": "/admin-xo42rqv82v/",
   "scope": "/admin-xo42rqv82v/",
   "display": "standalone",
-  "background_color": "#0d2a4a",
+  "background_color": "#f2f5f9",
   "theme_color": "#0d3b6e",
   "icons": [
     {
