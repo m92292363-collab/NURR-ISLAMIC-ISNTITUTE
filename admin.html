@@ -173,6 +173,7 @@ var T = {
     search:'Search', loading:'Loading…', noData:'Nothing here yet', tryAgain:'Try again', refresh:'Refresh',
     date:'Date', amount:'Amount', method:'Method', receipt:'Receipt', pickFilters:'Choose year and term',
     active:'Active', inactive:'Inactive', sessionExpired:'Session expired — please log in again',
+    nationality:'Nationality', editStudent:'Edit Student', loadStudent:'Load', studentNotFound:'Student not found',
     installTitle:'Install NURR on this computer', installSub:'Open the admin from your desktop in one click — no browser tabs.', installBtn:'Install NURR',
     grpStaff:'Staff', grpSite:'Website', grpSystem:'System',
     addStudent:'Add Student', promotion:'Promotion', classesTab:'Classes & Stages', addMarks:'Enter Marks', subjects:'Subjects',
@@ -204,6 +205,7 @@ var T = {
     search:'بحث', loading:'جارٍ التحميل…', noData:'لا توجد بيانات بعد', tryAgain:'إعادة المحاولة', refresh:'تحديث',
     date:'التاريخ', amount:'المبلغ', method:'الطريقة', receipt:'الإيصال', pickFilters:'اختر العام والفصل الدراسي',
     active:'نشط', inactive:'موقوف', sessionExpired:'انتهت الجلسة — يرجى تسجيل الدخول من جديد',
+    nationality:'الجنسية', editStudent:'تعديل بيانات طالب', loadStudent:'تحميل', studentNotFound:'الطالب غير موجود',
     installTitle:'ثبّت تطبيق النور على هذا الحاسوب', installSub:'افتح لوحة الإدارة من سطح المكتب بنقرة واحدة — بدون متصفح.', installBtn:'تثبيت النور',
     grpStaff:'الموظفون', grpSite:'الموقع', grpSystem:'النظام',
     addStudent:'إضافة طالب', promotion:'الترقية', classesTab:'الفصول والمراحل', addMarks:'إدخال نتيجة', subjects:'المواد',
@@ -280,6 +282,7 @@ var NAV=[
   {g:'grpStudents', items:[
     {id:'students',icon:'fa-users'},
     {id:'addStudent',icon:'fa-user-plus'},
+    {id:'editStudent',icon:'fa-user-pen'},
     {id:'promotion',icon:'fa-arrow-up-right-dots'},
     {id:'classes',icon:'fa-layer-group'}
   ]},
@@ -338,7 +341,7 @@ function openPage(id, keep){
   document.querySelectorAll('.sb-item').forEach(function(x){ x.classList.toggle('on', x.dataset.page===id); });
   var c=document.getElementById('content');
   var fn={dashboard:pageDashboard,students:pageStudents,results:pageResults,fees:pageFees,attendance:pageAttendance,
-    addStudent:pageAddStudent,promotion:pagePromotion,classes:pageClasses,addMarks:pageAddMarks,subjects:pageSubjects,
+    addStudent:pageAddStudent,editStudent:pageEditStudent,promotion:pagePromotion,classes:pageClasses,addMarks:pageAddMarks,subjects:pageSubjects,
     recordPayment:pageRecordPayment,feeSchedule:pageFeeSchedule,teachers:pageTeachers,links:pageLinks,news:pageNews,
     audit:pageAudit,settings:pageSettings}[id];
   if(fn) fn(c); else c.innerHTML=emptyBox();
@@ -420,7 +423,7 @@ async function pageFees(c){
   var yr=new Date().getFullYear(); var defYear=yr+'-'+(yr+1);
   c.innerHTML='<div class="card"><h3><i class="fas fa-sack-dollar"></i> '+t('fees')+'</h3>'+
     '<div class="filters"><div><label>'+t('year')+'</label><input id="fYear" value="'+defYear+'"></div>'+
-    '<div><label>'+t('term')+'</label><select id="fTerm"><option>Term 1</option><option>Term 2</option><option>Term 3</option></select></div>'+
+    '<div><label>'+t('term')+'</label><select id="fTerm"><option>Term 1</option><option>Term 2</option></select></div>'+
     '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadFees()"><i class="fas fa-magnifying-glass"></i></button></div></div>'+
     '<div id="fBody"><div class="empty"><i class="fas fa-sack-dollar"></i>'+t('pickFilters')+'</div></div></div>';
   window.loadFees=async function(){
@@ -487,7 +490,7 @@ async function pageAddStudent(c){
       field('as-pass',t('passwordField'))+selField('as-grade',t('grade'))+
       field('as-class',t('className'))+field('as-guardian',t('guardianName'))+
       field('as-gphone',t('guardianPhone'))+field('as-sphone',t('studentPhone'))+
-      field('as-dob',t('dob'),'date')+field('as-addr',t('address'))+
+      field('as-dob',t('dob'),'date')+field('as-addr',t('address'))+field('as-nat',t('nationality'))+
     '</div>'+
     '<button class="btn" id="asBtn" onclick="saveStudent()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
     '<div class="msg ok" id="as-ok"></div><div class="msg err" id="as-err"></div></div>';
@@ -496,11 +499,50 @@ async function pageAddStudent(c){
 async function saveStudent(){
   hide('as-ok','as-err');
   var b={ studentId:val('as-id'), fullName:val('as-name'), password:val('as-pass'), gradeLevel:val('as-grade'), className:val('as-class'),
-          guardianName:val('as-guardian'), guardianPhone:val('as-gphone'), studentPhone:val('as-sphone'), dateOfBirth:val('as-dob'), address:val('as-addr') };
+          guardianName:val('as-guardian'), guardianPhone:val('as-gphone'), studentPhone:val('as-sphone'), dateOfBirth:val('as-dob'), address:val('as-addr'), nationality:val('as-nat') };
   if(!b.studentId||!b.fullName||!b.password||!b.gradeLevel||!b.className){ show('as-err',t('required')); return; }
   var btn=document.getElementById('asBtn'); btn.disabled=true;
-  try{ var d=await api('add-student',{method:'POST',body:b}); show('as-ok','✅ '+(d.message||t('added'))); ['as-id','as-name','as-pass','as-class','as-guardian','as-gphone','as-sphone','as-dob','as-addr'].forEach(function(i){ document.getElementById(i).value=''; }); }
+  try{ var d=await api('add-student',{method:'POST',body:b}); show('as-ok','✅ '+(d.message||t('added'))); ['as-id','as-name','as-pass','as-class','as-guardian','as-gphone','as-sphone','as-dob','as-addr','as-nat'].forEach(function(i){ document.getElementById(i).value=''; }); }
   catch(e){ show('as-err','❌ '+e.message); }
+  btn.disabled=false;
+}
+
+/* ======================= EDIT STUDENT ======================= */
+var _allStudents=[];
+async function pageEditStudent(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-user-pen"></i> '+t('editStudent')+'</h3>'+
+    '<div class="filters"><div><label>'+t('studentId')+'</label><input id="es-search" list="es-list" placeholder="'+t('studentId')+' / '+t('name')+'"><datalist id="es-list"></datalist></div>'+
+    '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadStudentForEdit()"><i class="fas fa-magnifying-glass"></i> '+t('loadStudent')+'</button></div></div>'+
+    '<div id="es-form"></div></div>';
+  try{ var d=await api('get-all-students'); _allStudents=d.students||[]; document.getElementById('es-list').innerHTML=_allStudents.map(function(x){return '<option value="'+esc(x.student_id)+'">'+esc(x.full_name)+'</option>';}).join(''); }catch(e){}
+}
+function loadStudentForEdit(){
+  var q=val('es-search').toLowerCase();
+  var s=_allStudents.find(function(x){ return x.student_id.toLowerCase()===q || (x.full_name||'').toLowerCase()===q; });
+  if(!s) s=_allStudents.find(function(x){ return (x.full_name||'').toLowerCase().indexOf(q)>=0 || x.student_id.toLowerCase().indexOf(q)>=0; });
+  if(!s){ document.getElementById('es-form').innerHTML='<div class="msg err show">'+t('studentNotFound')+'</div>'; return; }
+  var dob=s.date_of_birth?String(s.date_of_birth).slice(0,10):'';
+  document.getElementById('es-form').innerHTML='<input type="hidden" id="eu-id" value="'+esc(s.student_id)+'">'+
+    '<div class="form-grid">'+
+      field('eu-name',t('fullName'),'text',s.full_name||'')+field('eu-grade',t('grade'),'text',s.grade_level||'')+
+      field('eu-class',t('className'),'text',s.class_name||'')+field('eu-nat',t('nationality'),'text',s.nationality||'')+
+      field('eu-guardian',t('guardianName'),'text',s.guardian_name||'')+field('eu-gphone',t('guardianPhone'),'text',s.guardian_phone||'')+
+      field('eu-sphone',t('studentPhone'),'text',s.student_phone||'')+field('eu-dob',t('dob'),'date',dob)+
+      field('eu-addr',t('address'),'text',s.address||'')+field('eu-pass',t('passwordField')+' ('+(lang==='ar'?'اتركه فارغاً':'blank = keep')+')','text','')+
+    '</div>'+
+    '<button class="btn" id="euBtn" onclick="saveStudentEdit()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
+    '<div class="msg ok" id="eu-ok"></div><div class="msg err" id="eu-err"></div>';
+}
+async function saveStudentEdit(){
+  hide('eu-ok','eu-err');
+  var b={ studentId:val('eu-id'), fullName:val('eu-name'), gradeLevel:val('eu-grade'), className:val('eu-class'),
+          nationality:val('eu-nat'), guardianName:val('eu-guardian'), guardianPhone:val('eu-gphone'),
+          studentPhone:val('eu-sphone'), dateOfBirth:val('eu-dob'), address:val('eu-addr') };
+  if(val('eu-pass')) b.password=val('eu-pass');
+  if(!b.studentId||!b.fullName){ show('eu-err',t('required')); return; }
+  var btn=document.getElementById('euBtn'); btn.disabled=true;
+  try{ var d=await api('update-student',{method:'PUT',body:b}); show('eu-ok','✅ '+(d.message||t('updated'))); }
+  catch(e){ show('eu-err','❌ '+e.message); }
   btn.disabled=false;
 }
 
@@ -546,7 +588,7 @@ async function pageAddMarks(c){
     '<div class="msg ok" id="am-ok"></div><div class="msg err" id="am-err"></div></div>';
   // subjects
   try{ var sd=await api('get-subjects'); var sel=document.getElementById('am-subject'); sel.innerHTML=(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
-  var ts=document.getElementById('am-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option><option>Term 3</option>';
+  var ts=document.getElementById('am-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option>';
 }
 async function saveMarks(){
   hide('am-ok','am-err');
@@ -586,7 +628,7 @@ async function pageRecordPayment(c){
     '</div>'+
     '<button class="btn" id="rpBtn" onclick="recordPay()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
     '<div class="msg ok" id="rp-ok"></div><div class="msg err" id="rp-err"></div></div>';
-  var ts=document.getElementById('rp-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option><option>Term 3</option>';
+  var ts=document.getElementById('rp-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option>';
 }
 async function recordPay(){
   hide('rp-ok','rp-err');
@@ -606,7 +648,7 @@ async function pageFeeSchedule(c){
     '<button class="btn" id="fsBtn" onclick="saveFee()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
     '<div class="msg ok" id="fs-ok"></div><div class="msg err" id="fs-err"></div>'+
     '<div id="fsBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
-  fillGradeSelect('fs-grade'); var ts=document.getElementById('fs-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option><option>Term 3</option>';
+  fillGradeSelect('fs-grade'); var ts=document.getElementById('fs-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option>';
   loadFeeStruct();
 }
 async function loadFeeStruct(){
@@ -626,7 +668,7 @@ async function saveFee(){
 /* ======================= TEACHERS ======================= */
 async function pageTeachers(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-chalkboard-user"></i> '+t('teachers')+'</h3>'+
-    '<div class="form-grid">'+field('tc-name',t('teacherName'))+field('tc-subject',t('teacherSubject'))+field('tc-grade',t('grade'))+field('tc-phone',t('teacherPhone'))+'</div>'+
+    '<div class="form-grid">'+field('tc-name',t('teacherName'))+field('tc-subject',t('teacherSubject'))+field('tc-grade',t('grade'))+field('tc-phone',t('teacherPhone'))+field('tc-username',t('username'))+field('tc-password',t('passwordField'))+'</div>'+'<p style="color:var(--soft);font-size:0.8rem;margin-top:0.4rem">'+(lang==='ar'?'اسم المستخدم وكلمة المرور مطلوبان لإنشاء رابط لهذا المعلم.':'Username & password are needed to create a link for this teacher.')+'</p>'+
     '<button class="btn" onclick="addTeacher()" style="margin-top:0.9rem"><i class="fas fa-plus"></i> '+t('add')+'</button>'+
     '<div class="msg ok" id="tc-ok"></div><div class="msg err" id="tc-err"></div>'+
     '<div id="tcBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
@@ -638,7 +680,7 @@ async function loadTeachers(){
       rows.map(function(x){ return '<tr><td><b>'+esc(x.full_name)+'</b></td><td>'+esc(x.subject||'')+'</td><td>'+esc(x.grade_level||'')+'</td><td>'+esc(x.phone||'')+'</td><td><button class="btn bad sm" onclick="delTeacher('+x.id+')">'+t('del')+'</button></td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
   }catch(e){ document.getElementById('tcBody').innerHTML=errBox('teachers','loadTeachers'); }
 }
-async function addTeacher(){ hide('tc-ok','tc-err'); var b={ fullName:val('tc-name'), subject:val('tc-subject'), gradeLevel:val('tc-grade'), phone:val('tc-phone') }; if(!b.fullName){ show('tc-err',t('required')); return; } try{ await api('add-teacher',{method:'POST',body:b}); show('tc-ok','✅ '+t('added')); ['tc-name','tc-subject','tc-grade','tc-phone'].forEach(function(i){document.getElementById(i).value='';}); loadTeachers(); }catch(e){ show('tc-err','❌ '+e.message); } }
+async function addTeacher(){ hide('tc-ok','tc-err'); var b={ fullName:val('tc-name'), subject:val('tc-subject'), gradeLevel:val('tc-grade'), phone:val('tc-phone'), username:val('tc-username')||undefined, password:val('tc-password')||undefined }; if(!b.fullName){ show('tc-err',t('required')); return; } try{ await api('add-teacher',{method:'POST',body:b}); show('tc-ok','✅ '+t('added')); ['tc-name','tc-subject','tc-grade','tc-phone','tc-username','tc-password'].forEach(function(i){document.getElementById(i).value='';}); loadTeachers(); }catch(e){ show('tc-err','❌ '+e.message); } }
 async function delTeacher(id){ if(!confirm(t('confirm'))) return; try{ await api('delete-teacher',{method:'DELETE',body:{id:id}}); loadTeachers(); }catch(e){ alert(e.message); } }
 
 /* ======================= NEWS ======================= */
@@ -707,8 +749,6 @@ async function saveSettings(){ hide('set-ok'); try{ await api('set-school-settin
 
 /* ======================= TEACHER LINKS ======================= */
 async function pageLinks(c){
-  c.innerHTML='<div class="card"><h3><i class="fas fa-link"></i> '+t('links')+'</h3><div class="empty"><i class="fas fa-rocket"></i>'+(lang==='ar'?'نظام روابط المعلمين قادم في التحديث القادم.':'The teacher link system is coming in the next update.')+'</div></div>';
-  return;
   c.innerHTML='<div class="card"><h3><i class="fas fa-link"></i> '+t('links')+'</h3>'+
     '<p style="color:var(--soft);font-size:0.86rem;margin-bottom:0.9rem">'+t('linkDesc')+'</p>'+
     '<div class="form-grid"><div><label>'+t('teachers')+'</label><select id="lk-teacher"></select></div><div><label>'+t('validUntil')+'</label><input type="date" id="lk-until"></div></div>'+
@@ -716,7 +756,7 @@ async function pageLinks(c){
     '<div class="msg ok" id="lk-ok"></div><div class="msg err" id="lk-err"></div>'+
     '<div id="lk-result" style="display:none;margin-top:1rem" class="card"><h3><i class="fas fa-check-circle" style="color:var(--ok)"></i> '+t('linkReady')+'</h3><div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center"><code id="lk-url" style="background:#f4f9ff;border:1px solid var(--line);padding:0.5rem 0.8rem;border-radius:8px;font-size:0.8rem;word-break:break-all;flex:1;min-width:220px"></code><button class="btn ghost sm" onclick="copyLink()"><i class="fas fa-copy"></i> '+t('copy')+'</button><a class="btn ghost sm" id="lk-wa" target="_blank" style="text-decoration:none"><i class="fab fa-whatsapp"></i> '+t('whatsapp')+'</a></div></div>'+
     '<div id="lkBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
-  try{ var d=await api('get-teachers'); var sel=document.getElementById('lk-teacher'); sel.innerHTML=(d.teachers||[]).map(function(x){return '<option value="'+x.id+'">'+esc(x.full_name)+(x.subject?' — '+esc(x.subject):'')+'</option>';}).join(''); }catch(e){}
+  try{ var d=await api('get-teachers'); var sel=document.getElementById('lk-teacher'); var withLogin=(d.teachers||[]).filter(function(x){return x.has_login;}); sel.innerHTML=withLogin.length?withLogin.map(function(x){return '<option value="'+x.id+'">'+esc(x.full_name)+(x.subject?' — '+esc(x.subject):'')+'</option>';}).join(''):'<option value="">'+(lang==='ar'?'لا يوجد معلم لديه حساب دخول':'No teacher has a login yet')+'</option>'; }catch(e){}
   var u=document.getElementById('lk-until'); var dt=new Date(); dt.setDate(dt.getDate()+14); u.value=dt.toISOString().slice(0,10); u.min=new Date().toISOString().slice(0,10);
   loadLinks();
 }
