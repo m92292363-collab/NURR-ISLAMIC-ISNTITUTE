@@ -174,6 +174,10 @@ var T = {
     date:'Date', amount:'Amount', method:'Method', receipt:'Receipt', pickFilters:'Choose year and term',
     active:'Active', inactive:'Inactive', sessionExpired:'Session expired — please log in again',
     nationality:'Nationality', editStudent:'Edit Student', loadStudent:'Load', studentNotFound:'Student not found',
+    topStudents:'Top Students', reportRemarks:'Report Remarks', viewReport:'View Report', printResults:'Print Results', bulkResults:'Bulk Results',
+    studentHistory:'Student History', studentPhoto:'Student Photo', classList:'Print Class List', transcript:'Transcript', archive:'Archive', restore:'Restore', archived:'Archived', uploadPhoto:'Upload Photo', archiveReasonPrompt:'Reason (optional):',
+    showTop:'Show Top', total:'Total', average:'Average', all:'All', view:'View', print:'Print', position:'Position', principal:'Principal',
+    conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.',
     installTitle:'Install NURR on this computer', installSub:'Open the admin from your desktop in one click — no browser tabs.', installBtn:'Install NURR',
     grpStaff:'Staff', grpSite:'Website', grpSystem:'System',
     addStudent:'Add Student', promotion:'Promotion', classesTab:'Classes & Stages', addMarks:'Enter Marks', subjects:'Subjects',
@@ -206,6 +210,10 @@ var T = {
     date:'التاريخ', amount:'المبلغ', method:'الطريقة', receipt:'الإيصال', pickFilters:'اختر العام والفصل الدراسي',
     active:'نشط', inactive:'موقوف', sessionExpired:'انتهت الجلسة — يرجى تسجيل الدخول من جديد',
     nationality:'الجنسية', editStudent:'تعديل بيانات طالب', loadStudent:'تحميل', studentNotFound:'الطالب غير موجود',
+    topStudents:'الأوائل', reportRemarks:'ملاحظات التقرير', viewReport:'عرض التقرير', printResults:'طباعة النتائج', bulkResults:'إدخال جماعي',
+    studentHistory:'سجل الطالب', studentPhoto:'صورة الطالب', classList:'طباعة قائمة الفصل', transcript:'كشف النتائج', archive:'أرشفة', restore:'استعادة', archived:'مؤرشف', uploadPhoto:'رفع صورة', archiveReasonPrompt:'السبب (اختياري):',
+    showTop:'عرض أفضل', total:'المجموع', average:'المعدل', all:'الكل', view:'عرض', print:'طباعة', position:'الترتيب', principal:'المدير',
+    conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.',
     installTitle:'ثبّت تطبيق النور على هذا الحاسوب', installSub:'افتح لوحة الإدارة من سطح المكتب بنقرة واحدة — بدون متصفح.', installBtn:'تثبيت النور',
     grpStaff:'الموظفون', grpSite:'الموقع', grpSystem:'النظام',
     addStudent:'إضافة طالب', promotion:'الترقية', classesTab:'الفصول والمراحل', addMarks:'إدخال نتيجة', subjects:'المواد',
@@ -283,12 +291,20 @@ var NAV=[
     {id:'students',icon:'fa-users'},
     {id:'addStudent',icon:'fa-user-plus'},
     {id:'editStudent',icon:'fa-user-pen'},
+    {id:'studentHistory',icon:'fa-clock-rotate-left'},
+    {id:'studentPhoto',icon:'fa-image-portrait'},
+    {id:'classList',icon:'fa-list'},
     {id:'promotion',icon:'fa-arrow-up-right-dots'},
     {id:'classes',icon:'fa-layer-group'}
   ]},
   {g:'grpResults', items:[
     {id:'results',icon:'fa-table-list'},
     {id:'addMarks',icon:'fa-pen-to-square'},
+    {id:'bulkResults',icon:'fa-layer-group'},
+    {id:'topStudents',icon:'fa-trophy'},
+    {id:'viewReport',icon:'fa-file-lines'},
+    {id:'printResults',icon:'fa-print'},
+    {id:'reportRemarks',icon:'fa-comment-dots'},
     {id:'subjects',icon:'fa-book'}
   ]},
   {g:'grpFinance', items:[
@@ -341,8 +357,8 @@ function openPage(id, keep){
   document.querySelectorAll('.sb-item').forEach(function(x){ x.classList.toggle('on', x.dataset.page===id); });
   var c=document.getElementById('content');
   var fn={dashboard:pageDashboard,students:pageStudents,results:pageResults,fees:pageFees,attendance:pageAttendance,
-    addStudent:pageAddStudent,editStudent:pageEditStudent,promotion:pagePromotion,classes:pageClasses,addMarks:pageAddMarks,subjects:pageSubjects,
-    recordPayment:pageRecordPayment,feeSchedule:pageFeeSchedule,teachers:pageTeachers,links:pageLinks,news:pageNews,
+    addStudent:pageAddStudent,editStudent:pageEditStudent,studentHistory:pageStudentHistory,studentPhoto:pageStudentPhoto,classList:pageClassList,promotion:pagePromotion,classes:pageClasses,addMarks:pageAddMarks,subjects:pageSubjects,
+    recordPayment:pageRecordPayment,feeSchedule:pageFeeSchedule,topStudents:pageTopStudents,reportRemarks:pageRemarks,viewReport:pageViewReport,printResults:pagePrintResults,bulkResults:pageBulkResults,teachers:pageTeachers,links:pageLinks,news:pageNews,
     audit:pageAudit,settings:pageSettings}[id];
   if(fn) fn(c); else c.innerHTML=emptyBox();
 }
@@ -796,6 +812,371 @@ async function fillGradeSelect(id){
   try{ if(!_gradeStages){ var d=await api('get-classes'); var st={}; (d.classes||[]).forEach(function(c){ if(c.stage) st[c.stage]=1; }); _gradeStages=Object.keys(st); }
     sel.innerHTML='<option value="">—</option>'+_gradeStages.map(function(g){return '<option>'+esc(g)+'</option>';}).join('');
   }catch(e){ sel.innerHTML='<option value="">—</option>'; }
+}
+
+
+/* ======================= TOP STUDENTS ======================= */
+async function pageTopStudents(c){
+  var yr=new Date().getFullYear();
+  c.innerHTML='<div class="card"><h3><i class="fas fa-trophy"></i> '+t('topStudents')+'</h3>'+
+    '<div class="filters">'+
+      '<div><label>'+t('academicYear')+'</label><input id="tp-year" value="'+yr+'-'+(yr+1)+'"></div>'+
+      '<div><label>'+t('term')+'</label><select id="tp-term"><option>Term 1</option><option>Term 2</option></select></div>'+
+      '<div><label>'+t('grade')+'</label><input id="tp-grade" placeholder="'+t('all')+'"></div>'+
+      '<div><label>'+t('showTop')+'</label><select id="tp-limit"><option>10</option><option selected>20</option><option>50</option></select></div>'+
+      '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadTop()"><i class="fas fa-magnifying-glass"></i></button></div>'+
+    '</div><div id="tpBody">'+skeleton()+'</div></div>';
+  loadTop();
+}
+async function loadTop(){
+  var body=document.getElementById('tpBody'); body.innerHTML=skeleton();
+  var year=val('tp-year'), term=val('tp-term'), grade=val('tp-grade'), limit=parseInt(val('tp-limit'))||20;
+  try{
+    var p=[]; if(year)p.push('academicYear='+encodeURIComponent(year)); if(term)p.push('term='+encodeURIComponent(term)); if(grade)p.push('gradeLevel='+encodeURIComponent(grade));
+    var res=await fetch('/api/get-all-results'+(p.length?'?'+p.join('&'):''),{headers:{'Authorization':'Bearer '+tok()}}); var d=await res.json();
+    if(!d.success) throw new Error(d.error);
+    var by={}; (d.results||[]).forEach(function(r){ if(!by[r.student_id]) by[r.student_id]={name:r.full_name,grade:r.grade_level,total:0,count:0}; by[r.student_id].total+=Number(r.score||0); by[r.student_id].count++; });
+    var sorted=Object.keys(by).map(function(id){return [id,by[id]];}).sort(function(a,b){return b[1].total-a[1].total;}).slice(0,limit);
+    if(!sorted.length){ body.innerHTML=emptyBox(); return; }
+    body.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>#</th><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('grade')+'</th><th>'+t('total')+'</th><th>'+t('average')+'</th></tr></thead><tbody>'+
+      sorted.map(function(e,i){ var s=e[1]; var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1); return '<tr><td>'+medal+'</td><td>'+esc(e[0])+'</td><td><b>'+esc(s.name)+'</b></td><td>'+esc(s.grade||'')+'</td><td>'+s.total+'</td><td>'+(s.total/s.count).toFixed(1)+'%</td></tr>'; }).join('')+'</tbody></table></div>';
+  }catch(e){ body.innerHTML=errBox('topStudents','loadTop'); }
+}
+
+/* ======================= REPORT REMARKS ======================= */
+async function pageRemarks(c){
+  var yr=new Date().getFullYear();
+  c.innerHTML='<div class="card"><h3><i class="fas fa-comment-dots"></i> '+t('reportRemarks')+'</h3>'+
+    '<div class="filters">'+
+      '<div><label>'+t('studentId')+'</label><input id="rm-student" list="rm-list"><datalist id="rm-list"></datalist></div>'+
+      '<div><label>'+t('academicYear')+'</label><input id="rm-year" value="'+yr+'-'+(yr+1)+'"></div>'+
+      '<div><label>'+t('term')+'</label><select id="rm-term"><option>Term 1</option><option>Term 2</option></select></div>'+
+      '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadRemarks()"><i class="fas fa-magnifying-glass"></i></button></div>'+
+    '</div>'+
+    '<div class="form-grid">'+
+      '<div><label>'+t('conduct')+'</label><input id="rm-conduct"></div>'+
+      '<div><label>'+t('nextTermDate')+'</label><input id="rm-next" type="date"></div>'+
+    '</div>'+
+    '<label style="margin-top:0.6rem">'+t('teacherRemark')+'</label><textarea id="rm-teacher" rows="2"></textarea>'+
+    '<label style="margin-top:0.6rem">'+t('headRemark')+'</label><textarea id="rm-head" rows="2"></textarea>'+
+    '<button class="btn" onclick="saveRemarks()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
+    '<div class="msg ok" id="rm-ok"></div><div class="msg err" id="rm-err"></div></div>';
+  try{ if(!_allStudents.length){ var d=await api('get-all-students'); _allStudents=d.students||[]; } document.getElementById('rm-list').innerHTML=_allStudents.map(function(x){return '<option value="'+esc(x.student_id)+'">'+esc(x.full_name)+'</option>';}).join(''); }catch(e){}
+}
+async function loadRemarks(){
+  hide('rm-ok','rm-err');
+  var sid=val('rm-student'), year=val('rm-year'), term=val('rm-term');
+  if(!sid){ show('rm-err',t('required')); return; }
+  try{ var d=await api('get-remarks',{params:{studentId:sid,academicYear:year,term:term}}); var r=d.remarks||{};
+    document.getElementById('rm-conduct').value=r.conduct||''; document.getElementById('rm-next').value=r.next_term_date||'';
+    document.getElementById('rm-teacher').value=r.teacher_remark||''; document.getElementById('rm-head').value=r.head_remark||'';
+  }catch(e){ show('rm-err','❌ '+e.message); }
+}
+async function saveRemarks(){
+  hide('rm-ok','rm-err');
+  var b={ studentId:val('rm-student'), academicYear:val('rm-year'), term:val('rm-term'), conduct:val('rm-conduct'), nextTermDate:val('rm-next'), teacherRemark:val('rm-teacher'), headRemark:val('rm-head') };
+  if(!b.studentId){ show('rm-err',t('required')); return; }
+  try{ var d=await api('save-remarks',{method:'POST',body:b}); show('rm-ok','✅ '+(d.message||t('saved'))); }
+  catch(e){ show('rm-err','❌ '+e.message); }
+}
+
+/* ======================= VIEW REPORT (report card) ======================= */
+async function pageViewReport(c){
+  var yr=new Date().getFullYear();
+  c.innerHTML='<div class="card"><h3><i class="fas fa-file-lines"></i> '+t('viewReport')+'</h3>'+
+    '<div class="filters">'+
+      '<div><label>'+t('studentId')+'</label><input id="vr-student" list="vr-list"><datalist id="vr-list"></datalist></div>'+
+      '<div><label>'+t('academicYear')+'</label><input id="vr-year" value="'+yr+'-'+(yr+1)+'"></div>'+
+      '<div><label>'+t('term')+'</label><select id="vr-term"><option>Term 1</option><option>Term 2</option></select></div>'+
+      '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="buildReport()"><i class="fas fa-eye"></i> '+t('view')+'</button></div>'+
+    '</div><div class="msg err" id="vr-err"></div></div>'+
+    '<div id="vr-sheet-wrap" style="display:none"><div style="text-align:center;margin-bottom:0.8rem"><button class="btn" onclick="printSheet(\'rcSheet\')"><i class="fas fa-print"></i> '+t('print')+'</button></div><div id="rcCanvas" style="overflow:auto;background:#e9eef5;padding:1rem;border-radius:12px;text-align:center"><div id="rcBody"></div></div></div>';
+  try{ if(!_allStudents.length){ var d=await api('get-all-students'); _allStudents=d.students||[]; } document.getElementById('vr-list').innerHTML=_allStudents.map(function(x){return '<option value="'+esc(x.student_id)+'">'+esc(x.full_name)+'</option>';}).join(''); }catch(e){}
+}
+async function buildReport(){
+  hide('vr-err');
+  var sid=val('vr-student'), year=val('vr-year'), term=val('vr-term');
+  if(!sid){ show('vr-err',t('required')); return; }
+  try{
+    var rc=await api('get-report-card',{params:{studentId:sid,academicYear:year}});
+    var all=await (await fetch('/api/get-all-results?academicYear='+encodeURIComponent(year)+'&term='+encodeURIComponent(term),{headers:{'Authorization':'Bearer '+tok()}})).json();
+    var rem=await api('get-remarks',{params:{studentId:sid,academicYear:year,term:term}}).catch(function(){return {remarks:null};});
+    renderReportCard(rc.student, (rc.results||[]).filter(function(r){return r.term===term;}), all.results||[], rem.remarks, year, term);
+    document.getElementById('vr-sheet-wrap').style.display='';
+    scaleSheet('rcSheet','rcCanvas');
+  }catch(e){ show('vr-err','❌ '+e.message); }
+}
+function renderReportCard(stu, myResults, allResults, remarks, year, term){
+  var e=esc, origin=location.origin;
+  // compute totals + position in class
+  var subj=myResults.map(function(r){ return {subject:r.subject, score:Number(r.score), grade:r.grade}; });
+  var total=subj.reduce(function(a,r){return a+(r.score||0);},0);
+  var avg=subj.length?(total/subj.length):0;
+  // position: among same class, sum totals
+  var byStu={}; allResults.forEach(function(r){ if(String(r.class_name)!==String(stu.class_name))return; if(!byStu[r.student_id])byStu[r.student_id]=0; byStu[r.student_id]+=Number(r.score||0); });
+  var totals=Object.keys(byStu).map(function(k){return byStu[k];}).sort(function(a,b){return b-a;});
+  var pos=totals.indexOf(total)+1; var classSize=totals.length;
+  var r=remarks||{};
+  var rows=subj.map(function(x){ return '<tr><td class="s">'+e(x.subject)+'</td><td>'+(x.score!=null?e(x.score):'')+'</td><td>'+e(x.grade||'')+'</td></tr>'; }).join('');
+  var sheet='<div id="rcSheet" class="rc">'+
+    '<div class="rc-head"><img src="'+origin+'/favicon.png" onerror="this.style.display=\'none\'"><div><div class="rc-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="rc-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
+    '<div class="rc-title">كشف الدرجات · REPORT CARD</div>'+
+    '<div class="rc-info"><span><b>'+t('name')+':</b> '+e(stu.full_name)+'</span><span><b>'+t('studentId')+':</b> '+e(stu.student_id)+'</span><span><b>'+t('grade')+':</b> '+e(stu.grade_level||'')+' / '+e(stu.class_name||'')+'</span><span><b>'+t('term')+':</b> '+e(term)+' · '+e(year)+'</span></div>'+
+    '<table class="rc-table"><thead><tr><th>'+t('subject')+'</th><th>'+t('score')+'</th><th>'+t('gradeCol')+'</th></tr></thead><tbody>'+rows+
+      '<tr class="rc-total"><td>'+t('total')+'</td><td>'+total+'</td><td>'+avg.toFixed(1)+'%</td></tr></tbody></table>'+
+    '<div class="rc-pos"><span><b>'+t('position')+':</b> '+(pos||'-')+' / '+(classSize||'-')+'</span><span><b>'+t('conduct')+':</b> '+e(r.conduct||'')+'</span></div>'+
+    '<div class="rc-remark"><b>'+t('teacherRemark')+':</b> '+e(r.teacher_remark||'……………')+'</div>'+
+    '<div class="rc-remark"><b>'+t('headRemark')+':</b> '+e(r.head_remark||'……………')+'</div>'+
+    (r.next_term_date?'<div class="rc-remark"><b>'+t('nextTermDate')+':</b> '+e(r.next_term_date)+'</div>':'')+
+    '<div class="rc-sign">…………………………<br>'+t('principal')+'</div>'+
+  '</div>';
+  document.getElementById('rcBody').innerHTML=sheet;
+  injectReportCSS();
+}
+function injectReportCSS(){
+  if(document.getElementById('rcStyle')) return;
+  var st=document.createElement('style'); st.id='rcStyle';
+  st.textContent=".rc{background:#fff;color:#000;width:210mm;min-height:148mm;padding:12mm;box-sizing:border-box;font-family:'Amiri','Times New Roman',serif;transform-origin:top center;display:inline-block;text-align:right;box-shadow:0 4px 24px rgba(0,0,0,.2)}"+
+    ".rc-head{display:flex;align-items:center;gap:12px;border-bottom:2.5pt solid #0d3b6e;padding-bottom:8px}.rc-head img{width:60px;height:60px;object-fit:contain}.rc-school{font-size:15pt;font-weight:bold}.rc-sub{font-size:9pt;color:#444}"+
+    ".rc-title{text-align:center;font-size:16pt;font-weight:bold;letter-spacing:4px;margin:12px 0}"+
+    ".rc-info{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;font-size:10.5pt;border:1pt solid #000;padding:8px;margin-bottom:10px}"+
+    ".rc-table{width:100%;border-collapse:collapse;border:1.5pt solid #000;font-size:10pt}.rc-table th,.rc-table td{border:1pt solid #000;padding:5px 6px;text-align:center}.rc-table th{background:#eef2f7;font-weight:bold}.rc-table td.s{text-align:right;font-weight:600}.rc-total td{font-weight:bold;background:#f4f9ff}"+
+    ".rc-pos{display:flex;justify-content:space-between;margin-top:10px;font-size:10.5pt}.rc-remark{margin-top:8px;font-size:10.5pt}.rc-sign{margin-top:22px;font-size:10.5pt;text-align:center}";
+  document.head.appendChild(st);
+}
+
+/* shared print + scale */
+function scaleSheet(sheetId,canvasId){
+  requestAnimationFrame(function(){ var canvas=document.getElementById(canvasId), sheet=document.getElementById(sheetId); if(!canvas||!sheet)return; sheet.style.transform='scale(1)'; requestAnimationFrame(function(){ var w=canvas.clientWidth-32, sw=sheet.offsetWidth; if(sw<=0)return; var sc=Math.min(1,w/sw); sheet.style.transform='scale('+sc+')'; sheet.style.marginBottom='-'+Math.max(0,sheet.offsetHeight*(1-sc)-16)+'px'; }); });
+}
+function printSheet(sheetId){
+  var sheet=document.getElementById(sheetId); if(!sheet)return;
+  var prev=sheet.style.transform, pm=sheet.style.marginBottom; sheet.style.transform='scale(1)'; sheet.style.marginBottom='0';
+  var html=sheet.outerHTML; sheet.style.transform=prev; sheet.style.marginBottom=pm;
+  var css=document.getElementById('rcStyle')?document.getElementById('rcStyle').textContent:'';
+  var win=window.open('','_blank'); if(!win){ alert('Allow popups to print'); return; }
+  win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>Print</title><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet"><style>'+css+'@page{size:A4 portrait;margin:8mm}body{margin:0}#'+sheetId+'{transform:none!important;margin:0 auto!important;box-shadow:none!important}</style></head><body>'+html+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
+  win.document.close();
+}
+
+/* ======================= PRINT RESULTS (broadsheet) ======================= */
+async function pagePrintResults(c){
+  var yr=new Date().getFullYear();
+  c.innerHTML='<div class="card"><h3><i class="fas fa-print"></i> '+t('printResults')+'</h3>'+
+    '<div class="filters">'+
+      '<div><label>'+t('grade')+'</label><input id="pb-grade"></div>'+
+      '<div><label>'+t('className')+'</label><input id="pb-class"></div>'+
+      '<div><label>'+t('academicYear')+'</label><input id="pb-year" value="'+yr+'-'+(yr+1)+'"></div>'+
+      '<div><label>'+t('term')+'</label><select id="pb-term"><option>Term 1</option><option>Term 2</option></select></div>'+
+      '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="buildBroadsheet()"><i class="fas fa-table"></i> '+t('view')+'</button></div>'+
+    '</div><div class="msg err" id="pb-err"></div><div id="pb-out" style="margin-top:1rem"></div></div>';
+}
+async function buildBroadsheet(){
+  hide('pb-err');
+  var grade=val('pb-grade'), cls=val('pb-class'), year=val('pb-year'), term=val('pb-term');
+  if(!grade||!cls){ show('pb-err',t('required')); return; }
+  document.getElementById('pb-out').innerHTML=skeleton();
+  try{
+    var p=['academicYear='+encodeURIComponent(year),'term='+encodeURIComponent(term),'gradeLevel='+encodeURIComponent(grade)];
+    var res=await fetch('/api/get-all-results?'+p.join('&'),{headers:{'Authorization':'Bearer '+tok()}}); var d=await res.json();
+    var rows=(d.results||[]).filter(function(r){ return String(r.class_name).toLowerCase()===cls.toLowerCase(); });
+    if(!rows.length){ document.getElementById('pb-out').innerHTML=emptyBox(); return; }
+    var subjects=[]; rows.forEach(function(r){ if(subjects.indexOf(r.subject)<0)subjects.push(r.subject); });
+    var byStu={}; rows.forEach(function(r){ if(!byStu[r.student_id])byStu[r.student_id]={name:r.full_name,scores:{},total:0}; byStu[r.student_id].scores[r.subject]=r.score; byStu[r.student_id].total+=Number(r.score||0); });
+    var studs=Object.keys(byStu).map(function(k){return {id:k,v:byStu[k]};}).sort(function(a,b){return b.v.total-a.v.total;});
+    var head='<tr><th>#</th><th>'+t('name')+'</th>'+subjects.map(function(s){return '<th>'+esc(s)+'</th>';}).join('')+'<th>'+t('total')+'</th><th>'+t('position')+'</th></tr>';
+    var body=studs.map(function(s,i){ return '<tr><td>'+(i+1)+'</td><td class="s">'+esc(s.v.name)+'</td>'+subjects.map(function(sub){return '<td>'+(s.v.scores[sub]!=null?esc(s.v.scores[sub]):'')+'</td>';}).join('')+'<td><b>'+s.v.total+'</b></td><td>'+(i+1)+'</td></tr>'; }).join('');
+    document.getElementById('pb-out').innerHTML='<div style="text-align:center;margin-bottom:0.8rem"><button class="btn" onclick="printBroadsheet()"><i class="fas fa-print"></i> '+t('print')+'</button></div>'+
+      '<div id="bsSheet" style="background:#fff;padding:10mm;border:1px solid #000"><h3 style="text-align:center">NURR · '+t('printResults')+' — Grade '+esc(grade)+' / '+esc(cls)+' · '+esc(term)+' '+esc(year)+'</h3><div class="tbl-wrap"><table class="bs"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div></div>';
+    if(!document.getElementById('bsStyle')){ var st=document.createElement('style'); st.id='bsStyle'; st.textContent='.bs{width:100%;border-collapse:collapse;font-size:9pt}.bs th,.bs td{border:1px solid #000;padding:3px 5px;text-align:center}.bs td.s{text-align:right;white-space:nowrap}.bs th{background:#eef2f7}'; document.head.appendChild(st); }
+  }catch(e){ show('pb-err','❌ '+e.message); }
+}
+function printBroadsheet(){
+  var sheet=document.getElementById('bsSheet'); if(!sheet)return;
+  var css=document.getElementById('bsStyle').textContent;
+  var win=window.open('','_blank'); if(!win)return;
+  win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>'+css+'@page{size:A4 landscape;margin:8mm}h3{text-align:center}</style></head><body>'+sheet.innerHTML+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
+  win.document.close();
+}
+
+/* ======================= BULK RESULTS ======================= */
+async function pageBulkResults(c){
+  var yr=new Date().getFullYear();
+  c.innerHTML='<div class="card"><h3><i class="fas fa-layer-group"></i> '+t('bulkResults')+'</h3>'+
+    '<p style="color:var(--soft);font-size:0.85rem;margin-bottom:0.8rem">'+t('bulkDesc')+'</p>'+
+    '<div class="form-grid">'+
+      field('bl-grade',t('grade'))+field('bl-class',t('className'))+
+      selField('bl-subject',t('subject'))+field('bl-year',t('academicYear'),'text',yr+'-'+(yr+1))+
+      '<div><label>'+t('term')+'</label><select id="bl-term"><option>Term 1</option><option>Term 2</option></select></div>'+
+    '</div>'+
+    '<button class="btn ghost" style="margin-top:0.8rem" onclick="loadBulkRoster()"><i class="fas fa-users"></i> '+t('loadStudent')+'</button>'+
+    '<div id="bl-list"></div><div class="msg ok" id="bl-ok"></div><div class="msg err" id="bl-err"></div></div>';
+  try{ var sd=await api('get-subjects'); document.getElementById('bl-subject').innerHTML=(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
+}
+async function loadBulkRoster(){
+  hide('bl-ok','bl-err');
+  var g=val('bl-grade'), cls=val('bl-class');
+  if(!g||!cls){ show('bl-err',t('required')); return; }
+  try{ var sd=await api('get-all-students'); var roster=(sd.students||[]).filter(function(s){return String(s.grade_level)===String(g)&&(s.class_name||'').toLowerCase()===cls.toLowerCase()&&s.active!==false;});
+    if(!roster.length){ document.getElementById('bl-list').innerHTML=emptyBox(); return; }
+    document.getElementById('bl-list').innerHTML='<div class="tbl-wrap" style="margin-top:1rem"><table><thead><tr><th>#</th><th>'+t('name')+'</th><th>'+t('score')+'</th></tr></thead><tbody>'+
+      roster.map(function(s,i){ return '<tr><td>'+(i+1)+'</td><td>'+esc(s.full_name)+'<div style="font-size:0.72rem;color:var(--soft)">'+esc(s.student_id)+'</div></td><td><input class="bl-score" style="width:80px" inputmode="numeric" data-sid="'+esc(s.student_id)+'"></td></tr>'; }).join('')+'</tbody></table></div>'+
+      '<button class="btn" onclick="saveBulk()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>';
+  }catch(e){ show('bl-err','❌ '+e.message); }
+}
+function gradeForScore(sc){ sc=Number(sc); if(isNaN(sc))return''; if(sc>=85)return'ممتاز'; if(sc>=75)return'جيد جداً'; if(sc>=65)return'جيد'; if(sc>=50)return'مقبول'; if(sc>=40)return'ضعيف'; return'راسب'; }
+async function saveBulk(){
+  hide('bl-ok','bl-err');
+  var subject=val('bl-subject'), year=val('bl-year'), term=val('bl-term');
+  var scores=[]; document.querySelectorAll('.bl-score').forEach(function(inp){ if(inp.value.trim()!=='') scores.push({studentId:inp.dataset.sid,score:inp.value.trim()}); });
+  if(!subject||!scores.length){ show('bl-err',t('required')); return; }
+  var n=0;
+  for(var i=0;i<scores.length;i++){ try{ await api('add-marks',{method:'POST',body:{studentId:scores[i].studentId,subject:subject,score:parseFloat(scores[i].score),grade:gradeForScore(scores[i].score),academicYear:year,term:term}}); n++; }catch(e){} }
+  show('bl-ok','✅ '+t('saved')+' ('+n+')');
+}
+
+
+/* ======================= STUDENT HISTORY ======================= */
+async function pageStudentHistory(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-clock-rotate-left"></i> '+t('studentHistory')+'</h3>'+
+    '<div class="filters"><div><label>'+t('studentId')+'</label><input id="sh-search" list="sh-list"><datalist id="sh-list"></datalist></div>'+
+    '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadHist()"><i class="fas fa-magnifying-glass"></i></button></div></div>'+
+    '<div id="sh-out"></div></div>';
+  try{ if(!_allStudents.length){ var d=await api('get-all-students'); _allStudents=d.students||[]; } document.getElementById('sh-list').innerHTML=_allStudents.map(function(x){return '<option value="'+esc(x.student_id)+'">'+esc(x.full_name)+'</option>';}).join(''); }catch(e){}
+}
+var _histData=null;
+async function loadHist(){
+  var sid=val('sh-search'); if(!sid){ return; }
+  var out=document.getElementById('sh-out'); out.innerHTML=skeleton();
+  try{
+    var d=await api('student-history',{params:{studentId:sid}}); _histData=d;
+    var s=d.student;
+    var archived = s.status==='archived';
+    var header='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem"><div><b style="font-size:1.1rem">'+esc(s.full_name)+'</b> '+(archived?'<span class="badge b-gray">'+t('archived')+'</span>':'<span class="badge b-green">'+t('active')+'</span>')+
+      '<div style="color:var(--soft);font-size:0.85rem">'+esc(s.student_id)+' · '+esc(s.grade_level||'')+' / '+esc(s.class_name||'')+(s.nationality?' · '+esc(s.nationality):'')+'</div></div>'+
+      '<div style="display:flex;gap:0.4rem;flex-wrap:wrap"><button class="btn ghost sm" onclick="openTranscript()"><i class="fas fa-file-contract"></i> '+t('transcript')+'</button>'+
+      (archived?'<button class="btn ghost sm" onclick="doArchive(\''+esc(s.student_id)+'\',true)"><i class="fas fa-rotate-left"></i> '+t('restore')+'</button>':'<button class="btn bad sm" onclick="doArchive(\''+esc(s.student_id)+'\',false)"><i class="fas fa-box-archive"></i> '+t('archive')+'</button>')+'</div></div></div>';
+    // group results by year>term
+    var byYear={}; d.results.forEach(function(r){ (byYear[r.academic_year]=byYear[r.academic_year]||{})[r.term]=(byYear[r.academic_year][r.term]||[]); byYear[r.academic_year][r.term].push(r); });
+    var years=Object.keys(byYear).sort();
+    var cards=years.map(function(y){
+      var terms=Object.keys(byYear[y]).sort();
+      var tt=terms.map(function(tm){
+        var rows=byYear[y][tm].map(function(r){return '<tr><td class="s">'+esc(r.subject)+'</td><td>'+esc(r.score)+'</td><td>'+esc(r.grade||'')+'</td></tr>';}).join('');
+        var tot=byYear[y][tm].reduce(function(a,r){return a+Number(r.score||0);},0);
+        return '<div style="margin-bottom:0.6rem"><div class="admin-sub" style="font-weight:800;color:var(--blue-dark);margin-bottom:0.3rem">'+esc(tm)+' — '+t('total')+' '+tot+'</div><div class="tbl-wrap"><table><thead><tr><th>'+t('subject')+'</th><th>'+t('score')+'</th><th>'+t('gradeCol')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+      }).join('');
+      return '<div class="card"><h3><i class="fas fa-calendar"></i> '+esc(y)+' <span style="color:var(--soft);font-weight:400;font-size:0.85rem">· '+esc(byYear[y][terms[0]][0].grade_level||'')+'</span></h3>'+tt+'</div>';
+    }).join('');
+    out.innerHTML=header+(years.length?cards:'<div class="card">'+emptyBox()+'</div>');
+  }catch(e){ out.innerHTML=errBox('studentHistory','loadHist'); }
+}
+async function doArchive(sid, restore){
+  var reason='';
+  if(!restore){ reason=prompt(t('archiveReasonPrompt')||'Reason (optional):','')||''; if(reason===null)return; }
+  if(!confirm(t('confirm'))) return;
+  try{ var d=await api('archive-student',{method:'POST',body:{studentId:sid,restore:restore,reason:reason}}); alert('✅ '+d.message); loadHist(); _allStudents=[]; }
+  catch(e){ alert('❌ '+e.message); }
+}
+
+/* ======================= STUDENT PHOTO ======================= */
+async function pageStudentPhoto(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-image-portrait"></i> '+t('studentPhoto')+'</h3>'+
+    '<div class="filters"><div><label>'+t('studentId')+'</label><input id="ph-search" list="ph-list"><datalist id="ph-list"></datalist></div>'+
+    '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadPhoto()"><i class="fas fa-magnifying-glass"></i></button></div></div>'+
+    '<div id="ph-area" style="text-align:center"></div><div class="msg ok" id="ph-ok"></div><div class="msg err" id="ph-err"></div></div>';
+  try{ if(!_allStudents.length){ var d=await api('get-all-students'); _allStudents=d.students||[]; } document.getElementById('ph-list').innerHTML=_allStudents.map(function(x){return '<option value="'+esc(x.student_id)+'">'+esc(x.full_name)+'</option>';}).join(''); }catch(e){}
+}
+async function loadPhoto(){
+  var sid=val('ph-search'); if(!sid) return;
+  var area=document.getElementById('ph-area'); area.innerHTML=skeleton(1);
+  try{ var d=await api('get-student-photo',{params:{studentId:sid}});
+    area.innerHTML='<div style="width:160px;height:190px;border:2px solid var(--line);border-radius:14px;margin:0.6rem auto;overflow:hidden;background:#f4f6f9;display:flex;align-items:center;justify-content:center">'+
+      (d.photo?'<img src="'+d.photo+'" style="width:100%;height:100%;object-fit:cover">':'<i class="fas fa-user" style="font-size:3rem;color:var(--blue-mid)"></i>')+'</div>'+
+      '<button class="btn" onclick="pickPhoto(\''+esc(sid)+'\')"><i class="fas fa-upload"></i> '+t('uploadPhoto')+'</button>';
+  }catch(e){ area.innerHTML=errBox('studentPhoto','loadPhoto'); }
+}
+function pickPhoto(sid){
+  var inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
+  inp.onchange=function(){ var f=inp.files[0]; if(!f)return; var rd=new FileReader();
+    rd.onload=async function(){ hide('ph-ok','ph-err');
+      // downscale to keep under size limit
+      var img=new Image(); img.onload=async function(){ var cv=document.createElement('canvas'); var mw=400; var sc=Math.min(1,mw/img.width); cv.width=img.width*sc; cv.height=img.height*sc; cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height); var durl=cv.toDataURL('image/jpeg',0.8);
+        try{ var d=await api('admin-upload-photo',{method:'POST',body:{studentId:sid,photoDataUrl:durl}}); show('ph-ok','✅ '+d.message); loadPhoto(); }catch(e){ show('ph-err','❌ '+e.message); } };
+      img.src=rd.result; };
+    rd.readAsDataURL(f); };
+  inp.click();
+}
+
+/* ======================= PRINT CLASS LIST ======================= */
+async function pageClassList(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-list"></i> '+t('printClassList')+'</h3>'+
+    '<div class="filters"><div><label>'+t('grade')+'</label><input id="cls-grade"></div><div><label>'+t('className')+'</label><input id="cls-class"></div>'+
+    '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadClassList()"><i class="fas fa-magnifying-glass"></i></button></div></div>'+
+    '<div class="msg err" id="cls-err"></div><div id="cls-out"></div></div>';
+}
+async function loadClassList(){
+  hide('cls-err');
+  var g=val('cls-grade'), cls=val('cls-class'); if(!g||!cls){ show('cls-err',t('required')); return; }
+  var out=document.getElementById('cls-out'); out.innerHTML=skeleton();
+  try{ var d=await api('class-list',{params:{gradeLevel:g,className:cls}}); var rows=d.students||[];
+    if(!rows.length){ out.innerHTML=emptyBox(); return; }
+    out.innerHTML='<div style="text-align:center;margin:0.6rem 0"><button class="btn" onclick="printClassList()"><i class="fas fa-print"></i> '+t('print')+'</button></div>'+
+      '<div id="clSheet" style="background:#fff;padding:10mm;border:1px solid #000"><h3 style="text-align:center">NURR · '+t('printClassList')+' — Grade '+esc(g)+' / '+esc(cls)+'</h3>'+
+      '<div class="tbl-wrap"><table class="cl"><thead><tr><th>#</th><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('guardian')+'</th><th>'+t('phone')+'</th><th>'+t('nationality')+'</th></tr></thead><tbody>'+
+      rows.map(function(s,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(s.student_id)+'</td><td class="s">'+esc(s.full_name)+'</td><td>'+esc(s.guardian_name||'')+'</td><td>'+esc(s.guardian_phone||'')+'</td><td>'+esc(s.nationality||'')+'</td></tr>';}).join('')+'</tbody></table></div><p style="margin-top:0.5rem">'+t('total')+': '+rows.length+'</p></div>';
+    if(!document.getElementById('clStyle')){ var st=document.createElement('style'); st.id='clStyle'; st.textContent='.cl{width:100%;border-collapse:collapse;font-size:10pt}.cl th,.cl td{border:1px solid #000;padding:4px 6px;text-align:center}.cl td.s{text-align:right;white-space:nowrap}.cl th{background:#eef2f7}'; document.head.appendChild(st); }
+  }catch(e){ out.innerHTML=errBox('printClassList','loadClassList'); }
+}
+function printClassList(){
+  var sheet=document.getElementById('clSheet'); if(!sheet)return; var css=document.getElementById('clStyle').textContent;
+  var win=window.open('','_blank'); if(!win)return;
+  win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>'+css+'@page{size:A4 portrait;margin:10mm}h3{text-align:center}</style></head><body>'+sheet.innerHTML+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
+  win.document.close();
+}
+
+/* ======================= TRANSCRIPT ======================= */
+function openTranscript(){
+  if(!_histData){ alert(t('studentNotFound')); return; }
+  var d=_histData, s=d.student, e=esc, origin=location.origin;
+  var present={}; d.results.forEach(function(r){present[r.subject]=1;});
+  var subjects=Object.keys(present);
+  if(!subjects.length){ alert(t('noData')); return; }
+  // years with records
+  var years=d.years.slice().sort();
+  var TERMS=['Term 1','Term 2'];
+  function cell(subj,year,term){ var r=d.results.find(function(x){return x.subject===subj&&x.academic_year===year&&x.term===term;}); return r?{score:r.score,grade:r.grade||''}:{score:'',grade:''}; }
+  var groupCols=years.map(function(y){return '<th colspan="4">'+e(y)+'</th>';}).join('');
+  var termCols=years.map(function(){return '<th>T1</th><th>GR</th><th>T2</th><th>GR</th>';}).join('');
+  var body=subjects.map(function(subj){
+    var tds=''; years.forEach(function(y){ TERMS.forEach(function(tm){ var cc=cell(subj,y,tm); tds+='<td>'+(cc.score===''?'':e(cc.score))+'</td><td>'+(cc.grade?e(cc.grade):'')+'</td>'; }); });
+    return '<tr><td class="s">'+e(subj)+'</td>'+tds+'</tr>';
+  }).join('');
+  var sheet='<div id="txSheet" class="tx">'+
+    '<div class="tx-head"><img src="'+origin+'/favicon.png" onerror="this.style.display=\'none\'">'+
+      (s.profile_photo?'<img class="tx-photo" src="'+s.profile_photo+'">':'')+
+      '<div><div class="tx-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="tx-sub">MDI Road Kanifing · P.O. Box 524 · The Gambia</div></div></div>'+
+    '<div class="tx-title">كشف النتائج · TRANSCRIPT</div>'+
+    '<div class="tx-info"><span><b>'+t('name')+':</b> '+e(s.full_name)+'</span><span><b>'+t('studentId')+':</b> '+e(s.student_id)+'</span>'+
+      '<span><b>'+t('nationality')+':</b> '+e(s.nationality||'—')+'</span><span><b>'+t('dob')+':</b> '+e(s.date_of_birth?String(s.date_of_birth).slice(0,10):'—')+'</span></div>'+
+    '<table class="tx-table"><thead><tr><th rowspan="2">'+t('subject')+'</th>'+groupCols+'</tr><tr>'+termCols+'</tr></thead><tbody>'+body+'</tbody></table>'+
+    '<div class="tx-sign">…………………………<br>'+t('principal')+'</div></div>';
+  // modal
+  var m=document.getElementById('txModal');
+  if(!m){ m=document.createElement('div'); m.id='txModal'; m.style.cssText='position:fixed;inset:0;background:rgba(13,42,74,.7);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem'; document.body.appendChild(m); }
+  m.innerHTML='<div style="background:#fff;border-radius:16px;max-width:1000px;width:98%;max-height:94vh;display:flex;flex-direction:column"><div style="padding:0.8rem 1rem;border-bottom:1px solid var(--line);display:flex;gap:0.5rem;align-items:center"><b style="color:var(--blue-dark)">'+t('transcript')+'</b><button class="btn sm" style="margin-inline-start:auto" onclick="printSheet(\'txSheet\')"><i class="fas fa-print"></i> '+t('print')+'</button><button class="btn ghost sm" onclick="document.getElementById(\'txModal\').remove()">✕</button></div><div style="overflow:auto;padding:1rem;background:#e9eef5;text-align:center"><div id="txHost"></div></div></div>';
+  injectTxCSS(); document.getElementById('txHost').innerHTML=sheet;
+  scaleSheet('txSheet','txHost');
+}
+function injectTxCSS(){
+  if(document.getElementById('txStyle'))return; var st=document.createElement('style'); st.id='txStyle';
+  st.textContent=".tx{background:#fff;color:#000;width:297mm;min-height:200mm;padding:10mm;box-sizing:border-box;font-family:'Amiri','Times New Roman',serif;transform-origin:top center;display:inline-block;text-align:right;position:relative;box-shadow:0 4px 24px rgba(0,0,0,.2)}"+
+    ".tx-head{display:flex;align-items:center;gap:12px;border-bottom:2.5pt solid #0d3b6e;padding-bottom:8px}.tx-head>img:first-child{width:70px;height:70px;object-fit:contain}.tx-photo{width:70px;height:84px;object-fit:cover;border:1px solid #888;border-radius:8px;position:absolute;left:10mm;top:10mm}.tx-school{font-size:15pt;font-weight:bold}.tx-sub{font-size:9pt;color:#444}"+
+    ".tx-title{text-align:center;font-size:15pt;font-weight:bold;letter-spacing:4px;margin:12px 0}"+
+    ".tx-info{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;font-size:10.5pt;border:1pt solid #000;padding:8px;margin-bottom:10px}"+
+    ".tx-table{width:100%;border-collapse:collapse;border:1.5pt solid #000;font-size:9pt;table-layout:fixed}.tx-table th,.tx-table td{border:1pt solid #000;padding:4px 3px;text-align:center}.tx-table th{background:#eef2f7;font-weight:bold}.tx-table td.s{text-align:right;font-weight:600;white-space:nowrap}"+
+    ".tx-sign{margin-top:20px;font-size:10.5pt;text-align:center}";
+  document.head.appendChild(st);
 }
 
 /* ============ INSTALL (desktop app) ============ */

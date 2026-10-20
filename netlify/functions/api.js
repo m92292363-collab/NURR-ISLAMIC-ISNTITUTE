@@ -123,6 +123,11 @@ const ROUTE_AUTH = {
   'record-payment':'admin', 'update-payment':'admin', 'delete-payment':'admin',
   'add-exam':'admin', 'delete-exam':'admin', 'add-behavior':'admin', 'delete-behavior':'admin',
   'promote-students':'admin', 'promote-entire-school':'admin', 'send-sms':'admin',
+  'teacher-login':'public', 'staff-links':'any', 'teacher-me':'teacher',
+  'create-staff-link':'admin', 'revoke-staff-link':'admin', 'delete-staff-link':'admin',
+  'staff-save-scores':'teacher', 'staff-save-attendance':'teacher', 'staff-roster':'teacher',
+  'get-remarks':'any', 'save-remarks':'admin',
+  'student-history':'any', 'archive-student':'admin', 'get-student-photo':'any', 'admin-upload-photo':'admin', 'class-list':'any',
 };
 
 // ---------- small helpers ----------
@@ -255,6 +260,10 @@ async function ensureLinkSchema() {
   await sql`ALTER TABLE teachers ADD COLUMN IF NOT EXISTS username TEXT`;
   await sql`ALTER TABLE teachers ADD COLUMN IF NOT EXISTS teacher_password TEXT`;
   await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS nationality TEXT`;
+  await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS profile_photo TEXT`;
+  await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ`;
+  await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS archive_reason TEXT`;
+  await sql`CREATE TABLE IF NOT EXISTS report_remarks (id SERIAL PRIMARY KEY, student_id TEXT NOT NULL, academic_year TEXT NOT NULL, term TEXT NOT NULL, conduct TEXT, teacher_remark TEXT, head_remark TEXT, next_term_date TEXT, updated_at TIMESTAMPTZ DEFAULT NOW(), UNIQUE(student_id, academic_year, term))`;
   _linkReady = true;
 }
 function hashKey(k){ return crypto.createHash('sha256').update(String(k)).digest('hex'); }
@@ -262,6 +271,148 @@ function hashKey(k){ return crypto.createHash('sha256').update(String(k)).digest
 const routes = {
 
   // ---------------- AUTH ----------------
+  'student-history': { GET: async (event) => {
+    await ensureLinkSchema();
+    const { studentId } = event.queryStringParameters || {};
+    if (!studentId) return err('رقم الطالب مطلوب');
+    const stu = (await sql`SELECT student_id, full_name, grade_level, class_name, status, archived_at, archive_reason, date_of_birth, nationality, guardian_name, address, profile_photo FROM students WHERE student_id = ${studentId}`)[0];
+    if (!stu) return err('الطالب غير موجود', 404);
+    const results = await sql`SELECT subject, score, grade, academic_year, term, grade_level, class_name FROM results WHERE student_id = ${studentId} ORDER BY academic_year, term, subject`;
+    const seen = {}; const years = [];
+    results.forEach(r => { if (!seen[r.academic_year]) { seen[r.academic_year]=1; years.push(r.academic_year); } });
+    years.sort();
+    return ok({ student: stu, results, years, enrollments: [] });
+  }},
+  'archive-student': { POST: async (event) => {
+    await ensureLinkSchema();
+    const { studentId, reason, restore } = readBody(event);
+    if (!studentId) return err('رقم الطالب مطلوب');
+    if (restore) { await sql`UPDATE students SET status = 'active', active = TRUE, archived_at = NULL, archive_reason = NULL WHERE student_id = ${studentId}`; return ok({ message: 'تمت استعادة الطالب' }); }
+    await sql`UPDATE students SET status = 'archived', active = FALSE, archived_at = now(), archive_reason = ${reason||null} WHERE student_id = ${studentId}`;
+    return ok({ message: 'تمت أرشفة الطالب (لم يُحذف — سجلّه محفوظ)' });
+  }},
+  'get-student-photo': { GET: async (event) => {
+    await ensureLinkSchema();
+    const { studentId } = event.queryStringParameters || {};
+    if (!studentId) return err('رقم الطالب مطلوب');
+    const r = (await sql`SELECT profile_photo FROM students WHERE student_id = ${studentId}`)[0];
+    return ok({ photo: r ? r.profile_photo : null });
+  }},
+  'admin-upload-photo': { POST: async (event) => {
+    await ensureLinkSchema();
+    const { studentId, photoDataUrl } = readBody(event);
+    if (!studentId || !photoDataUrl) return err('بيانات ناقصة');
+    if (photoDataUrl.length > 2200000) return err('الصورة كبيرة جداً');
+    await sql`UPDATE students SET profile_photo = ${photoDataUrl} WHERE student_id = ${studentId}`;
+    return ok({ message: 'تم حفظ الصورة' });
+  }},
+  'class-list': { GET: async (event) => {
+    const { gradeLevel, className } = event.queryStringParameters || {};
+    if (!gradeLevel || !className) return err('المرحلة والفصل مطلوبان');
+    const students = await sql`SELECT student_id, full_name, guardian_name, guardian_phone, nationality, date_of_birth FROM students WHERE grade_level = ${gradeLevel} AND LOWER(class_name) = LOWER(${className}) AND active IS NOT FALSE ORDER BY full_name`;
+    return ok({ students });
+  }},
+  'teacher-login': {
+ POST: async (event) => {
+    await ensureLinkSchema();
+    const { username, password, key } = readBody(event);
+    if (!username || !password) return err('اسم المستخدم وكلمة المرور مطلوبان');
+    if (!key) return err('يرجى فتح رابط الوصول الذي أرسله المدير', 403);
+    const link = (await sql`SELECT id, teacher_id, revoked, expires_at FROM staff_links WHERE key_hash = ${hashKey(key)} LIMIT 1`)[0];
+    if (!link) return err('هذا الرابط غير صالح. اطلب رابطاً جديداً من المدير.', 403);
+    if (link.revoked) return err('تم إلغاء هذا الرابط من قبل المدير.', 403);
+    if (new Date(link.expires_at).getTime() <= Date.now()) return err('انتهت صلاحية هذا الرابط.', 403);
+    const trow = (await sql`SELECT id, full_name, username, teacher_password, subject FROM teachers WHERE username = ${username} LIMIT 1`)[0];
+    if (!trow || !trow.teacher_password || !verifyPassword(password, trow.teacher_password)) return err('بيانات الدخول غير صحيحة', 401);
+    if (link.teacher_id !== trow.id) return err('هذا الرابط يخص معلماً آخر.', 403);
+    await sql`UPDATE staff_links SET last_used_at = NOW() WHERE id = ${link.id}`;
+    const token = signToken({ role:'teacher', tid: trow.id, sub: trow.username, lid: link.id, exp: new Date(link.expires_at).getTime() });
+    return ok({ token, teacher: { id: trow.id, full_name: trow.full_name, username: trow.username, subject: trow.subject }, accessUntil: link.expires_at });
+  }},
+  'staff-links': { GET: async () => {
+    await ensureLinkSchema();
+    const links = await sql`SELECT l.id, l.teacher_id, t.full_name, t.username, l.revoked, to_char(l.created_at,'DD/MM/YYYY HH24:MI') AS created, to_char(l.expires_at,'DD Mon YYYY') AS expires, to_char(l.last_used_at,'DD/MM/YYYY HH24:MI') AS last_used, (l.expires_at > NOW()) AS not_expired FROM staff_links l JOIN teachers t ON t.id = l.teacher_id ORDER BY l.created_at DESC LIMIT 300`;
+    return ok({ links });
+  }},
+  'create-staff-link': { POST: async (event) => {
+    await ensureLinkSchema();
+    const { teacherId, validUntil } = readBody(event);
+    if (!teacherId || !/^\d{4}-\d{2}-\d{2}$/.test(validUntil||'')) return err('المعلم وتاريخ الانتهاء مطلوبان');
+    const expires = new Date(validUntil + 'T23:59:59Z');
+    if (isNaN(expires.getTime()) || expires.getTime() <= Date.now()) return err('يجب أن يكون التاريخ اليوم أو بعده');
+    const t = (await sql`SELECT id, full_name, username, teacher_password FROM teachers WHERE id = ${parseInt(teacherId)}`)[0];
+    if (!t) return err('المعلم غير موجود', 404);
+    if (!t.username || !t.teacher_password) return err('هذا المعلم ليس لديه اسم مستخدم/كلمة مرور. عدّل بياناته أولاً.');
+    const key = crypto.randomBytes(24).toString('base64url');
+    const r = (await sql`INSERT INTO staff_links (teacher_id, key_hash, expires_at) VALUES (${t.id}, ${hashKey(key)}, ${expires.toISOString()}) RETURNING id`)[0];
+    return ok({ id: r.id, key, validUntil, teacher: t.full_name, username: t.username });
+  }},
+  'revoke-staff-link': { POST: async (event) => {
+    await ensureLinkSchema();
+    const { id } = readBody(event);
+    const r = await sql`UPDATE staff_links SET revoked = TRUE, revoked_at = NOW() WHERE id = ${parseInt(id)} AND revoked = FALSE RETURNING id`;
+    if (!r.length) return err('الرابط غير موجود أو ملغى بالفعل', 404);
+    return ok({ message: 'تم إلغاء الرابط' });
+  }},
+  'delete-staff-link': { POST: async (event) => {
+    await ensureLinkSchema();
+    const { id, clearOld } = readBody(event);
+    if (clearOld) { const r = await sql`DELETE FROM staff_links WHERE revoked = TRUE OR expires_at <= NOW() RETURNING id`; return ok({ message: r.length + ' deleted' }); }
+    const r = await sql`DELETE FROM staff_links WHERE id = ${parseInt(id)} AND (revoked = TRUE OR expires_at <= NOW()) RETURNING id`;
+    if (!r.length) return err('يمكن حذف الروابط المنتهية أو الملغاة فقط.');
+    return ok({ message: 'تم الحذف' });
+  }},
+  'teacher-me': { GET: async (event, auth) => {
+    const t = (await sql`SELECT id, full_name, username, subject, grade_level FROM teachers WHERE id = ${auth.tid}`)[0];
+    if (!t) return err('غير موجود', 404);
+    const l = auth.lid ? (await sql`SELECT to_char(expires_at,'DD Mon YYYY') AS until FROM staff_links WHERE id = ${auth.lid}`)[0] : null;
+    return ok({ teacher: t, accessUntil: l ? l.until : null });
+  }},
+  'get-remarks': { GET: async (event) => {
+    await ensureLinkSchema();
+    const { studentId, academicYear, term } = event.queryStringParameters || {};
+    if (!studentId || !academicYear || !term) return err('بيانات ناقصة');
+    const r = (await sql`SELECT conduct, teacher_remark, head_remark, next_term_date FROM report_remarks WHERE student_id = ${studentId} AND academic_year = ${academicYear} AND term = ${term}`)[0];
+    return ok({ remarks: r || null });
+  }},
+  'save-remarks': { POST: async (event) => {
+    await ensureLinkSchema();
+    const b = readBody(event);
+    if (!b.studentId || !b.academicYear || !b.term) return err('بيانات ناقصة');
+    await sql`INSERT INTO report_remarks (student_id, academic_year, term, conduct, teacher_remark, head_remark, next_term_date, updated_at) VALUES (${b.studentId}, ${b.academicYear}, ${b.term}, ${b.conduct||null}, ${b.teacherRemark||null}, ${b.headRemark||null}, ${b.nextTermDate||null}, now()) ON CONFLICT (student_id, academic_year, term) DO UPDATE SET conduct = EXCLUDED.conduct, teacher_remark = EXCLUDED.teacher_remark, head_remark = EXCLUDED.head_remark, next_term_date = EXCLUDED.next_term_date, updated_at = now()`;
+    return ok({ message: 'تم حفظ الملاحظات' });
+  }},
+  'staff-roster': { GET: async (event, auth) => {
+    const { gradeLevel, className } = event.queryStringParameters || {};
+    if (!gradeLevel || !className) return err('المرحلة والفصل مطلوبان');
+    const students = await sql`SELECT student_id, full_name FROM students WHERE grade_level = ${gradeLevel} AND LOWER(class_name) = LOWER(${className}) AND active IS NOT FALSE ORDER BY full_name`;
+    return ok({ students });
+  }},
+  'staff-save-scores': { POST: async (event, auth) => {
+    const { subject, academicYear, term, scores } = readBody(event);
+    if (!subject || !academicYear || !term || !Array.isArray(scores)) return err('بيانات ناقصة');
+    let n = 0;
+    for (const row of scores) {
+      if (!row.studentId || row.score == null || row.score === '') continue;
+      const sc = Number(row.score); if (isNaN(sc) || sc < 0 || sc > 100) continue;
+      const stud = (await sql`SELECT class_name, grade_level FROM students WHERE student_id = ${row.studentId}`)[0];
+      if (!stud) continue;
+      await sql`INSERT INTO results (student_id, subject, score, grade, academic_year, term, class_name, grade_level, updated_at) VALUES (${row.studentId}, ${subject}, ${sc}, ${gradeFor(sc)}, ${academicYear}, ${term}, ${stud.class_name}, ${stud.grade_level}, now()) ON CONFLICT (student_id, subject, academic_year, term) DO UPDATE SET score = EXCLUDED.score, grade = EXCLUDED.grade, updated_at = now()`;
+      n++;
+    }
+    return ok({ message: 'تم حفظ ' + n + ' درجة', saved: n });
+  }},
+  'staff-save-attendance': { POST: async (event, auth) => {
+    const { date, marks } = readBody(event);
+    if (!date || !marks || typeof marks !== 'object') return err('بيانات ناقصة');
+    let n = 0;
+    for (const sid of Object.keys(marks)) {
+      const st = marks[sid]; if (!st) continue;
+      await sql`INSERT INTO attendance (att_date, student_id, status, recorded_at) VALUES (${date}, ${sid}, ${st}, now()) ON CONFLICT (student_id, att_date) DO UPDATE SET status = EXCLUDED.status, recorded_at = now()`;
+      n++;
+    }
+    return ok({ message: 'تم حفظ الحضور', saved: n });
+  }},
   'admin-login': { POST: async (event) => {
     const { username, password } = readBody(event);
     if (!username || !password) return err('اسم المستخدم وكلمة المرور مطلوبان');
@@ -541,7 +692,7 @@ const routes = {
   'delete-student': { DELETE: async (event) => {
     const { studentId, actor } = readBody(event);
     if (!studentId) return err('رقم الطالب مطلوب');
-    const res = await sql`DELETE FROM students WHERE student_id = ${studentId} RETURNING student_id`;
+    const res = await sql`UPDATE students SET status='archived', active=FALSE, archived_at=now(), archive_reason='deleted via admin' WHERE student_id = ${studentId} RETURNING student_id`;
     if (!res.length) return err('لا يوجد طالب بهذا الرقم', 404);
     await logActivity(`حذف طالب: ${studentId}`, actor);
     return ok({ message: 'تم الحذف' });
@@ -643,8 +794,8 @@ const routes = {
     const attendance = academicYear
       ? await sql`SELECT status, COUNT(*)::int AS n FROM attendance
                   WHERE student_id = ${studentId}
-                    AND att_date >= (${academicYear}::text || '-01-01')::date
-                    AND att_date <= (${academicYear}::text || '-12-31')::date
+                    AND att_date >= (split_part(${academicYear}::text,'-',1) || '-08-01')::date
+                    AND att_date <= (COALESCE(NULLIF(split_part(${academicYear}::text,'-',2),''), split_part(${academicYear}::text,'-',1)) || '-07-31')::date
                   GROUP BY status`
       : await sql`SELECT status, COUNT(*)::int AS n FROM attendance WHERE student_id = ${studentId} GROUP BY status`;
     const behavior = await sql`
@@ -740,12 +891,20 @@ const routes = {
 
   // ---------------- TEACHERS ----------------
   'get-teachers': { GET: async () => {
-    const teachers = await sql`SELECT id, full_name, subject, grade_level, phone FROM teachers ORDER BY full_name`;
+    await ensureLinkSchema();
+    const teachers = await sql`SELECT id, full_name, subject, grade_level, phone, username, (teacher_password IS NOT NULL) AS has_login FROM teachers ORDER BY full_name`;
     return ok({ teachers });
   }},
   'add-teacher': { POST: async (event) => {
-    const { fullName, subject, gradeLevel, phone, actor } = readBody(event);
+    const { fullName, subject, gradeLevel, phone, username, password, actor } = readBody(event);
     if (!fullName || !fullName.trim()) return err('اسم المعلم مطلوب');
+    if (username || password) { await ensureLinkSchema();
+      if (!username || !password) return err('اسم المستخدم وكلمة المرور معاً مطلوبان للروابط');
+      const dup = await sql`SELECT 1 FROM teachers WHERE username = ${username.trim()}`;
+      if (dup.length) return err('اسم المستخدم مستخدم بالفعل');
+      await sql`INSERT INTO teachers (full_name, subject, grade_level, phone, username, teacher_password) VALUES (${fullName.trim()}, ${subject||null}, ${gradeLevel||null}, ${phone||null}, ${username.trim()}, ${hashPassword(password)})`;
+      return ok({ message: 'تمت إضافة المعلم' });
+    }
     await sql`INSERT INTO teachers (full_name, subject, grade_level, phone)
               VALUES (${fullName.trim()}, ${subject || null}, ${gradeLevel || null}, ${phone || null})`;
     await logActivity(`إضافة معلم: ${fullName.trim()}`, actor);
@@ -1424,10 +1583,13 @@ export const handler = async (event) => {
 
   // secure by default: an unlisted route requires full admin, never falls open
   const authLevel = ROUTE_AUTH[route] || 'admin';
+  let _auth = null;
   if (authLevel !== 'public') {
     const auth = verifyToken(event);
     if (!auth) return err('يجب تسجيل الدخول', 401);
+    _auth = auth;
     if (authLevel === 'admin' && auth.role !== 'admin') return err('هذا الإجراء متاح للمدير فقط', 403);
+    if (authLevel === 'teacher' && auth.role !== 'teacher') return err('هذا الإجراء متاح للمعلمين فقط', 403);
     // stamp the verified username as `actor` so every route's existing
     // logActivity(..., actor) call is trustworthy — the client can no
     // longer claim to be someone else by sending a different `actor`.
@@ -1441,7 +1603,7 @@ export const handler = async (event) => {
   }
 
   try {
-    return await fn(event);
+    return await fn(event, _auth);
   } catch (e) {
     console.error(`[${route}] `, e);
     // surface the real reason in the Netlify log AND give the panel
