@@ -173,7 +173,24 @@ var T = {
     search:'Search', loading:'Loading…', noData:'Nothing here yet', tryAgain:'Try again', refresh:'Refresh',
     date:'Date', amount:'Amount', method:'Method', receipt:'Receipt', pickFilters:'Choose year and term',
     active:'Active', inactive:'Inactive', sessionExpired:'Session expired — please log in again',
-    installTitle:'Install NURR on this computer', installSub:'Open the admin from your desktop in one click — no browser tabs.', installBtn:'Install NURR'
+    installTitle:'Install NURR on this computer', installSub:'Open the admin from your desktop in one click — no browser tabs.', installBtn:'Install NURR',
+    grpStaff:'Staff', grpSite:'Website', grpSystem:'System',
+    addStudent:'Add Student', promotion:'Promotion', classesTab:'Classes & Stages', addMarks:'Enter Marks', subjects:'Subjects',
+    recordPayment:'Record Payment', feeSchedule:'Fee Setup', teachers:'Teachers', links:'Teacher Links', news:'News', audit:'Activity Log', settings:'Settings',
+    save:'Save', add:'Add', edit:'Edit', del:'Delete', cancel:'Cancel', create:'Create', update:'Update', confirm:'Are you sure?',
+    fullName:'Full name', passwordField:'Password', stage:'Stage', sortOrder:'Order', promotesTo:'Promotes to', graduates:'Graduates',
+    guardianName:'Guardian name', guardianPhone:'Guardian phone', studentPhone:'Student phone', dob:'Date of birth', address:'Address',
+    selectGrade:'Select grade', selectClass:'Select class', selectStudent:'Select student', required:'Please fill required fields',
+    saved:'Saved', deleted:'Deleted', added:'Added', updated:'Updated',
+    subjectName:'Subject name', newsTitle:'Title', newsBody:'Message', published:'Published', draft:'Draft',
+    teacherName:'Teacher name', teacherSubject:'Subject', teacherPhone:'Phone',
+    linkDesc:'Give a teacher a personal link that works until a date you choose. They open it on their phone and enter scores / attendance.',
+    validUntil:'Valid until', createLink:'Create Link', copy:'Copy', whatsapp:'WhatsApp', cancelLink:'Cancel', linkActive:'Active', linkExpired:'Expired', linkCancelled:'Cancelled', lastUsed:'Last used', created:'Created', notUsed:'Not used yet',
+    linkReady:'Link ready — send it now (shown once)', username:'Username',
+    recordFor:'Recording for', expectedFee:'Expected', paidSoFar:'Paid', balanceDue:'Balance', method:'Method', reference:'Reference', print:'Print',
+    runPromotion:'Run Promotion', promoteWholeSchool:'Promote Whole School', keep:'Keep', promote:'Promote', graduate:'Graduate',
+    clsName:'Class name', amountField:'Amount', description:'Description', descr:'Description',
+    enterScore:'Enter score', academicYear:'Academic year'
   },
   ar:{
     brand:'معهد النور الإسلامي', nurr:'النور', adminPanel:'لوحة الإدارة',
@@ -187,7 +204,24 @@ var T = {
     search:'بحث', loading:'جارٍ التحميل…', noData:'لا توجد بيانات بعد', tryAgain:'إعادة المحاولة', refresh:'تحديث',
     date:'التاريخ', amount:'المبلغ', method:'الطريقة', receipt:'الإيصال', pickFilters:'اختر العام والفصل الدراسي',
     active:'نشط', inactive:'موقوف', sessionExpired:'انتهت الجلسة — يرجى تسجيل الدخول من جديد',
-    installTitle:'ثبّت تطبيق النور على هذا الحاسوب', installSub:'افتح لوحة الإدارة من سطح المكتب بنقرة واحدة — بدون متصفح.', installBtn:'تثبيت النور'
+    installTitle:'ثبّت تطبيق النور على هذا الحاسوب', installSub:'افتح لوحة الإدارة من سطح المكتب بنقرة واحدة — بدون متصفح.', installBtn:'تثبيت النور',
+    grpStaff:'الموظفون', grpSite:'الموقع', grpSystem:'النظام',
+    addStudent:'إضافة طالب', promotion:'الترقية', classesTab:'الفصول والمراحل', addMarks:'إدخال نتيجة', subjects:'المواد',
+    recordPayment:'تسجيل دفعة', feeSchedule:'إعداد الرسوم', teachers:'المعلمون', links:'روابط المعلمين', news:'الإعلانات', audit:'سجل النشاط', settings:'الإعدادات',
+    save:'حفظ', add:'إضافة', edit:'تعديل', del:'حذف', cancel:'إلغاء', create:'إنشاء', update:'تحديث', confirm:'هل أنت متأكد؟',
+    fullName:'الاسم الكامل', passwordField:'كلمة المرور', stage:'المرحلة', sortOrder:'الترتيب', promotesTo:'يُرقّى إلى', graduates:'تخرّج',
+    guardianName:'اسم ولي الأمر', guardianPhone:'هاتف ولي الأمر', studentPhone:'هاتف الطالب', dob:'تاريخ الميلاد', address:'العنوان',
+    selectGrade:'اختر المرحلة', selectClass:'اختر الفصل', selectStudent:'اختر الطالب', required:'يرجى ملء الحقول المطلوبة',
+    saved:'تم الحفظ', deleted:'تم الحذف', added:'تمت الإضافة', updated:'تم التحديث',
+    subjectName:'اسم المادة', newsTitle:'العنوان', newsBody:'النص', published:'منشور', draft:'مسودة',
+    teacherName:'اسم المعلم', teacherSubject:'المادة', teacherPhone:'الهاتف',
+    linkDesc:'امنح المعلم رابطاً شخصياً يعمل حتى تاريخ تختاره. يفتحه على هاتفه ويُدخل الدرجات / الحضور.',
+    validUntil:'صالح حتى', createLink:'إنشاء رابط', copy:'نسخ', whatsapp:'واتساب', cancelLink:'إلغاء', linkActive:'نشط', linkExpired:'منتهٍ', linkCancelled:'ملغى', lastUsed:'آخر استخدام', created:'أُنشئ', notUsed:'لم يُستخدم بعد',
+    linkReady:'الرابط جاهز — أرسله الآن (يظهر مرة واحدة)', username:'اسم المستخدم',
+    recordFor:'تسجيل لـ', expectedFee:'المطلوب', paidSoFar:'المدفوع', balanceDue:'المتبقي', method:'الطريقة', reference:'المرجع', print:'طباعة',
+    runPromotion:'تنفيذ الترقية', promoteWholeSchool:'ترقية المدرسة كاملة', keep:'إبقاء', promote:'ترقية', graduate:'تخريج',
+    clsName:'اسم الفصل', amountField:'المبلغ', description:'الوصف', descr:'الوصف',
+    enterScore:'أدخل الدرجة', academicYear:'العام الدراسي'
   }
 };
 var lang = localStorage.getItem('nurr_lang') || 'en';
@@ -243,10 +277,36 @@ function logout(){ sessionStorage.clear(); location.reload(); }
 /* ============ NAV ============ */
 var NAV=[
   {g:'grpMain', items:[{id:'dashboard',icon:'fa-gauge-high'}]},
-  {g:'grpStudents', items:[{id:'students',icon:'fa-users'}]},
-  {g:'grpResults', items:[{id:'results',icon:'fa-table-list'}]},
-  {g:'grpFinance', items:[{id:'fees',icon:'fa-sack-dollar'}]},
-  {g:'grpAttend', items:[{id:'attendance',icon:'fa-clipboard-check'}]}
+  {g:'grpStudents', items:[
+    {id:'students',icon:'fa-users'},
+    {id:'addStudent',icon:'fa-user-plus'},
+    {id:'promotion',icon:'fa-arrow-up-right-dots'},
+    {id:'classes',icon:'fa-layer-group'}
+  ]},
+  {g:'grpResults', items:[
+    {id:'results',icon:'fa-table-list'},
+    {id:'addMarks',icon:'fa-pen-to-square'},
+    {id:'subjects',icon:'fa-book'}
+  ]},
+  {g:'grpFinance', items:[
+    {id:'fees',icon:'fa-sack-dollar'},
+    {id:'recordPayment',icon:'fa-cash-register'},
+    {id:'feeSchedule',icon:'fa-file-invoice'}
+  ]},
+  {g:'grpAttend', items:[
+    {id:'attendance',icon:'fa-clipboard-check'}
+  ]},
+  {g:'grpStaff', items:[
+    {id:'teachers',icon:'fa-chalkboard-user'},
+    {id:'links',icon:'fa-link'}
+  ]},
+  {g:'grpSite', items:[
+    {id:'news',icon:'fa-bullhorn'}
+  ]},
+  {g:'grpSystem', items:[
+    {id:'audit',icon:'fa-shield-halved'},
+    {id:'settings',icon:'fa-gear'}
+  ]}
 ];
 var currentPage='dashboard';
 function buildNav(){
@@ -277,11 +337,11 @@ function openPage(id, keep){
   document.getElementById('pageTitle').textContent=t(id);
   document.querySelectorAll('.sb-item').forEach(function(x){ x.classList.toggle('on', x.dataset.page===id); });
   var c=document.getElementById('content');
-  if(id==='dashboard') pageDashboard(c);
-  else if(id==='students') pageStudents(c);
-  else if(id==='results') pageResults(c);
-  else if(id==='fees') pageFees(c);
-  else if(id==='attendance') pageAttendance(c);
+  var fn={dashboard:pageDashboard,students:pageStudents,results:pageResults,fees:pageFees,attendance:pageAttendance,
+    addStudent:pageAddStudent,promotion:pagePromotion,classes:pageClasses,addMarks:pageAddMarks,subjects:pageSubjects,
+    recordPayment:pageRecordPayment,feeSchedule:pageFeeSchedule,teachers:pageTeachers,links:pageLinks,news:pageNews,
+    audit:pageAudit,settings:pageSettings}[id];
+  if(fn) fn(c); else c.innerHTML=emptyBox();
 }
 
 /* ---- Dashboard ---- */
@@ -417,6 +477,286 @@ async function pageAttendance(c){
 
 function emptyBox(){ return '<div class="empty"><i class="fas fa-inbox"></i>'+t('noData')+'</div>'; }
 function errBox(page, fn){ return '<div class="empty"><i class="fas fa-triangle-exclamation" style="color:var(--bad)"></i>'+t('tryAgain')+'<br><button class="btn ghost sm" style="margin-top:0.6rem" onclick="'+(fn?fn+'()':'openPage(\''+page+'\')')+'">'+t('tryAgain')+'</button></div>'; }
+
+
+/* ======================= ADD / EDIT STUDENT ======================= */
+async function pageAddStudent(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-user-plus"></i> '+t('addStudent')+'</h3>'+
+    '<div class="form-grid">'+
+      field('as-id',t('studentId'))+field('as-name',t('fullName'))+
+      field('as-pass',t('passwordField'))+selField('as-grade',t('grade'))+
+      field('as-class',t('className'))+field('as-guardian',t('guardianName'))+
+      field('as-gphone',t('guardianPhone'))+field('as-sphone',t('studentPhone'))+
+      field('as-dob',t('dob'),'date')+field('as-addr',t('address'))+
+    '</div>'+
+    '<button class="btn" id="asBtn" onclick="saveStudent()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
+    '<div class="msg ok" id="as-ok"></div><div class="msg err" id="as-err"></div></div>';
+  fillGradeSelect('as-grade');
+}
+async function saveStudent(){
+  hide('as-ok','as-err');
+  var b={ studentId:val('as-id'), fullName:val('as-name'), password:val('as-pass'), gradeLevel:val('as-grade'), className:val('as-class'),
+          guardianName:val('as-guardian'), guardianPhone:val('as-gphone'), studentPhone:val('as-sphone'), dateOfBirth:val('as-dob'), address:val('as-addr') };
+  if(!b.studentId||!b.fullName||!b.password||!b.gradeLevel||!b.className){ show('as-err',t('required')); return; }
+  var btn=document.getElementById('asBtn'); btn.disabled=true;
+  try{ var d=await api('add-student',{method:'POST',body:b}); show('as-ok','✅ '+(d.message||t('added'))); ['as-id','as-name','as-pass','as-class','as-guardian','as-gphone','as-sphone','as-dob','as-addr'].forEach(function(i){ document.getElementById(i).value=''; }); }
+  catch(e){ show('as-err','❌ '+e.message); }
+  btn.disabled=false;
+}
+
+/* ======================= CLASSES & STAGES ======================= */
+async function pageClasses(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-layer-group"></i> '+t('classesTab')+'</h3>'+
+    '<div class="form-grid">'+field('cl-stage',t('stage'))+field('cl-name',t('clsName'))+field('cl-sort',t('sortOrder'),'number')+field('cl-promotes',t('promotesTo'))+'</div>'+
+    '<input type="hidden" id="cl-id">'+
+    '<button class="btn" id="clBtn" onclick="saveClass()" style="margin-top:0.9rem"><i class="fas fa-save"></i> <span id="clBtnLbl">'+t('add')+'</span></button> '+
+    '<button class="btn ghost" id="clCancel" style="display:none" onclick="resetClass()">'+t('cancel')+'</button>'+
+    '<div class="msg ok" id="cl-ok"></div><div class="msg err" id="cl-err"></div>'+
+    '<div id="clBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
+  loadClasses();
+}
+async function loadClasses(){
+  try{ var d=await api('get-classes'); var rows=d.classes||[];
+    document.getElementById('clBody').innerHTML = rows.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('stage')+'</th><th>'+t('clsName')+'</th><th>'+t('sortOrder')+'</th><th>'+t('promotesTo')+'</th><th>'+t('actions')+'</th></tr></thead><tbody>'+
+      rows.map(function(x){ return '<tr><td>'+esc(x.stage)+'</td><td><b>'+esc(x.name)+'</b></td><td>'+esc(x.sort_order)+'</td><td>'+esc(x.promotes_to||t('graduates'))+'</td><td class="row-actions"><button class="btn ghost sm" onclick=\'editClass('+JSON.stringify(x).replace(/'/g,"&#39;")+')\'>'+t('edit')+'</button><button class="btn bad sm" onclick="delClass('+x.id+')">'+t('del')+'</button></td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
+  }catch(e){ document.getElementById('clBody').innerHTML=errBox('classes','loadClasses'); }
+}
+function editClass(x){ document.getElementById('cl-id').value=x.id; document.getElementById('cl-stage').value=x.stage||''; document.getElementById('cl-name').value=x.name||''; document.getElementById('cl-sort').value=x.sort_order||''; document.getElementById('cl-promotes').value=x.promotes_to||''; document.getElementById('clBtnLbl').textContent=t('update'); document.getElementById('clCancel').style.display=''; }
+function resetClass(){ ['cl-id','cl-stage','cl-name','cl-sort','cl-promotes'].forEach(function(i){document.getElementById(i).value='';}); document.getElementById('clBtnLbl').textContent=t('add'); document.getElementById('clCancel').style.display='none'; }
+async function saveClass(){
+  hide('cl-ok','cl-err');
+  var id=val('cl-id'); var b={ stage:val('cl-stage'), name:val('cl-name'), sortOrder:parseInt(val('cl-sort'))||0, promotesTo:val('cl-promotes')||null };
+  if(!b.stage||!b.name){ show('cl-err',t('required')); return; }
+  try{ if(id){ b.id=parseInt(id); await api('update-class',{method:'POST',body:b}); } else { await api('add-class',{method:'POST',body:b}); }
+    show('cl-ok','✅ '+t('saved')); resetClass(); loadClasses(); }
+  catch(e){ show('cl-err','❌ '+e.message); }
+}
+async function delClass(id){ if(!confirm(t('confirm'))) return; try{ await api('delete-class',{method:'DELETE',body:{id:id}}); loadClasses(); }catch(e){ alert(e.message); } }
+
+/* ======================= ENTER MARKS ======================= */
+async function pageAddMarks(c){
+  var yr=new Date().getFullYear();
+  c.innerHTML='<div class="card"><h3><i class="fas fa-pen-to-square"></i> '+t('addMarks')+'</h3>'+
+    '<div class="form-grid">'+
+      field('am-student',t('studentId'))+selField('am-subject',t('subject'))+
+      field('am-score',t('score'),'number')+field('am-year',t('academicYear'),'text',yr+'-'+(yr+1))+
+      selField('am-term',t('term'))+
+    '</div>'+
+    '<button class="btn" id="amBtn" onclick="saveMarks()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
+    '<div class="msg ok" id="am-ok"></div><div class="msg err" id="am-err"></div></div>';
+  // subjects
+  try{ var sd=await api('get-subjects'); var sel=document.getElementById('am-subject'); sel.innerHTML=(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
+  var ts=document.getElementById('am-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option><option>Term 3</option>';
+}
+async function saveMarks(){
+  hide('am-ok','am-err');
+  var b={ studentId:val('am-student'), subject:val('am-subject'), score:parseFloat(val('am-score')), academicYear:val('am-year'), term:val('am-term') };
+  if(!b.studentId||!b.subject||isNaN(b.score)||!b.academicYear||!b.term){ show('am-err',t('required')); return; }
+  var btn=document.getElementById('amBtn'); btn.disabled=true;
+  try{ var d=await api('add-marks',{method:'POST',body:b}); show('am-ok','✅ '+(d.message||t('saved'))); document.getElementById('am-score').value=''; document.getElementById('am-student').focus(); }
+  catch(e){ show('am-err','❌ '+e.message); }
+  btn.disabled=false;
+}
+
+/* ======================= SUBJECTS ======================= */
+async function pageSubjects(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-book"></i> '+t('subjects')+'</h3>'+
+    '<div style="display:flex;gap:0.5rem;max-width:420px"><input id="sj-name" placeholder="'+t('subjectName')+'"><button class="btn" onclick="addSubject()">'+t('add')+'</button></div>'+
+    '<div class="msg ok" id="sj-ok"></div><div class="msg err" id="sj-err"></div>'+
+    '<div id="sjBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
+  loadSubjects();
+}
+async function loadSubjects(){
+  try{ var d=await api('get-subjects'); var rows=d.subjects||[];
+    document.getElementById('sjBody').innerHTML = rows.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('subjectName')+'</th><th>'+t('actions')+'</th></tr></thead><tbody>'+
+      rows.map(function(n){ return '<tr><td>'+esc(n)+'</td><td><button class="btn bad sm" onclick="delSubject('+JSON.stringify(n)+')">'+t('del')+'</button></td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
+  }catch(e){ document.getElementById('sjBody').innerHTML=errBox('subjects','loadSubjects'); }
+}
+async function addSubject(){ hide('sj-ok','sj-err'); var n=val('sj-name'); if(!n){ show('sj-err',t('required')); return; } try{ await api('add-subject',{method:'POST',body:{name:n}}); show('sj-ok','✅ '+t('added')); document.getElementById('sj-name').value=''; loadSubjects(); }catch(e){ show('sj-err','❌ '+e.message); } }
+async function delSubject(n){ if(!confirm(t('confirm'))) return; try{ await api('delete-subject',{method:'DELETE',body:{name:n}}); loadSubjects(); }catch(e){ alert(e.message); } }
+
+/* ======================= RECORD PAYMENT ======================= */
+async function pageRecordPayment(c){
+  var yr=new Date().getFullYear();
+  c.innerHTML='<div class="card"><h3><i class="fas fa-cash-register"></i> '+t('recordPayment')+'</h3>'+
+    '<div class="form-grid">'+
+      field('rp-student',t('studentId'))+field('rp-year',t('academicYear'),'text',yr+'-'+(yr+1))+
+      selField('rp-term',t('term'))+field('rp-amount',t('amountField'),'number')+
+      field('rp-method',t('method'))+field('rp-ref',t('reference'))+
+    '</div>'+
+    '<button class="btn" id="rpBtn" onclick="recordPay()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
+    '<div class="msg ok" id="rp-ok"></div><div class="msg err" id="rp-err"></div></div>';
+  var ts=document.getElementById('rp-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option><option>Term 3</option>';
+}
+async function recordPay(){
+  hide('rp-ok','rp-err');
+  var b={ studentId:val('rp-student'), academicYear:val('rp-year'), term:val('rp-term'), amount:parseFloat(val('rp-amount')), method:val('rp-method'), reference:val('rp-ref') };
+  if(!b.studentId||!b.academicYear||!b.term||isNaN(b.amount)){ show('rp-err',t('required')); return; }
+  var btn=document.getElementById('rpBtn'); btn.disabled=true;
+  try{ var d=await api('record-payment',{method:'POST',body:b}); show('rp-ok','✅ '+(d.message||t('saved'))); document.getElementById('rp-amount').value=''; document.getElementById('rp-ref').value=''; }
+  catch(e){ show('rp-err','❌ '+e.message); }
+  btn.disabled=false;
+}
+
+/* ======================= FEE SETUP ======================= */
+async function pageFeeSchedule(c){
+  var yr=new Date().getFullYear();
+  c.innerHTML='<div class="card"><h3><i class="fas fa-file-invoice"></i> '+t('feeSchedule')+'</h3>'+
+    '<div class="form-grid">'+selField('fs-grade',t('grade'))+field('fs-year',t('academicYear'),'text',yr+'-'+(yr+1))+selField('fs-term',t('term'))+field('fs-amount',t('amountField'),'number')+field('fs-desc',t('descr'))+'</div>'+
+    '<button class="btn" id="fsBtn" onclick="saveFee()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
+    '<div class="msg ok" id="fs-ok"></div><div class="msg err" id="fs-err"></div>'+
+    '<div id="fsBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
+  fillGradeSelect('fs-grade'); var ts=document.getElementById('fs-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option><option>Term 3</option>';
+  loadFeeStruct();
+}
+async function loadFeeStruct(){
+  try{ var d=await api('get-fee-structure'); var rows=d.feeStructure||[];
+    document.getElementById('fsBody').innerHTML = rows.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('grade')+'</th><th>'+t('academicYear')+'</th><th>'+t('term')+'</th><th>'+t('amountField')+'</th><th>'+t('descr')+'</th></tr></thead><tbody>'+
+      rows.map(function(x){ return '<tr><td>'+esc(x.grade_level)+'</td><td>'+esc(x.academic_year)+'</td><td>'+esc(x.term)+'</td><td>'+money(x.amount)+'</td><td>'+esc(x.description||'')+'</td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
+  }catch(e){ document.getElementById('fsBody').innerHTML=errBox('feeSchedule','loadFeeStruct'); }
+}
+async function saveFee(){
+  hide('fs-ok','fs-err');
+  var b={ gradeLevel:val('fs-grade'), academicYear:val('fs-year'), term:val('fs-term'), amount:parseFloat(val('fs-amount')), description:val('fs-desc') };
+  if(!b.gradeLevel||!b.academicYear||!b.term||isNaN(b.amount)){ show('fs-err',t('required')); return; }
+  try{ await api('set-fee-structure',{method:'POST',body:b}); show('fs-ok','✅ '+t('saved')); loadFeeStruct(); }
+  catch(e){ show('fs-err','❌ '+e.message); }
+}
+
+/* ======================= TEACHERS ======================= */
+async function pageTeachers(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-chalkboard-user"></i> '+t('teachers')+'</h3>'+
+    '<div class="form-grid">'+field('tc-name',t('teacherName'))+field('tc-subject',t('teacherSubject'))+field('tc-grade',t('grade'))+field('tc-phone',t('teacherPhone'))+'</div>'+
+    '<button class="btn" onclick="addTeacher()" style="margin-top:0.9rem"><i class="fas fa-plus"></i> '+t('add')+'</button>'+
+    '<div class="msg ok" id="tc-ok"></div><div class="msg err" id="tc-err"></div>'+
+    '<div id="tcBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
+  loadTeachers();
+}
+async function loadTeachers(){
+  try{ var d=await api('get-teachers'); var rows=d.teachers||[]; window._teachers=rows;
+    document.getElementById('tcBody').innerHTML = rows.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('teacherName')+'</th><th>'+t('teacherSubject')+'</th><th>'+t('grade')+'</th><th>'+t('teacherPhone')+'</th><th>'+t('actions')+'</th></tr></thead><tbody>'+
+      rows.map(function(x){ return '<tr><td><b>'+esc(x.full_name)+'</b></td><td>'+esc(x.subject||'')+'</td><td>'+esc(x.grade_level||'')+'</td><td>'+esc(x.phone||'')+'</td><td><button class="btn bad sm" onclick="delTeacher('+x.id+')">'+t('del')+'</button></td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
+  }catch(e){ document.getElementById('tcBody').innerHTML=errBox('teachers','loadTeachers'); }
+}
+async function addTeacher(){ hide('tc-ok','tc-err'); var b={ fullName:val('tc-name'), subject:val('tc-subject'), gradeLevel:val('tc-grade'), phone:val('tc-phone') }; if(!b.fullName){ show('tc-err',t('required')); return; } try{ await api('add-teacher',{method:'POST',body:b}); show('tc-ok','✅ '+t('added')); ['tc-name','tc-subject','tc-grade','tc-phone'].forEach(function(i){document.getElementById(i).value='';}); loadTeachers(); }catch(e){ show('tc-err','❌ '+e.message); } }
+async function delTeacher(id){ if(!confirm(t('confirm'))) return; try{ await api('delete-teacher',{method:'DELETE',body:{id:id}}); loadTeachers(); }catch(e){ alert(e.message); } }
+
+/* ======================= NEWS ======================= */
+async function pageNews(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-bullhorn"></i> '+t('news')+'</h3>'+
+    '<input id="nw-title" placeholder="'+t('newsTitle')+'" style="margin-bottom:0.6rem">'+
+    '<textarea id="nw-body" rows="3" placeholder="'+t('newsBody')+'"></textarea>'+
+    '<button class="btn" onclick="addNews()" style="margin-top:0.7rem"><i class="fas fa-paper-plane"></i> '+t('add')+'</button>'+
+    '<div class="msg ok" id="nw-ok"></div><div class="msg err" id="nw-err"></div>'+
+    '<div id="nwBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
+  loadNews();
+}
+async function loadNews(){
+  try{ var d=await api('get-news'); var rows=d.news||[];
+    document.getElementById('nwBody').innerHTML = rows.length? rows.map(function(x){ return '<div style="border:1px solid var(--line);border-radius:12px;padding:0.8rem;margin-bottom:0.6rem"><div style="display:flex;justify-content:space-between;gap:0.5rem"><b>'+esc(x.title)+'</b><button class="btn bad sm" onclick="delNews('+x.id+')">'+t('del')+'</button></div><div style="color:var(--soft);font-size:0.86rem;margin-top:0.3rem">'+esc(x.body||'')+'</div></div>'; }).join('') : emptyBox();
+  }catch(e){ document.getElementById('nwBody').innerHTML=errBox('news','loadNews'); }
+}
+async function addNews(){ hide('nw-ok','nw-err'); var b={ title:val('nw-title'), body:val('nw-body'), status:'published' }; if(!b.title){ show('nw-err',t('required')); return; } try{ await api('add-news',{method:'POST',body:b}); show('nw-ok','✅ '+t('added')); document.getElementById('nw-title').value=''; document.getElementById('nw-body').value=''; loadNews(); }catch(e){ show('nw-err','❌ '+e.message); } }
+async function delNews(id){ if(!confirm(t('confirm'))) return; try{ await api('delete-news',{method:'DELETE',body:{id:id}}); loadNews(); }catch(e){ alert(e.message); } }
+
+/* ======================= PROMOTION ======================= */
+async function pagePromotion(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-arrow-up-right-dots"></i> '+t('promotion')+'</h3>'+
+    '<div class="filters"><div><label>'+t('className')+'</label><select id="pr-class"></select></div><div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadRoster()"><i class="fas fa-magnifying-glass"></i></button></div></div>'+
+    '<div id="prBody"><div class="empty"><i class="fas fa-arrow-up-right-dots"></i>'+t('selectClass')+'</div></div>'+
+    '<div style="margin-top:1rem;border-top:1px solid var(--line);padding-top:1rem"><button class="btn ghost" onclick="promoteSchool()"><i class="fas fa-school"></i> '+t('promoteWholeSchool')+'</button></div>'+
+    '<div class="msg ok" id="pr-ok"></div><div class="msg err" id="pr-err"></div></div>';
+  try{ var d=await api('get-classes'); var sel=document.getElementById('pr-class'); sel.innerHTML=(d.classes||[]).map(function(x){return '<option>'+esc(x.name)+'</option>';}).join(''); }catch(e){}
+}
+async function loadRoster(){
+  var body=document.getElementById('prBody'); body.innerHTML=skeleton();
+  try{ var cls=val('pr-class'); var d=await api('get-promotion-roster',{params:{className:cls}}); var rows=d.roster||d.students||[];
+    if(!rows.length){ body.innerHTML=emptyBox(); return; }
+    body.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('actions')+'</th></tr></thead><tbody>'+
+      rows.map(function(s){ return '<tr><td>'+esc(s.student_id)+'</td><td>'+esc(s.full_name)+'</td><td><select data-pr="'+esc(s.student_id)+'"><option value="promote">'+t('promote')+'</option><option value="keep">'+t('keep')+'</option><option value="graduate">'+t('graduate')+'</option></select></td></tr>'; }).join('')+'</tbody></table></div>'+
+      '<button class="btn" onclick="runPromotion()" style="margin-top:0.9rem"><i class="fas fa-check"></i> '+t('runPromotion')+'</button>';
+  }catch(e){ body.innerHTML=errBox('promotion','loadRoster'); }
+}
+async function runPromotion(){
+  hide('pr-ok','pr-err');
+  var decisions={}; document.querySelectorAll('[data-pr]').forEach(function(s){ decisions[s.dataset.pr]=s.value; });
+  try{ var d=await api('promote-students',{method:'POST',body:{className:val('pr-class'),decisions:decisions}}); show('pr-ok','✅ '+(d.message||t('saved'))); loadRoster(); }
+  catch(e){ show('pr-err','❌ '+e.message); }
+}
+async function promoteSchool(){ if(!confirm(t('confirm'))) return; hide('pr-ok','pr-err'); try{ var d=await api('promote-entire-school',{method:'POST',body:{}}); show('pr-ok','✅ '+(d.message||t('saved'))); }catch(e){ show('pr-err','❌ '+e.message); } }
+
+/* ======================= AUDIT LOG ======================= */
+async function pageAudit(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-shield-halved"></i> '+t('audit')+'</h3><div id="auBody">'+skeleton()+'</div></div>';
+  try{ var d=await api('get-audit-log',{params:{limit:100}}); var rows=d.log||[];
+    document.getElementById('auBody').innerHTML = rows.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('date')+'</th><th>'+t('username')+'</th><th>'+t('description')+'</th></tr></thead><tbody>'+
+      rows.map(function(x){ return '<tr><td class="soft">'+esc((x.created_at||'').replace('T',' ').slice(0,16))+'</td><td>'+esc(x.actor||'')+'</td><td>'+esc(x.message||'')+'</td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
+  }catch(e){ document.getElementById('auBody').innerHTML=errBox('audit'); }
+}
+
+/* ======================= SETTINGS ======================= */
+async function pageSettings(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-gear"></i> '+t('settings')+'</h3><div id="setBody">'+skeleton()+'</div></div>';
+  try{ var d=await api('get-school-settings'); var st=d.settings||{};
+    document.getElementById('setBody').innerHTML='<div class="form-grid">'+
+      field('set-name','School name','text',st.school_name||'')+field('set-phone','Phone','text',st.phone||'')+field('set-email','Email','text',st.email||'')+field('set-address','Address','text',st.address||'')+
+    '</div><button class="btn" onclick="saveSettings()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button><div class="msg ok" id="set-ok"></div>';
+  }catch(e){ document.getElementById('setBody').innerHTML=errBox('settings'); }
+}
+async function saveSettings(){ hide('set-ok'); try{ await api('set-school-settings',{method:'POST',body:{school_name:val('set-name'),phone:val('set-phone'),email:val('set-email'),address:val('set-address')}}); show('set-ok','✅ '+t('saved')); }catch(e){ alert(e.message); } }
+
+/* ======================= TEACHER LINKS ======================= */
+async function pageLinks(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-link"></i> '+t('links')+'</h3><div class="empty"><i class="fas fa-rocket"></i>'+(lang==='ar'?'نظام روابط المعلمين قادم في التحديث القادم.':'The teacher link system is coming in the next update.')+'</div></div>';
+  return;
+  c.innerHTML='<div class="card"><h3><i class="fas fa-link"></i> '+t('links')+'</h3>'+
+    '<p style="color:var(--soft);font-size:0.86rem;margin-bottom:0.9rem">'+t('linkDesc')+'</p>'+
+    '<div class="form-grid"><div><label>'+t('teachers')+'</label><select id="lk-teacher"></select></div><div><label>'+t('validUntil')+'</label><input type="date" id="lk-until"></div></div>'+
+    '<button class="btn" id="lkBtn" onclick="createLink()" style="margin-top:0.9rem"><i class="fas fa-link"></i> '+t('createLink')+'</button>'+
+    '<div class="msg ok" id="lk-ok"></div><div class="msg err" id="lk-err"></div>'+
+    '<div id="lk-result" style="display:none;margin-top:1rem" class="card"><h3><i class="fas fa-check-circle" style="color:var(--ok)"></i> '+t('linkReady')+'</h3><div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center"><code id="lk-url" style="background:#f4f9ff;border:1px solid var(--line);padding:0.5rem 0.8rem;border-radius:8px;font-size:0.8rem;word-break:break-all;flex:1;min-width:220px"></code><button class="btn ghost sm" onclick="copyLink()"><i class="fas fa-copy"></i> '+t('copy')+'</button><a class="btn ghost sm" id="lk-wa" target="_blank" style="text-decoration:none"><i class="fab fa-whatsapp"></i> '+t('whatsapp')+'</a></div></div>'+
+    '<div id="lkBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
+  try{ var d=await api('get-teachers'); var sel=document.getElementById('lk-teacher'); sel.innerHTML=(d.teachers||[]).map(function(x){return '<option value="'+x.id+'">'+esc(x.full_name)+(x.subject?' — '+esc(x.subject):'')+'</option>';}).join(''); }catch(e){}
+  var u=document.getElementById('lk-until'); var dt=new Date(); dt.setDate(dt.getDate()+14); u.value=dt.toISOString().slice(0,10); u.min=new Date().toISOString().slice(0,10);
+  loadLinks();
+}
+var _lastLink='';
+async function loadLinks(){
+  try{ var d=await api('staff-links'); var rows=d.links||[];
+    document.getElementById('lkBody').innerHTML = rows.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('teachers')+'</th><th>'+t('created')+'</th><th>'+t('validUntil')+'</th><th>'+t('lastUsed')+'</th><th>'+t('status')+'</th><th></th></tr></thead><tbody>'+
+      rows.map(function(l){ var st=l.revoked?'<span class="badge b-red">'+t('linkCancelled')+'</span>':l.not_expired?'<span class="badge b-green">'+t('linkActive')+'</span>':'<span class="badge b-gray">'+t('linkExpired')+'</span>';
+        return '<tr><td><b>'+esc(l.full_name)+'</b></td><td>'+esc(l.created||'')+'</td><td>'+esc(l.expires||'')+'</td><td>'+esc(l.last_used||t('notUsed'))+'</td><td>'+st+'</td><td>'+(!l.revoked&&l.not_expired?'<button class="btn bad sm" onclick="revokeLink('+l.id+')">'+t('cancelLink')+'</button>':'')+'</td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
+  }catch(e){ document.getElementById('lkBody').innerHTML=errBox('links','loadLinks'); }
+}
+async function createLink(){
+  hide('lk-ok','lk-err');
+  var teacherId=val('lk-teacher'), until=val('lk-until');
+  if(!teacherId||!until){ show('lk-err',t('required')); return; }
+  var btn=document.getElementById('lkBtn'); btn.disabled=true;
+  try{ var d=await api('create-staff-link',{method:'POST',body:{teacherId:parseInt(teacherId),validUntil:until}});
+    _lastLink=location.origin+'/staff/?k='+encodeURIComponent(d.key);
+    document.getElementById('lk-url').textContent=_lastLink;
+    document.getElementById('lk-wa').href='https://wa.me/?text='+encodeURIComponent('NURR teacher link (valid until '+until+'):\n'+_lastLink+'\nUsername: '+(d.username||'')+'\nDo not share this link.');
+    document.getElementById('lk-result').style.display=''; show('lk-ok','✅ '+t('created')); loadLinks();
+  }catch(e){ show('lk-err','❌ '+e.message); }
+  btn.disabled=false;
+}
+function copyLink(){ if(!_lastLink) return; if(navigator.clipboard) navigator.clipboard.writeText(_lastLink); show('lk-ok','✅ '+t('copy')); }
+async function revokeLink(id){ if(!confirm(t('confirm'))) return; try{ await api('revoke-staff-link',{method:'POST',body:{id:id}}); loadLinks(); }catch(e){ alert(e.message); } }
+
+/* ======================= small helpers ======================= */
+function field(id,label,type,value){ return '<div><label>'+label+'</label><input id="'+id+'" type="'+(type||'text')+'"'+(value!=null?' value="'+esc(value)+'"':'')+'></div>'; }
+function selField(id,label){ return '<div><label>'+label+'</label><select id="'+id+'"></select></div>'; }
+function val(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
+function show(id,msg){ var e=document.getElementById(id); if(e){ e.textContent=msg; e.classList.add('show'); } }
+function hide(){ for(var i=0;i<arguments.length;i++){ var e=document.getElementById(arguments[i]); if(e) e.classList.remove('show'); } }
+var _gradeStages=null;
+async function fillGradeSelect(id){
+  var sel=document.getElementById(id); if(!sel) return;
+  try{ if(!_gradeStages){ var d=await api('get-classes'); var st={}; (d.classes||[]).forEach(function(c){ if(c.stage) st[c.stage]=1; }); _gradeStages=Object.keys(st); }
+    sel.innerHTML='<option value="">—</option>'+_gradeStages.map(function(g){return '<option>'+esc(g)+'</option>';}).join('');
+  }catch(e){ sel.innerHTML='<option value="">—</option>'; }
+}
 
 /* ============ INSTALL (desktop app) ============ */
 var deferredPrompt=null, isApp=false;
