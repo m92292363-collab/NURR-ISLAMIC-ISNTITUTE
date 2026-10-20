@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>NURR · المعلم</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#1e6fd9;--navy:#0d3b6e;--ink:#14314f;--soft:#5f7a99;--line:#d9e6f5;--bg:#eef5fe;--card:#fff;--ok:#1e9e5a;--bad:#d64545;--warn:#c9820a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Amiri','Nunito',serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+input,select,button{font-family:inherit}
+input,select{width:100%;padding:0.7rem 0.8rem;border:1.5px solid var(--line);border-radius:12px;background:#fbfdff;color:var(--ink);outline:none;font-size:1rem}
+input:focus,select:focus{border-color:var(--blue)}
+label{display:block;font-size:0.82rem;font-weight:700;color:var(--soft);margin:0.6rem 0 0.3rem}
+.btn{background:var(--blue);color:#fff;border:0;border-radius:12px;padding:0.8rem 1.1rem;font-weight:800;font-size:0.98rem;cursor:pointer;width:100%}
+.btn.ghost{background:#fff;border:1.5px solid var(--line);color:var(--navy)}
+.wrap{max-width:560px;margin:0 auto;padding:1rem;min-height:100vh}
+.err{color:#b02a2a;background:#fdeaea;border:1px solid #f1c4c4;border-radius:10px;padding:0.6rem 0.8rem;font-size:0.9rem;margin-top:0.6rem;display:none}
+.err.show{display:block}
+/* login */
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.login-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:2rem 1.6rem;width:100%;max-width:380px;text-align:center;box-shadow:0 14px 44px rgba(13,59,110,.12)}
+.login-card img{width:74px;height:74px;border-radius:18px;object-fit:contain;background:#eef5fe;padding:8px}
+.login-card h1{font-size:1.25rem;margin:0.7rem 0 0.2rem;color:var(--navy)}
+.login-card p{color:var(--soft);font-size:0.86rem;margin-bottom:1rem}
+/* app */
+#app{display:none}
+.top{background:var(--navy);color:#fff;border-radius:0 0 18px 18px;padding:1rem 1.1rem;display:flex;align-items:center;gap:0.7rem}
+.top img{width:40px;height:40px;border-radius:10px;background:#fff;padding:3px}
+.top b{font-size:1rem}.top span{font-size:0.76rem;color:#9fc0ea;display:block}
+.top .sent{margin-inline-start:auto;font-size:0.78rem;background:rgba(255,255,255,.15);padding:0.3rem 0.6rem;border-radius:999px;cursor:pointer}
+.tabs{display:flex;gap:0.5rem;margin:1rem 0}
+.tabs button{flex:1;border:1.5px solid var(--line);background:#fff;color:var(--soft);padding:0.7rem;border-radius:12px;font-weight:800;cursor:pointer}
+.tabs button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem;margin-bottom:1rem}
+.stu{display:flex;align-items:center;gap:0.7rem;padding:0.6rem 0;border-bottom:1px solid var(--line)}
+.stu:last-child{border:0}
+.stu .idx{width:26px;color:var(--soft);font-weight:800;flex-shrink:0}
+.stu .nm{flex:1;min-width:0}.stu .nm b{display:block;font-size:0.96rem}.stu .nm small{color:var(--soft)}
+.score-in{width:72px!important;text-align:center;font-weight:800}
+.chip{min-width:34px;text-align:center;font-weight:800;font-size:0.78rem;padding:0.3rem;border-radius:8px;background:#eef2f7;color:var(--soft)}
+.att-btns{display:flex;gap:0.3rem}
+.att-btns button{min-width:64px;padding:0.5rem;border:1.5px solid var(--line);background:#fff;border-radius:10px;font-weight:800;font-size:0.82rem;cursor:pointer}
+.att-btns button.p.on{background:var(--ok);color:#fff;border-color:var(--ok)}
+.att-btns button.a.on{background:var(--bad);color:#fff;border-color:var(--bad)}
+.bar{position:sticky;bottom:0;background:var(--bg);padding:0.7rem 0;display:flex;gap:0.5rem}
+.sum{text-align:center;font-size:0.86rem;color:var(--soft);margin:0.5rem 0}
+.toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:0.6rem 1.1rem;border-radius:999px;font-size:0.88rem;opacity:0;transition:.2s;z-index:50}
+.toast.show{opacity:1}
+.empty{text-align:center;color:var(--soft);padding:2rem 1rem}
+.offline{background:var(--warn);color:#fff;text-align:center;padding:0.5rem;font-size:0.82rem;border-radius:10px;margin-bottom:0.8rem;display:none}
+.offline.show{display:block}
+</style>
+</head>
+<body>
+
+<div class="login" id="loginView">
+  <div class="login-card">
+    <img src="/favicon.png" alt="" onerror="this.style.display='none'">
+    <h1>تطبيق المعلم</h1>
+    <p>معهد النور الإسلامي</p>
+    <div class="err" id="noLink"><i class="fas fa-link"></i> يرجى فتح <b>رابط الوصول</b> الذي أرسله المدير (واتساب أو رسالة). لا يمكن استخدام هذه الصفحة بدونه.</div>
+    <label>اسم المستخدم</label><input id="lu" autocapitalize="none">
+    <label>كلمة المرور</label><input id="lp" type="password">
+    <button class="btn" id="lgBtn" style="margin-top:1rem" onclick="doLogin()"><i class="fas fa-right-to-bracket"></i> دخول</button>
+    <div class="err" id="lgErr"></div>
+  </div>
+</div>
+
+<div id="app"><div class="wrap">
+  <div class="top">
+    <img src="/favicon.png" onerror="this.style.display='none'">
+    <div><b id="tName">—</b><span id="tSub">—</span></div>
+    <span class="sent" id="sentBadge" onclick="showOutbox()">—</span>
+  </div>
+  <div class="offline" id="offlineBar"><i class="fas fa-wifi"></i> لا يوجد إنترنت — ما تحفظه يبقى على الهاتف ويُرسل تلقائياً عند عودة الإنترنت.</div>
+  <div class="tabs"><button id="tabScores" class="on" onclick="setTab('scores')">الدرجات</button><button id="tabAtt" onclick="setTab('att')">الحضور</button></div>
+
+  <div id="scoresView">
+    <div class="card">
+      <label>المادة</label><input id="scSubject" placeholder="مثال: الرياضيات">
+      <label>العام الدراسي</label><input id="scYear">
+      <label>الفصل الدراسي</label><select id="scTerm"><option>Term 1</option><option>Term 2</option><option>Term 3</option></select>
+      <label>المرحلة</label><input id="scGrade" placeholder="مثال: 7">
+      <label>الفصل</label><input id="scClass" placeholder="مثال: 7A">
+      <button class="btn ghost" style="margin-top:0.8rem" onclick="loadScores()"><i class="fas fa-users"></i> تحميل الطلاب</button>
+    </div>
+    <div id="scList"></div>
+  </div>
+
+  <div id="attView" style="display:none">
+    <div class="card">
+      <label>التاريخ</label><input id="atDate" type="date">
+      <label>المرحلة</label><input id="atGrade" placeholder="مثال: 7">
+      <label>الفصل</label><input id="atClass" placeholder="مثال: 7A">
+      <button class="btn ghost" style="margin-top:0.8rem" onclick="loadAtt()"><i class="fas fa-users"></i> تحميل الطلاب</button>
+    </div>
+    <div id="atList"></div>
+  </div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var $=function(id){return document.getElementById(id);};
+var API='/api/';
+function tok(){return localStorage.getItem('nurr_staff_token');}
+function store(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v);}catch(e){}}
+function get(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+var me=null, tab='scores', roster=[], attState={};
+
+/* link key from URL (?k=...), hidden after */
+(function(){
+  var k=new URLSearchParams(location.search).get('k');
+  if(k){ if(get('nurr_linkkey')!==k) store('nurr_staff_token',null); store('nurr_linkkey',k); history.replaceState(null,'',location.pathname); }
+})();
+
+async function api(action,opts){
+  opts=opts||{};
+  var init={method:opts.method||'GET',headers:{}};
+  if(tok()) init.headers['Authorization']='Bearer '+tok();
+  if(opts.body){ init.headers['Content-Type']='application/json'; init.body=JSON.stringify(opts.body); }
+  var qs=opts.params?('?'+new URLSearchParams(opts.params)):'';
+  var res=await fetch(API+action+qs,init);
+  var data=await res.json();
+  if(res.status===401 && action!=='teacher-login'){ if(data&&data.error&&/رابط|صلاح|إلغاء/.test(data.error)){ store('nurr_linkkey',null);} store('nurr_staff_token',null); showLogin(data.error||'انتهت الجلسة'); throw new Error('401'); }
+  if(!data.success) throw new Error(data.error||'خطأ');
+  return data;
+}
+
+async function doLogin(){
+  var u=$('lu').value.trim(), p=$('lp').value, e=$('lgErr'); e.classList.remove('show');
+  if(!u||!p){ e.textContent='أدخل اسم المستخدم وكلمة المرور'; e.classList.add('show'); return; }
+  var btn=$('lgBtn'); btn.disabled=true;
+  try{
+    var d=await api('teacher-login',{method:'POST',body:{username:u,password:p,key:get('nurr_linkkey')}});
+    store('nurr_staff_token',d.token); store('nurr_me',JSON.stringify(d.teacher)); showApp(d.teacher,d.accessUntil);
+  }catch(err){ e.textContent=err.message; e.classList.add('show'); }
+  btn.disabled=false;
+}
+function showLogin(msg){ $('app').style.display='none'; $('loginView').style.display='flex';
+  var has=!!get('nurr_linkkey'); $('noLink').classList.toggle('show',!has);
+  $('lu').disabled=$('lp').disabled=$('lgBtn').disabled=!has;
+  if(msg){ $('lgErr').textContent=msg; $('lgErr').classList.add('show'); }
+}
+function showApp(teacher,until){ me=teacher; $('loginView').style.display='none'; $('app').style.display='block';
+  $('tName').textContent=teacher.full_name; var untilTxt=until?(/^\d{4}-/.test(String(until))?new Date(until).toLocaleDateString('ar',{day:'numeric',month:'long',year:'numeric'}):until):''; $('tSub').textContent=(teacher.subject||'')+(untilTxt?' · حتى '+untilTxt:'');
+  var yr=new Date().getFullYear(); $('scYear').value=yr+'-'+(yr+1); $('atDate').value=new Date().toISOString().slice(0,10);
+  flushOutbox(); updateSent();
+}
+function setTab(t){ tab=t; $('tabScores').classList.toggle('on',t==='scores'); $('tabAtt').classList.toggle('on',t==='att');
+  $('scoresView').style.display=t==='scores'?'':'none'; $('attView').style.display=t==='att'?'':'none'; }
+
+/* ---- scores ---- */
+async function loadScores(){
+  var g=$('scGrade').value.trim(), c=$('scClass').value.trim();
+  if(!g||!c){ toast('أدخل المرحلة والفصل'); return; }
+  try{ var d=await api('staff-roster',{params:{gradeLevel:g,className:c}}); roster=d.students||[];
+    if(!roster.length){ $('scList').innerHTML='<div class="empty">لا يوجد طلاب</div>'; return; }
+    $('scList').innerHTML='<div class="card">'+roster.map(function(s,i){
+      return '<div class="stu"><div class="idx">'+(i+1)+'</div><div class="nm"><b>'+esc(s.full_name)+'</b><small>'+esc(s.student_id)+'</small></div>'+
+        '<input class="score-in" inputmode="numeric" data-sid="'+esc(s.student_id)+'" oninput="chip(this)"><span class="chip" id="chip-'+esc(s.student_id)+'">—</span></div>';
+    }).join('')+'</div><div class="bar"><button class="btn" onclick="saveScores()"><i class="fas fa-save"></i> حفظ الدرجات</button></div>';
+  }catch(e){ toast(e.message); }
+}
+function gradeChip(sc){ sc=Number(sc); if(isNaN(sc))return'—'; if(sc>=85)return'ممتاز'; if(sc>=75)return'جيد جداً'; if(sc>=65)return'جيد'; if(sc>=50)return'مقبول'; if(sc>=40)return'ضعيف'; return'راسب'; }
+function chip(inp){ var el=$('chip-'+inp.dataset.sid); if(el) el.textContent=gradeChip(inp.value); }
+function saveScores(){
+  var subject=$('scSubject').value.trim(), year=$('scYear').value.trim(), term=$('scTerm').value;
+  if(!subject){ toast('أدخل المادة'); return; }
+  var scores=[]; document.querySelectorAll('.score-in').forEach(function(inp){ if(inp.value.trim()!=='') scores.push({studentId:inp.dataset.sid,score:inp.value.trim()}); });
+  if(!scores.length){ toast('أدخل درجة واحدة على الأقل'); return; }
+  queue({action:'staff-save-scores',body:{subject:subject,academicYear:year,term:term,scores:scores}}, scores.length+' درجة');
+}
+
+/* ---- attendance ---- */
+async function loadAtt(){
+  var g=$('atGrade').value.trim(), c=$('atClass').value.trim();
+  if(!g||!c){ toast('أدخل المرحلة والفصل'); return; }
+  try{ var d=await api('staff-roster',{params:{gradeLevel:g,className:c}}); roster=d.students||[]; attState={};
+    if(!roster.length){ $('atList').innerHTML='<div class="empty">لا يوجد طلاب</div>'; return; }
+    render();
+  }catch(e){ toast(e.message); }
+}
+function render(){
+  $('atList').innerHTML='<div class="card">'+roster.map(function(s,i){
+    var st=attState[s.student_id];
+    return '<div class="stu"><div class="idx">'+(i+1)+'</div><div class="nm"><b>'+esc(s.full_name)+'</b><small>'+esc(s.student_id)+'</small></div>'+
+      '<div class="att-btns"><button class="p'+(st==='present'?' on':'')+'" onclick="mark(\''+esc(s.student_id)+'\',\'present\')">حاضر</button><button class="a'+(st==='absent'?' on':'')+'" onclick="mark(\''+esc(s.student_id)+'\',\'absent\')">غائب</button></div></div>';
+  }).join('')+'</div>'+
+  '<div class="bar"><button class="btn ghost" onclick="allPresent()">الكل حاضر</button><button class="btn" onclick="saveAtt()"><i class="fas fa-save"></i> حفظ الحضور</button></div>';
+  var p=0,a=0; roster.forEach(function(s){var st=attState[s.student_id]; if(st==='present')p++; else if(st==='absent')a++;});
+  $('atList').insertAdjacentHTML('afterbegin','<div class="sum">حاضر '+p+' · غائب '+a+'</div>');
+}
+function mark(sid,st){ attState[sid]=st; render(); }
+function allPresent(){ roster.forEach(function(s){ attState[s.student_id]='present'; }); render(); }
+function saveAtt(){
+  var marks={}; Object.keys(attState).forEach(function(k){ if(attState[k]) marks[k]=attState[k]; });
+  if(!Object.keys(marks).length){ toast('علّم طالباً واحداً على الأقل'); return; }
+  queue({action:'staff-save-attendance',body:{date:$('atDate').value,marks:marks}}, Object.keys(marks).length+' طالب');
+}
+
+/* ---- offline outbox ---- */
+function outbox(){ try{ return JSON.parse(get('nurr_outbox')||'[]'); }catch(e){ return []; } }
+function setOutbox(o){ store('nurr_outbox',JSON.stringify(o)); updateSent(); }
+function queue(item,label){ var o=outbox(); o.push({id:Date.now()+Math.random(),item:item,label:label,ts:Date.now()}); setOutbox(o); toast('تم الحفظ — يُرسل الآن'); flushOutbox(); }
+var sending=false;
+async function flushOutbox(){
+  if(sending||!tok()||!navigator.onLine) return; sending=true;
+  var o=outbox();
+  while(o.length){
+    var entry=o[0];
+    try{ await api(entry.item.action,{method:'POST',body:entry.item.body}); o.shift(); setOutbox(o); }
+    catch(e){ break; }
+  }
+  sending=false; updateSent();
+}
+function updateSent(){ var n=outbox().length; var b=$('sentBadge'); if(!b)return;
+  b.textContent = n===0?'تم الإرسال ✓':(n+' بانتظار الإرسال'); b.style.background=n?'rgba(201,130,10,.9)':'rgba(30,158,90,.9)'; }
+function showOutbox(){ var n=outbox().length; if(n) alert(n+' عنصر بانتظار الإنترنت.'); }
+window.addEventListener('online',function(){ $('offlineBar').classList.remove('show'); flushOutbox(); });
+window.addEventListener('offline',function(){ $('offlineBar').classList.add('show'); });
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+var tt;
+function toast(m){ var el=$('toast'); el.textContent=m; el.classList.add('show'); clearTimeout(tt); tt=setTimeout(function(){el.classList.remove('show');},2200); }
+
+$('lp').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
+/* boot */
+if(tok() && get('nurr_me')){ try{ var m=JSON.parse(get('nurr_me')); showApp(m); api('teacher-me').then(function(d){ showApp(d.teacher,d.accessUntil); }).catch(function(){}); }catch(e){ showLogin(); } }
+else showLogin();
+if(!navigator.onLine) $('offlineBar').classList.add('show');
+</script>
+</body>
+</html>
