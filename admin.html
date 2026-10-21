@@ -102,6 +102,7 @@ tr:hover td{background:#f6faff}
 .install-bar .ib-t{flex:1;min-width:0}.install-bar .ib-t b{display:block;color:var(--blue-dark);font-size:0.95rem}.install-bar .ib-t span{color:var(--soft);font-size:0.82rem}
 .install-bar .ib-x{background:none;border:0;color:#9db2c9;font-size:1.3rem;cursor:pointer;padding:0.2rem 0.4rem;line-height:1}
 @media(max-width:860px){.install-bar{display:none!important}}
+.fo-chip{border:1.5px solid var(--line);background:#fff;color:var(--soft);padding:0.35rem 0.8rem;border-radius:999px;font-weight:700;font-size:0.82rem;cursor:pointer}.fo-chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}.fo-chip b{font-weight:800}
 /* mobile sidebar */
 .menu-btn{display:none;background:none;border:0;font-size:1.3rem;color:var(--blue-dark);cursor:pointer}
 .backdrop{display:none;position:fixed;inset:0;background:rgba(13,42,74,.45);z-index:40}
@@ -179,6 +180,7 @@ var T = {
     showTop:'Show Top', total:'Total', average:'Average', all:'All', view:'View', print:'Print', position:'Position', principal:'Principal',
     conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.', receipt:'Receipt', cashier:'Cashier',
     feeTargets:'Fee Targets', feeTargetsDesc:'Official yearly fee per class — institute fee + exam fee.', instituteAmount:'Institute fee', examAmount:'Exam fee',
+    expectedTotal:'Expected (total)', collectedTotal:'Collected', outstanding:'Outstanding', paidInFull:'Paid in full', partial:'Partial', unpaid:"Haven't paid", exportCsv:'Export CSV', feesByClass:'Fees by Class', paymentLedger:'Payment Ledger',
     paymentHistory:'Payment History', totalCollected:'Total Collected', payments:'Payments', confirmDeletePayment:'Delete this payment? This cannot be undone.',
     installTitle:'Install NURR on this computer', installSub:'Open the admin from your desktop in one click — no browser tabs.', installBtn:'Install NURR',
     grpStaff:'Staff', grpSite:'Website', grpSystem:'System',
@@ -217,6 +219,7 @@ var T = {
     showTop:'عرض أفضل', total:'المجموع', average:'المعدل', all:'الكل', view:'عرض', print:'طباعة', position:'الترتيب', principal:'المدير',
     conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.', receipt:'إيصال', cashier:'أمين الصندوق',
     feeTargets:'الرسوم الرسمية', feeTargetsDesc:'الرسوم السنوية لكل فصل — رسوم المعهد + رسوم الامتحان.', instituteAmount:'رسوم المعهد', examAmount:'رسوم الامتحان',
+    expectedTotal:'المطلوب (الإجمالي)', collectedTotal:'المحصّل', outstanding:'المتبقي', paidInFull:'مدفوع كاملاً', partial:'جزئي', unpaid:'لم يدفع', exportCsv:'تصدير CSV', feesByClass:'الرسوم حسب الفصل', paymentLedger:'سجل المدفوعات',
     paymentHistory:'سجل المدفوعات', totalCollected:'إجمالي المحصّل', payments:'الدفعات', confirmDeletePayment:'حذف هذه الدفعة؟ لا يمكن التراجع.',
     installTitle:'ثبّت تطبيق النور على هذا الحاسوب', installSub:'افتح لوحة الإدارة من سطح المكتب بنقرة واحدة — بدون متصفح.', installBtn:'تثبيت النور',
     grpStaff:'الموظفون', grpSite:'الموقع', grpSystem:'النظام',
@@ -440,33 +443,7 @@ async function pageResults(c){
   }catch(e){ document.getElementById('rBody').innerHTML=errBox('results'); }
 }
 
-/* ---- Fees ---- */
-async function pageFees(c){
-  var yr=new Date().getFullYear(); var defYear=yr+'-'+(yr+1);
-  c.innerHTML='<div class="card"><h3><i class="fas fa-sack-dollar"></i> '+t('fees')+'</h3>'+
-    '<div class="filters"><div><label>'+t('year')+'</label><input id="fYear" value="'+defYear+'"></div>'+
-    '<div><label>'+t('term')+'</label><select id="fTerm"><option>Term 1</option><option>Term 2</option></select></div>'+
-    '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadFees()"><i class="fas fa-magnifying-glass"></i></button></div></div>'+
-    '<div id="fBody"><div class="empty"><i class="fas fa-sack-dollar"></i>'+t('pickFilters')+'</div></div></div>';
-  window.loadFees=async function(){
-    var body=document.getElementById('fBody'); body.innerHTML=skeleton();
-    try{
-      var d=await api('get-fee-summary',{params:{academicYear:document.getElementById('fYear').value.trim(), term:document.getElementById('fTerm').value}});
-      var rows=d.summary||[];
-      if(!rows.length){ body.innerHTML=emptyBox(); return; }
-      var tE=0,tP=0; rows.forEach(function(r){ tE+=Number(r.expected)||0; tP+=Number(r.paid)||0; });
-      body.innerHTML='<div class="stat-cards"><div class="stat"><div class="n">'+money(tE)+'</div><div class="l">'+t('expected')+'</div></div><div class="stat green"><div class="n">'+money(tP)+'</div><div class="l">'+t('paid')+'</div></div><div class="stat red"><div class="n">'+money(tE-tP)+'</div><div class="l">'+t('balance')+'</div></div></div>'+
-      '<div class="tbl-wrap"><table><thead><tr><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('grade')+'</th><th>'+t('expected')+'</th><th>'+t('paid')+'</th><th>'+t('balance')+'</th></tr></thead><tbody>'+
-        rows.map(function(r){
-          var bal=Number(r.balance!=null?r.balance:(r.expected-r.paid))||0;
-          var bc=bal<=0?'b-green':(Number(r.paid)>0?'b-gold':'b-red');
-          return '<tr><td>'+esc(r.student_id)+'</td><td>'+esc(r.full_name)+'</td><td>'+esc(r.grade_level||'')+'</td><td>'+money(r.expected)+'</td><td>'+money(r.paid)+'</td><td><span class="badge '+bc+'">'+money(bal)+'</span></td></tr>';
-        }).join('')+'</tbody></table></div>';
-    }catch(e){ body.innerHTML=errBox('fees','loadFees'); }
-  };
-}
-function money(n){ n=Number(n)||0; return 'D '+n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2}); }
-
+/* ---- Fees: see pageFees below ---- */
 /* ---- Attendance (view register for a day) ---- */
 async function pageAttendance(c){
   var today=new Date().toISOString().slice(0,10);
@@ -1284,6 +1261,87 @@ async function delPayment(id){
   try{ await api('delete-payment',{method:'DELETE',body:{id:id}}); _payments=[]; loadPayments(); }
   catch(e){ alert('❌ '+e.message); }
 }
+
+
+function money(n){ n=Number(n)||0; return "D "+n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2}); }
+/* ======================= FEES OVERVIEW (full, like original) ======================= */
+var _feeSummary=[], _feePayments=[];
+async function pageFees(c){
+  var yr=new Date().getFullYear();
+  c.innerHTML='<div class="card"><h3><i class="fas fa-sack-dollar"></i> '+t('fees')+'</h3>'+
+    '<div class="filters"><div><label>'+t('academicYear')+'</label><input id="fo-year" value="'+yr+'-'+(yr+1)+'"></div>'+
+    '<div><label>'+t('term')+'</label><select id="fo-term"><option>Term 1</option><option>Term 2</option></select></div>'+
+    '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadFeesOverview()"><i class="fas fa-magnifying-glass"></i></button></div></div></div>'+
+    '<div id="fo-body"><div class="card"><div class="empty"><i class="fas fa-sack-dollar"></i>'+t('pickFilters')+'</div></div></div>';
+  window.loadFeesOverview=loadFeesOverview;
+}
+async function loadFeesOverview(){
+  var year=val('fo-year'), term=val('fo-term'), body=document.getElementById('fo-body');
+  body.innerHTML='<div class="card">'+skeleton()+'</div>';
+  try{
+    var sum=await api('get-fee-summary',{params:{academicYear:year,term:term}});
+    _feeSummary=sum.summary||[];
+    var pays=await api('get-all-fee-payments').catch(function(){return {payments:[]};});
+    _feePayments=(pays.payments||[]).filter(function(p){ return (!year||p.academic_year===year)&&(!term||p.term===term); });
+    renderFeesOverview(year,term);
+  }catch(e){ body.innerHTML='<div class="card">'+errBox('fees','loadFeesOverview')+'</div>'; }
+}
+function feeStatus(r){ var paid=Number(r.paid)||0, exp=Number(r.expected)||0; if(exp<=0) return paid>0?'paid':'none'; if(paid>=exp) return 'paid'; if(paid>0) return 'partial'; return 'unpaid'; }
+function renderFeesOverview(year,term){
+  var body=document.getElementById('fo-body');
+  var rows=_feeSummary;
+  if(!rows.length){ body.innerHTML='<div class="card">'+emptyBox()+'</div>'; return; }
+  var totExp=0,totPaid=0; rows.forEach(function(r){ totExp+=Number(r.expected)||0; totPaid+=Number(r.paid)||0; });
+  var counts={paid:0,partial:0,unpaid:0}; rows.forEach(function(r){ var s=feeStatus(r); if(counts[s]!=null)counts[s]++; });
+  // by class totals (paid)
+  var byClass={}; rows.forEach(function(r){ var k=(r.grade_level||'')+' / '+(r.class_name||''); if(!byClass[k])byClass[k]={paid:0,exp:0}; byClass[k].paid+=Number(r.paid)||0; byClass[k].exp+=Number(r.expected)||0; });
+  var maxPaid=Math.max.apply(null,[1].concat(Object.keys(byClass).map(function(k){return byClass[k].paid;})));
+
+  var html=
+    // totals
+    '<div class="stat-cards">'+
+      '<div class="stat"><div class="n">'+money(totExp)+'</div><div class="l">'+t('expectedTotal')+'</div></div>'+
+      '<div class="stat green"><div class="n">'+money(totPaid)+'</div><div class="l">'+t('collectedTotal')+'</div></div>'+
+      '<div class="stat red"><div class="n">'+money(totExp-totPaid)+'</div><div class="l">'+t('outstanding')+'</div></div>'+
+      '<div class="stat gold"><div class="n">'+rows.length+'</div><div class="l">'+t('totalStudents')+'</div></div>'+
+    '</div>'+
+    // filter chips
+    '<div class="card"><div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.8rem" id="foChips">'+
+      chip('all',t('all'),rows.length)+chip('paid',t('paidInFull'),counts.paid)+chip('partial',t('partial'),counts.partial)+chip('unpaid',t('unpaid'),counts.unpaid)+
+      '<input id="fo-search" placeholder="'+t('search')+'…" style="flex:1;min-width:160px;margin-inline-start:auto">'+
+      '<button class="btn ghost sm" onclick="exportFeesCsv()"><i class="fas fa-file-csv"></i> '+t('exportCsv')+'</button>'+
+    '</div>'+
+    '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('grade')+'</th><th>'+t('expected')+'</th><th>'+t('paid')+'</th><th>'+t('balance')+'</th><th>'+t('status')+'</th></tr></thead><tbody id="foRows"></tbody></table></div></div>'+
+    // by class bars
+    '<div class="card"><h3><i class="fas fa-chart-bar"></i> '+t('feesByClass')+'</h3>'+
+      Object.keys(byClass).sort().map(function(k){ var pct=Math.round(byClass[k].paid/maxPaid*100); return '<div style="margin-bottom:0.5rem"><div style="display:flex;justify-content:space-between;font-size:0.84rem"><span>'+esc(k)+'</span><span><b>'+money(byClass[k].paid)+'</b> / '+money(byClass[k].exp)+'</span></div><div style="height:10px;background:#eef2f7;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#1e9e5a,#1e6fd9)"></div></div></div>'; }).join('')+
+    '</div>'+
+    // full ledger
+    '<div class="card"><h3><i class="fas fa-book"></i> '+t('paymentLedger')+' <button class="btn ghost sm" style="margin-inline-start:auto" onclick="exportLedgerCsv()"><i class="fas fa-file-csv"></i> '+t('exportCsv')+'</button></h3>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>'+t('receipt')+'</th><th>'+t('date')+'</th><th>'+t('name')+'</th><th>'+t('grade')+'</th><th>'+t('amountField')+'</th><th>'+t('method')+'</th><th>'+t('actions')+'</th></tr></thead><tbody>'+
+      (_feePayments.length? _feePayments.map(function(p){ var dt=p.paid_at?new Date(p.paid_at).toLocaleDateString('en-GB'):''; return '<tr><td>#'+esc(p.receipt_number||'')+'</td><td>'+esc(dt)+'</td><td>'+esc(p.full_name||'')+'<div style="font-size:0.72rem;color:var(--soft)">'+esc(p.student_id)+'</div></td><td>'+esc((p.grade_level||'')+' / '+(p.class_name||''))+'</td><td><b>'+money(p.amount)+'</b></td><td>'+esc(p.method||'')+'</td><td class="row-actions"><button class="btn ghost sm" onclick="reprint('+p.id+')"><i class="fas fa-print"></i></button><button class="btn bad sm" onclick="delPaymentFO('+p.id+')"><i class="fas fa-trash"></i></button></td></tr>'; }).join('') : '<tr><td colspan="7">'+emptyBox()+'</td></tr>')+
+      '</tbody></table></div></div>';
+  body.innerHTML=html;
+  window._foFilter='all';
+  renderFeeRows();
+  document.getElementById('fo-search').oninput=renderFeeRows;
+  document.querySelectorAll('#foChips [data-chip]').forEach(function(ch){ ch.onclick=function(){ window._foFilter=ch.dataset.chip; document.querySelectorAll('#foChips [data-chip]').forEach(function(x){x.classList.toggle('on',x===ch);}); renderFeeRows(); }; });
+}
+function chip(id,label,n){ return '<button class="fo-chip'+(id==='all'?' on':'')+'" data-chip="'+id+'">'+label+' <b>'+n+'</b></button>'; }
+function renderFeeRows(){
+  var q=(document.getElementById('fo-search')||{}).value; q=(q||'').toLowerCase().trim();
+  var f=window._foFilter||'all';
+  var list=_feeSummary.filter(function(r){ var st=feeStatus(r); if(f!=='all'&&st!==f) return false; if(q&&(r.full_name||'').toLowerCase().indexOf(q)<0&&(r.student_id||'').toLowerCase().indexOf(q)<0&&(r.class_name||'').toLowerCase().indexOf(q)<0) return false; return true; });
+  var badge={paid:'<span class="badge b-green">'+t('paidInFull')+'</span>',partial:'<span class="badge b-gold">'+t('partial')+'</span>',unpaid:'<span class="badge b-red">'+t('unpaid')+'</span>',none:'<span class="badge b-gray">—</span>'};
+  document.getElementById('foRows').innerHTML = list.length? list.map(function(r,i){ var st=feeStatus(r); return '<tr><td>'+(i+1)+'</td><td>'+esc(r.student_id)+'</td><td>'+esc(r.full_name)+'</td><td>'+esc((r.grade_level||'')+' / '+(r.class_name||''))+'</td><td>'+money(r.expected)+'</td><td>'+money(r.paid)+'</td><td>'+money(r.balance!=null?r.balance:(r.expected-r.paid))+'</td><td>'+(badge[st]||'')+'</td></tr>'; }).join('') : '<tr><td colspan="8">'+emptyBox()+'</td></tr>';
+}
+function csvDownload(name,head,rows){
+  var csv='\ufeff'+[head].concat(rows).map(function(r){return r.map(function(c){return '"'+String(c==null?'':c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+function exportFeesCsv(){ csvDownload('student-fees.csv',[t('studentId'),t('name'),t('grade'),t('className'),t('expected'),t('paid'),t('balance'),t('status')], _feeSummary.map(function(r){return [r.student_id,r.full_name,r.grade_level,r.class_name,r.expected,r.paid,(r.balance!=null?r.balance:(r.expected-r.paid)),feeStatus(r)];})); }
+function exportLedgerCsv(){ csvDownload('payment-ledger.csv',[t('receipt'),t('date'),t('studentId'),t('name'),t('grade'),t('className'),t('academicYear'),t('term'),t('amountField'),t('method')], _feePayments.map(function(p){return [p.receipt_number,p.paid_at,p.student_id,p.full_name,p.grade_level,p.class_name,p.academic_year,p.term,p.amount,p.method];})); }
+async function delPaymentFO(id){ if(!confirm(t('confirmDeletePayment'))) return; try{ await api('delete-payment',{method:'DELETE',body:{id:id}}); loadFeesOverview(); }catch(e){ alert('❌ '+e.message); } }
 
 /* ============ INSTALL (desktop app) ============ */
 var deferredPrompt=null, isApp=false;
