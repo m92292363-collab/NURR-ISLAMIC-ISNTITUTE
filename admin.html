@@ -175,9 +175,11 @@ var T = {
     active:'Active', inactive:'Inactive', sessionExpired:'Session expired — please log in again',
     nationality:'Nationality', editStudent:'Edit Student', loadStudent:'Load', studentNotFound:'Student not found',
     topStudents:'Top Students', reportRemarks:'Report Remarks', viewReport:'View Report', printResults:'Print Results', bulkResults:'Bulk Results',
-    studentHistory:'Student History', studentPhoto:'Student Photo', classList:'Print Class List', transcript:'Transcript', archive:'Archive', restore:'Restore', archived:'Archived', uploadPhoto:'Upload Photo', archiveReasonPrompt:'Reason (optional):',
+    studentHistory:'Student History', studentPhoto:'Student Photo', classList:'Print Class List', printClassList:'Print Class List', transcript:'Transcript', archive:'Archive', restore:'Restore', archived:'Archived', uploadPhoto:'Upload Photo', archiveReasonPrompt:'Reason (optional):',
     showTop:'Show Top', total:'Total', average:'Average', all:'All', view:'View', print:'Print', position:'Position', principal:'Principal',
-    conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.',
+    conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.', receipt:'Receipt', cashier:'Cashier',
+    feeTargets:'Fee Targets', feeTargetsDesc:'Official yearly fee per class — institute fee + exam fee.', instituteAmount:'Institute fee', examAmount:'Exam fee',
+    paymentHistory:'Payment History', totalCollected:'Total Collected', payments:'Payments', confirmDeletePayment:'Delete this payment? This cannot be undone.',
     installTitle:'Install NURR on this computer', installSub:'Open the admin from your desktop in one click — no browser tabs.', installBtn:'Install NURR',
     grpStaff:'Staff', grpSite:'Website', grpSystem:'System',
     addStudent:'Add Student', promotion:'Promotion', classesTab:'Classes & Stages', addMarks:'Enter Marks', subjects:'Subjects',
@@ -211,9 +213,11 @@ var T = {
     active:'نشط', inactive:'موقوف', sessionExpired:'انتهت الجلسة — يرجى تسجيل الدخول من جديد',
     nationality:'الجنسية', editStudent:'تعديل بيانات طالب', loadStudent:'تحميل', studentNotFound:'الطالب غير موجود',
     topStudents:'الأوائل', reportRemarks:'ملاحظات التقرير', viewReport:'عرض التقرير', printResults:'طباعة النتائج', bulkResults:'إدخال جماعي',
-    studentHistory:'سجل الطالب', studentPhoto:'صورة الطالب', classList:'طباعة قائمة الفصل', transcript:'كشف النتائج', archive:'أرشفة', restore:'استعادة', archived:'مؤرشف', uploadPhoto:'رفع صورة', archiveReasonPrompt:'السبب (اختياري):',
+    studentHistory:'سجل الطالب', studentPhoto:'صورة الطالب', classList:'طباعة قائمة الفصل', printClassList:'طباعة قائمة الفصل', transcript:'كشف النتائج', archive:'أرشفة', restore:'استعادة', archived:'مؤرشف', uploadPhoto:'رفع صورة', archiveReasonPrompt:'السبب (اختياري):',
     showTop:'عرض أفضل', total:'المجموع', average:'المعدل', all:'الكل', view:'عرض', print:'طباعة', position:'الترتيب', principal:'المدير',
-    conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.',
+    conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.', receipt:'إيصال', cashier:'أمين الصندوق',
+    feeTargets:'الرسوم الرسمية', feeTargetsDesc:'الرسوم السنوية لكل فصل — رسوم المعهد + رسوم الامتحان.', instituteAmount:'رسوم المعهد', examAmount:'رسوم الامتحان',
+    paymentHistory:'سجل المدفوعات', totalCollected:'إجمالي المحصّل', payments:'الدفعات', confirmDeletePayment:'حذف هذه الدفعة؟ لا يمكن التراجع.',
     installTitle:'ثبّت تطبيق النور على هذا الحاسوب', installSub:'افتح لوحة الإدارة من سطح المكتب بنقرة واحدة — بدون متصفح.', installBtn:'تثبيت النور',
     grpStaff:'الموظفون', grpSite:'الموقع', grpSystem:'النظام',
     addStudent:'إضافة طالب', promotion:'الترقية', classesTab:'الفصول والمراحل', addMarks:'إدخال نتيجة', subjects:'المواد',
@@ -310,7 +314,9 @@ var NAV=[
   {g:'grpFinance', items:[
     {id:'fees',icon:'fa-sack-dollar'},
     {id:'recordPayment',icon:'fa-cash-register'},
-    {id:'feeSchedule',icon:'fa-file-invoice'}
+    {id:'payments',icon:'fa-receipt'},
+    {id:'feeSchedule',icon:'fa-file-invoice'},
+    {id:'feeTargets',icon:'fa-bullseye'}
   ]},
   {g:'grpAttend', items:[
     {id:'attendance',icon:'fa-clipboard-check'}
@@ -358,7 +364,7 @@ function openPage(id, keep){
   var c=document.getElementById('content');
   var fn={dashboard:pageDashboard,students:pageStudents,results:pageResults,fees:pageFees,attendance:pageAttendance,
     addStudent:pageAddStudent,editStudent:pageEditStudent,studentHistory:pageStudentHistory,studentPhoto:pageStudentPhoto,classList:pageClassList,promotion:pagePromotion,classes:pageClasses,addMarks:pageAddMarks,subjects:pageSubjects,
-    recordPayment:pageRecordPayment,feeSchedule:pageFeeSchedule,topStudents:pageTopStudents,reportRemarks:pageRemarks,viewReport:pageViewReport,printResults:pagePrintResults,bulkResults:pageBulkResults,teachers:pageTeachers,links:pageLinks,news:pageNews,
+    recordPayment:pageRecordPayment,feeSchedule:pageFeeSchedule,feeTargets:pageFeeTargets,payments:pagePayments,topStudents:pageTopStudents,reportRemarks:pageRemarks,viewReport:pageViewReport,printResults:pagePrintResults,bulkResults:pageBulkResults,teachers:pageTeachers,links:pageLinks,news:pageNews,
     audit:pageAudit,settings:pageSettings}[id];
   if(fn) fn(c); else c.innerHTML=emptyBox();
 }
@@ -651,9 +657,50 @@ async function recordPay(){
   var b={ studentId:val('rp-student'), academicYear:val('rp-year'), term:val('rp-term'), amount:parseFloat(val('rp-amount')), method:val('rp-method'), reference:val('rp-ref') };
   if(!b.studentId||!b.academicYear||!b.term||isNaN(b.amount)){ show('rp-err',t('required')); return; }
   var btn=document.getElementById('rpBtn'); btn.disabled=true;
-  try{ var d=await api('record-payment',{method:'POST',body:b}); show('rp-ok','✅ '+(d.message||t('saved'))); document.getElementById('rp-amount').value=''; document.getElementById('rp-ref').value=''; }
+  try{ var d=await api('record-payment',{method:'POST',body:b}); show('rp-ok','✅ '+(d.message||t('saved'))+' · '+t('receipt')+' #'+(d.receipt?d.receipt.receiptNumber:''));
+    document.getElementById('rp-amount').value=''; document.getElementById('rp-ref').value='';
+    if(d.receipt) showReceipt(d.receipt);
+  }
   catch(e){ show('rp-err','❌ '+e.message); }
   btn.disabled=false;
+}
+function showReceipt(r){
+  var e=esc, origin=location.origin;
+  var paid=r.paidAt?new Date(r.paidAt).toLocaleString('en-GB'):new Date().toLocaleString('en-GB');
+  var sheet='<div id="rcptSheet" class="rcpt">'+
+    '<div class="rcpt-head"><img src="'+origin+'/favicon.png" onerror="this.style.display=\'none\'"><div><div class="rcpt-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="rcpt-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
+    '<div class="rcpt-title">إيصال دفع · PAYMENT RECEIPT</div>'+
+    '<div class="rcpt-no">'+t('receipt')+' #'+e(r.receiptNumber)+' · '+e(paid)+'</div>'+
+    '<table class="rcpt-tbl">'+
+      '<tr><td>'+t('name')+'</td><td>'+e(r.studentName)+'</td></tr>'+
+      '<tr><td>'+t('studentId')+'</td><td>'+e(r.studentId)+'</td></tr>'+
+      '<tr><td>'+t('grade')+'</td><td>'+e(r.stage||'')+' / '+e(r.className||'')+'</td></tr>'+
+      '<tr><td>'+t('guardian')+'</td><td>'+e(r.guardianName||'')+'</td></tr>'+
+      '<tr><td>'+t('academicYear')+'</td><td>'+e(r.academicYear)+' · '+e(r.term)+'</td></tr>'+
+      '<tr><td>'+t('method')+'</td><td>'+e(r.period||r.method||'')+'</td></tr>'+
+      (r.reference?'<tr><td>'+t('reference')+'</td><td>'+e(r.reference)+'</td></tr>':'')+
+      '<tr class="rcpt-amt"><td>'+t('amountField')+'</td><td>'+money(r.amount)+'</td></tr>'+
+    '</table>'+
+    '<div class="rcpt-sign">…………………………<br>'+t('cashier')+'</div></div>';
+  var m=document.getElementById('rcptModal');
+  if(!m){ m=document.createElement('div'); m.id='rcptModal'; m.style.cssText='position:fixed;inset:0;background:rgba(13,42,74,.7);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem'; document.body.appendChild(m); }
+  m.innerHTML='<div style="background:#fff;border-radius:16px;max-width:460px;width:98%;max-height:94vh;display:flex;flex-direction:column"><div style="padding:0.8rem 1rem;border-bottom:1px solid var(--line);display:flex;gap:0.5rem;align-items:center"><b style="color:var(--blue-dark)"><i class="fas fa-receipt"></i> '+t('receipt')+'</b><button class="btn sm" style="margin-inline-start:auto" onclick="printReceipt()"><i class="fas fa-print"></i> '+t('print')+'</button><button class="btn ghost sm" onclick="document.getElementById(\'rcptModal\').remove()">✕</button></div><div style="overflow:auto;padding:1rem;background:#e9eef5;text-align:center"><div id="rcptHost"></div></div></div>';
+  injectRcptCSS(); document.getElementById('rcptHost').innerHTML=sheet;
+}
+function injectRcptCSS(){
+  if(document.getElementById('rcptStyle'))return; var st=document.createElement('style'); st.id='rcptStyle';
+  st.textContent=".rcpt{background:#fff;color:#000;width:90mm;padding:8mm 7mm;box-sizing:border-box;font-family:'Amiri','Times New Roman',serif;text-align:right;display:inline-block;box-shadow:0 4px 20px rgba(0,0,0,.2)}"+
+    ".rcpt-head{display:flex;align-items:center;gap:8px;border-bottom:2pt solid #0d3b6e;padding-bottom:6px}.rcpt-head img{width:42px;height:42px;object-fit:contain}.rcpt-school{font-size:11pt;font-weight:bold;line-height:1.1}.rcpt-sub{font-size:7.5pt;color:#444}"+
+    ".rcpt-title{text-align:center;font-size:12pt;font-weight:bold;letter-spacing:2px;margin:8px 0 2px}.rcpt-no{text-align:center;font-size:8.5pt;color:#333;margin-bottom:8px}"+
+    ".rcpt-tbl{width:100%;border-collapse:collapse;font-size:9.5pt}.rcpt-tbl td{border:0.5pt solid #bbb;padding:4px 6px}.rcpt-tbl td:first-child{font-weight:bold;background:#f4f6f9;width:42%}.rcpt-amt td{font-weight:bold;font-size:11pt;background:#eef7ff}"+
+    ".rcpt-sign{margin-top:16px;text-align:center;font-size:9pt}";
+  document.head.appendChild(st);
+}
+function printReceipt(){
+  var sheet=document.getElementById('rcptSheet'); if(!sheet)return; var css=document.getElementById('rcptStyle').textContent;
+  var win=window.open('','_blank'); if(!win)return;
+  win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet"><style>'+css+'@page{size:A5;margin:6mm}body{margin:0}.rcpt{box-shadow:none!important;margin:0 auto}</style></head><body>'+sheet.outerHTML+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
+  win.document.close();
 }
 
 /* ======================= FEE SETUP ======================= */
@@ -1177,6 +1224,65 @@ function injectTxCSS(){
     ".tx-table{width:100%;border-collapse:collapse;border:1.5pt solid #000;font-size:9pt;table-layout:fixed}.tx-table th,.tx-table td{border:1pt solid #000;padding:4px 3px;text-align:center}.tx-table th{background:#eef2f7;font-weight:bold}.tx-table td.s{text-align:right;font-weight:600;white-space:nowrap}"+
     ".tx-sign{margin-top:20px;font-size:10.5pt;text-align:center}";
   document.head.appendChild(st);
+}
+
+
+/* ======================= FEE TARGETS (official per-class fees) ======================= */
+async function pageFeeTargets(c){
+  var yr=new Date().getFullYear();
+  c.innerHTML='<div class="card"><h3><i class="fas fa-bullseye"></i> '+t('feeTargets')+'</h3>'+
+    '<p style="color:var(--soft);font-size:0.85rem;margin-bottom:0.8rem">'+t('feeTargetsDesc')+'</p>'+
+    '<div class="form-grid">'+field('ft-class',t('className'))+field('ft-year',t('academicYear'),'text',yr+'-'+(yr+1))+field('ft-institute',t('instituteAmount'),'number')+field('ft-exam',t('examAmount'),'number')+'</div>'+
+    '<button class="btn" onclick="saveTarget()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
+    '<div class="msg ok" id="ft-ok"></div><div class="msg err" id="ft-err"></div>'+
+    '<div id="ftBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
+  loadTargets();
+}
+async function loadTargets(){
+  try{ var d=await api('get-fee-targets'); var rows=d.targets||[];
+    document.getElementById('ftBody').innerHTML = rows.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('className')+'</th><th>'+t('academicYear')+'</th><th>'+t('instituteAmount')+'</th><th>'+t('examAmount')+'</th><th>'+t('total')+'</th></tr></thead><tbody>'+
+      rows.map(function(x){ var tot=(Number(x.institute_amount)||0)+(Number(x.exam_amount)||0); return '<tr><td><b>'+esc(x.class_name)+'</b></td><td>'+esc(x.academic_year)+'</td><td>'+money(x.institute_amount)+'</td><td>'+money(x.exam_amount)+'</td><td><b>'+money(tot)+'</b></td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
+  }catch(e){ document.getElementById('ftBody').innerHTML=errBox('feeTargets','loadTargets'); }
+}
+async function saveTarget(){
+  hide('ft-ok','ft-err');
+  var b={ className:val('ft-class'), academicYear:val('ft-year'), instituteAmount:parseFloat(val('ft-institute'))||0, examAmount:parseFloat(val('ft-exam'))||0 };
+  if(!b.className||!b.academicYear){ show('ft-err',t('required')); return; }
+  try{ await api('set-fee-target',{method:'POST',body:b}); show('ft-ok','✅ '+t('saved')); loadTargets(); }
+  catch(e){ show('ft-err','❌ '+e.message); }
+}
+
+/* ======================= PAYMENT HISTORY (all payments, reprint, delete) ======================= */
+async function pagePayments(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-receipt"></i> '+t('paymentHistory')+' <button class="btn ghost sm" style="margin-inline-start:auto" onclick="loadPayments()"><i class="fas fa-rotate"></i> '+t('refresh')+'</button></h3>'+
+    '<div class="filters"><div><label>'+t('search')+'</label><input id="py-search" placeholder="'+t('name')+' / '+t('studentId')+' / '+t('receipt')+'"></div></div>'+
+    '<div id="pyBody">'+skeleton()+'</div></div>';
+  loadPayments();
+}
+var _payments=[];
+async function loadPayments(){
+  var body=document.getElementById('pyBody'); if(!_payments.length) body.innerHTML=skeleton();
+  try{ var d=await api('get-all-fee-payments'); _payments=d.payments||[]; renderPayments(_payments);
+    var si=document.getElementById('py-search'); si.oninput=function(){ var q=this.value.toLowerCase().trim(); renderPayments(!q?_payments:_payments.filter(function(p){ return (p.full_name||'').toLowerCase().indexOf(q)>=0 || (p.student_id||'').toLowerCase().indexOf(q)>=0 || String(p.receipt_number||'').indexOf(q)>=0; })); };
+  }catch(e){ body.innerHTML=errBox('paymentHistory','loadPayments'); }
+}
+function renderPayments(list){
+  var body=document.getElementById('pyBody');
+  if(!list.length){ body.innerHTML=emptyBox(); return; }
+  var total=list.reduce(function(a,p){return a+Number(p.amount||0);},0);
+  body.innerHTML='<div class="stat-cards" style="margin-bottom:0.8rem"><div class="stat green"><div class="n">'+money(total)+'</div><div class="l">'+t('totalCollected')+'</div></div><div class="stat"><div class="n">'+list.length+'</div><div class="l">'+t('payments')+'</div></div></div>'+
+    '<div class="tbl-wrap"><table><thead><tr><th>'+t('receipt')+'</th><th>'+t('date')+'</th><th>'+t('name')+'</th><th>'+t('grade')+'</th><th>'+t('academicYear')+'</th><th>'+t('amountField')+'</th><th>'+t('method')+'</th><th>'+t('actions')+'</th></tr></thead><tbody>'+
+    list.map(function(p){ var dt=p.paid_at?new Date(p.paid_at).toLocaleDateString('en-GB'):''; return '<tr><td>#'+esc(p.receipt_number||'')+'</td><td>'+esc(dt)+'</td><td>'+esc(p.full_name||'')+'<div style="font-size:0.72rem;color:var(--soft)">'+esc(p.student_id)+'</div></td><td>'+esc((p.grade_level||'')+' / '+(p.class_name||''))+'</td><td>'+esc(p.academic_year)+' · '+esc(p.term)+'</td><td><b>'+money(p.amount)+'</b></td><td>'+esc(p.method||'')+'</td>'+
+      '<td class="row-actions"><button class="btn ghost sm" onclick="reprint('+p.id+')"><i class="fas fa-print"></i></button><button class="btn bad sm" onclick="delPayment('+p.id+')"><i class="fas fa-trash"></i></button></td></tr>'; }).join('')+'</tbody></table></div>';
+}
+async function reprint(id){
+  try{ var d=await api('get-receipt',{params:{id:id}}); if(d.receipt) showReceipt(d.receipt); }
+  catch(e){ alert('❌ '+e.message); }
+}
+async function delPayment(id){
+  if(!confirm(t('confirmDeletePayment'))) return;
+  try{ await api('delete-payment',{method:'DELETE',body:{id:id}}); _payments=[]; loadPayments(); }
+  catch(e){ alert('❌ '+e.message); }
 }
 
 /* ============ INSTALL (desktop app) ============ */
