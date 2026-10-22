@@ -128,6 +128,7 @@ const ROUTE_AUTH = {
   'staff-save-scores':'teacher', 'staff-save-attendance':'teacher', 'staff-roster':'teacher',
   'get-remarks':'any', 'save-remarks':'admin',
   'student-history':'any', 'archive-student':'admin', 'get-student-photo':'any', 'admin-upload-photo':'admin', 'class-list':'any',
+  'get-years':'any',
 };
 
 // ---------- small helpers ----------
@@ -271,6 +272,19 @@ function hashKey(k){ return crypto.createHash('sha256').update(String(k)).digest
 const routes = {
 
   // ---------------- AUTH ----------------
+  'get-years': { GET: async () => {
+    const rows = await sql`
+      SELECT DISTINCT academic_year AS y FROM results WHERE academic_year IS NOT NULL
+      UNION SELECT DISTINCT academic_year FROM fee_payments WHERE academic_year IS NOT NULL
+      UNION SELECT DISTINCT academic_year FROM fee_structure WHERE academic_year IS NOT NULL
+      UNION SELECT DISTINCT academic_year FROM fee_targets WHERE academic_year IS NOT NULL`;
+    const years = rows.map(r => r.y).filter(Boolean);
+    const now = new Date(); const m = now.getMonth(); const startY = m >= 7 ? now.getFullYear() : now.getFullYear() - 1;
+    const cur = startY + '-' + (startY + 1);
+    if (!years.includes(cur)) years.push(cur);
+    years.sort().reverse();
+    return ok({ years });
+  }},
   'student-history': { GET: async (event) => {
     await ensureLinkSchema();
     const { studentId } = event.queryStringParameters || {};

@@ -180,7 +180,7 @@ var T = {
     showTop:'Show Top', total:'Total', average:'Average', all:'All', view:'View', print:'Print', position:'Position', principal:'Principal',
     conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.', receipt:'Receipt', cashier:'Cashier',
     feeTargets:'Fee Targets', feeTargetsDesc:'Official yearly fee per class — institute fee + exam fee.', instituteAmount:'Institute fee', examAmount:'Exam fee',
-    expectedTotal:'Expected (total)', collectedTotal:'Collected', outstanding:'Outstanding', paidInFull:'Paid in full', partial:'Partial', unpaid:"Haven't paid", exportCsv:'Export CSV', feesByClass:'Fees by Class', paymentLedger:'Payment Ledger',
+    expectedTotal:'Expected (total)', collectedTotal:'Collected', outstanding:'Outstanding', paidInFull:'Paid in full', partial:'Partial', unpaid:"Haven't paid", exportCsv:'Export CSV', feesByClass:'Fees by Class', instituteByClass:'Institute fees by class', examByClass:'Exam fees by class', paymentLedger:'Payment Ledger',
     paymentHistory:'Payment History', totalCollected:'Total Collected', payments:'Payments', confirmDeletePayment:'Delete this payment? This cannot be undone.',
     installTitle:'Install NURR on this computer', installSub:'Open the admin from your desktop in one click — no browser tabs.', installBtn:'Install NURR',
     grpStaff:'Staff', grpSite:'Website', grpSystem:'System',
@@ -219,7 +219,7 @@ var T = {
     showTop:'عرض أفضل', total:'المجموع', average:'المعدل', all:'الكل', view:'عرض', print:'طباعة', position:'الترتيب', principal:'المدير',
     conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.', receipt:'إيصال', cashier:'أمين الصندوق',
     feeTargets:'الرسوم الرسمية', feeTargetsDesc:'الرسوم السنوية لكل فصل — رسوم المعهد + رسوم الامتحان.', instituteAmount:'رسوم المعهد', examAmount:'رسوم الامتحان',
-    expectedTotal:'المطلوب (الإجمالي)', collectedTotal:'المحصّل', outstanding:'المتبقي', paidInFull:'مدفوع كاملاً', partial:'جزئي', unpaid:'لم يدفع', exportCsv:'تصدير CSV', feesByClass:'الرسوم حسب الفصل', paymentLedger:'سجل المدفوعات',
+    expectedTotal:'المطلوب (الإجمالي)', collectedTotal:'المحصّل', outstanding:'المتبقي', paidInFull:'مدفوع كاملاً', partial:'جزئي', unpaid:'لم يدفع', exportCsv:'تصدير CSV', feesByClass:'الرسوم حسب الفصل', instituteByClass:'رسوم المعهد حسب الفصل', examByClass:'رسوم الامتحان حسب الفصل', paymentLedger:'سجل المدفوعات',
     paymentHistory:'سجل المدفوعات', totalCollected:'إجمالي المحصّل', payments:'الدفعات', confirmDeletePayment:'حذف هذه الدفعة؟ لا يمكن التراجع.',
     installTitle:'ثبّت تطبيق النور على هذا الحاسوب', installSub:'افتح لوحة الإدارة من سطح المكتب بنقرة واحدة — بدون متصفح.', installBtn:'تثبيت النور',
     grpStaff:'الموظفون', grpSite:'الموقع', grpSystem:'النظام',
@@ -399,48 +399,62 @@ function statCard(n,l,icon,cls){ return '<div class="stat '+(cls||'')+'"><div cl
 /* ---- Students ---- */
 async function pageStudents(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-users"></i> '+t('students')+' <button class="btn ghost sm" style="margin-inline-start:auto" onclick="openPage(\'students\')"><i class="fas fa-rotate"></i> '+t('refresh')+'</button></h3>'+
-    '<div class="filters"><div><label>'+t('search')+'</label><input id="stSearch" placeholder="'+t('search')+'…"></div></div>'+
+    '<div class="filters">'+
+      '<div><label>'+t('stage')+'</label><select id="st-stage"></select></div>'+
+      '<div><label>'+t('className')+'</label><select id="st-class"></select></div>'+
+      '<div style="flex:2"><label>'+t('search')+'</label><input id="stSearch" placeholder="'+t('search')+'…"></div>'+
+    '</div>'+
+    '<div id="st-count" style="color:var(--soft);font-size:0.85rem;margin-bottom:0.5rem"></div>'+
     '<div id="stBody">'+skeleton()+'</div></div>';
-  try{
-    var d=await api('get-all-students'); var all=d.students||[];
-    function render(list){
-      var body=document.getElementById('stBody');
-      if(!list.length){ body.innerHTML=emptyBox(); return; }
-      body.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('grade')+'</th><th>'+t('className')+'</th><th>'+t('guardian')+'</th><th>'+t('phone')+'</th><th>'+t('status')+'</th></tr></thead><tbody>'+
-        list.map(function(s){
-          var st = (s.active===false||s.status==='archived')?'<span class="badge b-gray">'+t('inactive')+'</span>':'<span class="badge b-green">'+t('active')+'</span>';
-          return '<tr><td><b>'+esc(s.student_id)+'</b></td><td>'+esc(s.full_name)+'</td><td>'+esc(s.grade_level||'')+'</td><td>'+esc(s.class_name||'')+'</td><td>'+esc(s.guardian_name||'')+'</td><td>'+esc(s.guardian_phone||s.student_phone||'')+'</td><td>'+st+'</td></tr>';
-        }).join('')+'</tbody></table></div><div style="color:var(--soft);font-size:0.8rem;margin-top:0.5rem">'+list.length+'</div>';
-    }
-    render(all);
-    document.getElementById('stSearch').addEventListener('input',function(){
-      var q=this.value.toLowerCase().trim();
-      render(!q?all:all.filter(function(s){ return (s.full_name||'').toLowerCase().indexOf(q)>=0 || (s.student_id||'').toLowerCase().indexOf(q)>=0 || (s.class_name||'').toLowerCase().indexOf(q)>=0; }));
-    });
-  }catch(e){ document.getElementById('stBody').innerHTML=errBox('students'); }
+  await loadClassesData(); fillStageSelect('st-stage',true); fillClassSelect('st-class','');
+  var all=[];
+  try{ var d=await api('get-all-students'); all=d.students||[]; }catch(e){ document.getElementById('stBody').innerHTML=errBox('students'); return; }
+  function render(list){
+    document.getElementById('st-count').innerHTML='<i class="fas fa-users"></i> '+t('students')+': <b>'+list.length+'</b>';
+    var body=document.getElementById('stBody');
+    if(!list.length){ body.innerHTML=emptyBox(); return; }
+    body.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('stage')+'</th><th>'+t('className')+'</th><th>'+t('guardian')+'</th><th>'+t('phone')+'</th><th>'+t('status')+'</th><th></th></tr></thead><tbody>'+
+      list.map(function(x){ var st=(x.active===false||x.status==='archived')?'<span class="badge b-gray">'+t('inactive')+'</span>':'<span class="badge b-green">'+t('active')+'</span>';
+        return '<tr><td><b>'+esc(x.student_id)+'</b></td><td>'+esc(x.full_name)+'</td><td>'+esc(x.grade_level||'')+'</td><td>'+esc(x.class_name||'')+'</td><td>'+esc(x.guardian_name||'')+'</td><td>'+esc(x.guardian_phone||x.student_phone||'')+'</td><td>'+st+'</td>'+
+        '<td class="row-actions"><button class="btn ghost sm" onclick="gotoEdit(\''+esc(x.student_id)+'\')"><i class="fas fa-pen"></i></button></td></tr>'; }).join('')+'</tbody></table></div>';
+  }
+  function apply(){ var stage=val('st-stage'),cls=val('st-class'),q=(document.getElementById('stSearch').value||'').toLowerCase().trim();
+    render(all.filter(function(x){ if(stage&&String(x.grade_level)!==String(stage))return false; if(cls&&(x.class_name||'').toLowerCase()!==cls.toLowerCase())return false; if(q&&(x.full_name||'').toLowerCase().indexOf(q)<0&&(x.student_id||'').toLowerCase().indexOf(q)<0)return false; return true; })); }
+  document.getElementById('st-stage').onchange=function(){ fillClassSelect('st-class',this.value); apply(); };
+  document.getElementById('st-class').onchange=apply;
+  document.getElementById('stSearch').oninput=apply;
+  render(all);
 }
+function gotoEdit(sid){ openPage('editStudent'); setTimeout(function(){ var el=document.getElementById('es-search'); if(el){ el.value=sid; loadStudentForEdit(); } },500); }
 
-/* ---- Results ---- */
 async function pageResults(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-table-list"></i> '+t('results')+'</h3>'+
-    '<div class="filters"><div><label>'+t('search')+'</label><input id="rSearch" placeholder="'+t('search')+'…"></div></div>'+
+    '<div class="filters">'+
+      '<div><label>'+t('stage')+'</label><select id="r-stage"></select></div>'+
+      '<div><label>'+t('className')+'</label><select id="r-class"></select></div>'+
+      '<div><label>'+t('academicYear')+'</label><select id="r-year"></select></div>'+
+      '<div><label>'+t('term')+'</label><select id="r-term"><option value="">'+t('all')+'</option><option>Term 1</option><option>Term 2</option></select></div>'+
+      '<div style="flex:2"><label>'+t('search')+'</label><input id="rSearch" placeholder="'+t('search')+'…"></div>'+
+    '</div>'+
+    '<div id="r-count" style="color:var(--soft);font-size:0.85rem;margin-bottom:0.5rem"></div>'+
     '<div id="rBody">'+skeleton()+'</div></div>';
-  try{
-    var d=await api('get-all-results'); var all=d.results||[];
-    function render(list){
-      var body=document.getElementById('rBody');
-      if(!list.length){ body.innerHTML=emptyBox(); return; }
-      body.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('grade')+'</th><th>'+t('subject')+'</th><th>'+t('score')+'</th><th>'+t('gradeCol')+'</th><th>'+t('year')+'</th><th>'+t('term')+'</th></tr></thead><tbody>'+
-        list.slice(0,500).map(function(r){
-          return '<tr><td>'+esc(r.student_id)+'</td><td>'+esc(r.full_name)+'</td><td>'+esc(r.grade_level||'')+'</td><td>'+esc(r.subject)+'</td><td>'+esc(r.score)+'</td><td><span class="badge b-gold">'+esc(r.grade||'')+'</span></td><td>'+esc(r.academic_year||'')+'</td><td>'+esc(r.term||'')+'</td></tr>';
-        }).join('')+'</tbody></table></div>';
-    }
-    render(all);
-    document.getElementById('rSearch').addEventListener('input',function(){
-      var q=this.value.toLowerCase().trim();
-      render(!q?all:all.filter(function(r){ return (r.full_name||'').toLowerCase().indexOf(q)>=0 || (r.student_id||'').toLowerCase().indexOf(q)>=0 || (r.subject||'').toLowerCase().indexOf(q)>=0; }));
-    });
-  }catch(e){ document.getElementById('rBody').innerHTML=errBox('results'); }
+  await loadClassesData(); await loadYears(); fillStageSelect('r-stage',true); fillClassSelect('r-class',''); fillYearSelect('r-year');
+  document.getElementById('r-year').insertAdjacentHTML('afterbegin','<option value="">'+t('all')+'</option>');
+  var all=[];
+  try{ var d=await api('get-all-results'); all=d.results||[]; }catch(e){ document.getElementById('rBody').innerHTML=errBox('results'); return; }
+  function render(list){
+    document.getElementById('r-count').innerHTML='<i class="fas fa-table-list"></i> '+t('results')+': <b>'+list.length+'</b>';
+    var body=document.getElementById('rBody');
+    if(!list.length){ body.innerHTML=emptyBox(); return; }
+    body.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('stage')+'</th><th>'+t('className')+'</th><th>'+t('subject')+'</th><th>'+t('score')+'</th><th>'+t('gradeCol')+'</th><th>'+t('year')+'</th><th>'+t('term')+'</th></tr></thead><tbody>'+
+      list.slice(0,800).map(function(r){ return '<tr><td>'+esc(r.student_id)+'</td><td>'+esc(r.full_name)+'</td><td>'+esc(r.grade_level||'')+'</td><td>'+esc(r.class_name||'')+'</td><td>'+esc(r.subject)+'</td><td>'+esc(r.score)+'</td><td><span class="badge b-gold">'+esc(r.grade||'')+'</span></td><td>'+esc(r.academic_year||'')+'</td><td>'+esc(r.term||'')+'</td></tr>'; }).join('')+'</tbody></table></div>';
+  }
+  function apply(){ var stage=val('r-stage'),cls=val('r-class'),yr=val('r-year'),tm=val('r-term'),q=(document.getElementById('rSearch').value||'').toLowerCase().trim();
+    render(all.filter(function(r){ if(stage&&String(r.grade_level)!==String(stage))return false; if(cls&&(r.class_name||'').toLowerCase()!==cls.toLowerCase())return false; if(yr&&r.academic_year!==yr)return false; if(tm&&r.term!==tm)return false; if(q&&(r.full_name||'').toLowerCase().indexOf(q)<0&&(r.student_id||'').toLowerCase().indexOf(q)<0&&(r.subject||'').toLowerCase().indexOf(q)<0)return false; return true; })); }
+  document.getElementById('r-stage').onchange=function(){ fillClassSelect('r-class',this.value); apply(); };
+  ['r-class','r-year','r-term'].forEach(function(id){ document.getElementById(id).onchange=apply; });
+  document.getElementById('rSearch').oninput=apply;
+  render(all);
 }
 
 /* ---- Fees: see pageFees below ---- */
@@ -1318,6 +1332,14 @@ async function loadFeesOverview(){
   }catch(e){ body.innerHTML='<div class="card">'+errBox('fees','loadFeesOverview')+'</div>'; }
 }
 function feeStatus(r){ var paid=Number(r.paid)||0, exp=Number(r.expected)||0; if(exp<=0) return paid>0?'paid':'none'; if(paid>=exp) return 'paid'; if(paid>0) return 'partial'; return 'unpaid'; }
+function feeClassBarsHtml(){
+  var inst={}, exam={};
+  _feePayments.forEach(function(p){ var k=(p.grade_level||'')+' / '+(p.class_name||''); var per=(p.period||p.method||'').toString().toLowerCase(); var amt=Number(p.amount)||0;
+    if(per.indexOf('exam')>=0||per.indexOf('امتحان')>=0) exam[k]=(exam[k]||0)+amt; else inst[k]=(inst[k]||0)+amt; });
+  function bars(title,obj,col){ var keys=Object.keys(obj).sort(); var mx=Math.max.apply(null,[1].concat(keys.map(function(k){return obj[k];})));
+    return '<div style="font-weight:800;color:var(--blue-dark);margin:0.4rem 0">'+title+'</div>'+(keys.length?keys.map(function(k){ var pct=Math.round(obj[k]/mx*100); return '<div style="margin-bottom:0.4rem"><div style="display:flex;justify-content:space-between;font-size:0.82rem"><span>'+esc(k)+'</span><b>'+money(obj[k])+'</b></div><div style="height:9px;background:#eef2f7;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+'"></div></div></div>'; }).join(''):'<div class="muted" style="font-size:0.82rem">'+t('noData')+'</div>'); }
+  return '<div class="card"><h3><i class="fas fa-chart-bar"></i> '+t('feesByClass')+'</h3>'+bars(t('instituteByClass'),inst,'#1e9e5a')+'<div style="height:0.8rem"></div>'+bars(t('examByClass'),exam,'#15529a')+'</div>';
+}
 function renderFeesOverview(year,term){
   var body=document.getElementById('fo-body');
   var rows=_feeSummary;
@@ -1343,10 +1365,7 @@ function renderFeesOverview(year,term){
       '<button class="btn ghost sm" onclick="exportFeesCsv()"><i class="fas fa-file-csv"></i> '+t('exportCsv')+'</button>'+
     '</div>'+
     '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('grade')+'</th><th>'+t('expected')+'</th><th>'+t('paid')+'</th><th>'+t('balance')+'</th><th>'+t('status')+'</th></tr></thead><tbody id="foRows"></tbody></table></div></div>'+
-    // by class bars
-    '<div class="card"><h3><i class="fas fa-chart-bar"></i> '+t('feesByClass')+'</h3>'+
-      Object.keys(byClass).sort().map(function(k){ var pct=Math.round(byClass[k].paid/maxPaid*100); return '<div style="margin-bottom:0.5rem"><div style="display:flex;justify-content:space-between;font-size:0.84rem"><span>'+esc(k)+'</span><span><b>'+money(byClass[k].paid)+'</b> / '+money(byClass[k].exp)+'</span></div><div style="height:10px;background:#eef2f7;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#1e9e5a,#1e6fd9)"></div></div></div>'; }).join('')+
-    '</div>'+
+    feeClassBarsHtml()+
     // full ledger
     '<div class="card"><h3><i class="fas fa-book"></i> '+t('paymentLedger')+' <button class="btn ghost sm" style="margin-inline-start:auto" onclick="exportLedgerCsv()"><i class="fas fa-file-csv"></i> '+t('exportCsv')+'</button></h3>'+
       '<div class="tbl-wrap"><table><thead><tr><th>'+t('receipt')+'</th><th>'+t('date')+'</th><th>'+t('name')+'</th><th>'+t('grade')+'</th><th>'+t('amountField')+'</th><th>'+t('method')+'</th><th>'+t('actions')+'</th></tr></thead><tbody>'+
