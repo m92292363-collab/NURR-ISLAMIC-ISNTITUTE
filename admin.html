@@ -189,7 +189,7 @@ var T = {
     save:'Save', add:'Add', edit:'Edit', del:'Delete', cancel:'Cancel', create:'Create', update:'Update', confirm:'Are you sure?',
     fullName:'Full name', passwordField:'Password', stage:'Stage', sortOrder:'Order', promotesTo:'Promotes to', graduates:'Graduates',
     guardianName:'Guardian name', guardianPhone:'Guardian phone', studentPhone:'Student phone', dob:'Date of birth', address:'Address',
-    selectGrade:'Select grade', selectClass:'Select class', selectStudent:'Select student', required:'Please fill required fields',
+    selectGrade:'Select grade', selectClass:'Select class', selectStudent:'Select student', selectStage:'Select stage', allStages:'All stages', required:'Please fill required fields',
     saved:'Saved', deleted:'Deleted', added:'Added', updated:'Updated',
     subjectName:'Subject name', newsTitle:'Title', newsBody:'Message', published:'Published', draft:'Draft',
     teacherName:'Teacher name', teacherSubject:'Subject', teacherPhone:'Phone',
@@ -228,7 +228,7 @@ var T = {
     save:'حفظ', add:'إضافة', edit:'تعديل', del:'حذف', cancel:'إلغاء', create:'إنشاء', update:'تحديث', confirm:'هل أنت متأكد؟',
     fullName:'الاسم الكامل', passwordField:'كلمة المرور', stage:'المرحلة', sortOrder:'الترتيب', promotesTo:'يُرقّى إلى', graduates:'تخرّج',
     guardianName:'اسم ولي الأمر', guardianPhone:'هاتف ولي الأمر', studentPhone:'هاتف الطالب', dob:'تاريخ الميلاد', address:'العنوان',
-    selectGrade:'اختر المرحلة', selectClass:'اختر الفصل', selectStudent:'اختر الطالب', required:'يرجى ملء الحقول المطلوبة',
+    selectGrade:'اختر المرحلة', selectClass:'اختر الفصل', selectStudent:'اختر الطالب', selectStage:'اختر المرحلة', allStages:'كل المراحل', required:'يرجى ملء الحقول المطلوبة',
     saved:'تم الحفظ', deleted:'تم الحذف', added:'تمت الإضافة', updated:'تم التحديث',
     subjectName:'اسم المادة', newsTitle:'العنوان', newsBody:'النص', published:'منشور', draft:'مسودة',
     teacherName:'اسم المعلم', teacherSubject:'المادة', teacherPhone:'الهاتف',
@@ -481,19 +481,32 @@ function emptyBox(){ return '<div class="empty"><i class="fas fa-inbox"></i>'+t(
 function errBox(page, fn){ return '<div class="empty"><i class="fas fa-triangle-exclamation" style="color:var(--bad)"></i>'+t('tryAgain')+'<br><button class="btn ghost sm" style="margin-top:0.6rem" onclick="'+(fn?fn+'()':'openPage(\''+page+'\')')+'">'+t('tryAgain')+'</button></div>'; }
 
 
+
+/* ---- shared: classes + years dropdowns (from live DB) ---- */
+var _classes=null, _years=null;
+async function loadClassesData(force){ if(_classes&&!force) return _classes; try{ var d=await api('get-classes'); _classes=d.classes||[]; }catch(e){ _classes=_classes||[]; } return _classes; }
+async function loadYears(force){ if(_years&&!force) return _years; try{ var d=await api('get-years'); _years=d.years||[]; }catch(e){ _years=_years||[]; } if(!_years.length){ var y=new Date().getFullYear(); _years=[y+'-'+(y+1)]; } return _years; }
+function stageList(){ var st={}; (_classes||[]).forEach(function(c){ if(c.stage) st[c.stage]=1; }); return Object.keys(st); }
+function classesForStage(stage){ return (_classes||[]).filter(function(c){ return String(c.stage)===String(stage); }); }
+function fillStageSelect(id,withAll){ var sel=document.getElementById(id); if(!sel)return; sel.innerHTML=(withAll?'<option value="">'+t('allStages')+'</option>':'<option value="">'+t('selectStage')+'</option>')+stageList().map(function(g){return '<option>'+esc(g)+'</option>';}).join(''); }
+function fillClassSelect(id,stage){ var sel=document.getElementById(id); if(!sel)return; var cs=stage?classesForStage(stage):(_classes||[]); sel.innerHTML='<option value="">'+t('selectClass')+'</option>'+cs.map(function(c){return '<option>'+esc(c.name)+'</option>';}).join(''); }
+function fillYearSelect(id,value){ var sel=document.getElementById(id); if(!sel)return; var cur=value||sel.value; sel.innerHTML=(_years||[]).map(function(y){return '<option'+(y===cur?' selected':'')+'>'+esc(y)+'</option>';}).join(''); }
+function yearSelField(id){ return '<div><label>'+t('academicYear')+'</label><select id="'+id+'"></select></div>'; }
+
 /* ======================= ADD / EDIT STUDENT ======================= */
 async function pageAddStudent(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-user-plus"></i> '+t('addStudent')+'</h3>'+
     '<div class="form-grid">'+
       field('as-id',t('studentId'))+field('as-name',t('fullName'))+
-      field('as-pass',t('passwordField'))+selField('as-grade',t('grade'))+
-      field('as-class',t('className'))+field('as-guardian',t('guardianName'))+
+      field('as-pass',t('passwordField'))+selField('as-grade',t('stage'))+
+      selField('as-class',t('className'))+field('as-guardian',t('guardianName'))+
       field('as-gphone',t('guardianPhone'))+field('as-sphone',t('studentPhone'))+
       field('as-dob',t('dob'),'date')+field('as-addr',t('address'))+field('as-nat',t('nationality'))+
     '</div>'+
     '<button class="btn" id="asBtn" onclick="saveStudent()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
     '<div class="msg ok" id="as-ok"></div><div class="msg err" id="as-err"></div></div>';
-  fillGradeSelect('as-grade');
+  await loadClassesData(); fillStageSelect('as-grade'); fillClassSelect('as-class','');
+  var gs=document.getElementById('as-grade'); if(gs) gs.onchange=function(){ fillClassSelect('as-class',this.value); };
 }
 async function saveStudent(){
   hide('as-ok','as-err');
@@ -580,7 +593,7 @@ async function pageAddMarks(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-pen-to-square"></i> '+t('addMarks')+'</h3>'+
     '<div class="form-grid">'+
       field('am-student',t('studentId'))+selField('am-subject',t('subject'))+
-      field('am-score',t('score'),'number')+field('am-year',t('academicYear'),'text',yr+'-'+(yr+1))+
+      field('am-score',t('score'),'number')+yearSelField('am-year')+
       selField('am-term',t('term'))+
     '</div>'+
     '<button class="btn" id="amBtn" onclick="saveMarks()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
@@ -588,6 +601,7 @@ async function pageAddMarks(c){
   // subjects
   try{ var sd=await api('get-subjects'); var sel=document.getElementById('am-subject'); sel.innerHTML=(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
   var ts=document.getElementById('am-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option>';
+  await loadYears(); fillYearSelect('am-year');
 }
 async function saveMarks(){
   hide('am-ok','am-err');
@@ -621,13 +635,22 @@ async function pageRecordPayment(c){
   var yr=new Date().getFullYear();
   c.innerHTML='<div class="card"><h3><i class="fas fa-cash-register"></i> '+t('recordPayment')+'</h3>'+
     '<div class="form-grid">'+
-      field('rp-student',t('studentId'))+field('rp-year',t('academicYear'),'text',yr+'-'+(yr+1))+
+      selField('rp-grade',t('stage'))+selField('rp-class',t('className'))+
+      selField('rp-student',t('name'))+yearSelField('rp-year')+
       selField('rp-term',t('term'))+field('rp-amount',t('amountField'),'number')+
       field('rp-method',t('method'))+field('rp-ref',t('reference'))+
     '</div>'+
     '<button class="btn" id="rpBtn" onclick="recordPay()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
     '<div class="msg ok" id="rp-ok"></div><div class="msg err" id="rp-err"></div></div>';
   var ts=document.getElementById('rp-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option>';
+  await loadClassesData(); await loadYears(); fillStageSelect('rp-grade'); fillClassSelect('rp-class',''); fillYearSelect('rp-year');
+  if(!_allStudents.length){ try{ var d=await api('get-all-students'); _allStudents=d.students||[]; }catch(e){} }
+  document.getElementById('rp-grade').onchange=function(){ fillClassSelect('rp-class',this.value); rpFillStudents(); };
+  document.getElementById('rp-class').onchange=rpFillStudents;
+}
+function rpFillStudents(){ var g=val('rp-grade'), c=val('rp-class'), sel=document.getElementById('rp-student'); if(!sel)return;
+  var list=_allStudents.filter(function(s){ return (!g||String(s.grade_level)===String(g))&&(!c||(s.class_name||'').toLowerCase()===c.toLowerCase())&&s.active!==false; });
+  sel.innerHTML='<option value="">'+t('selectStudent')+'</option>'+list.map(function(s){return '<option value="'+esc(s.student_id)+'">'+esc(s.full_name)+' ('+esc(s.student_id)+')</option>';}).join('');
 }
 async function recordPay(){
   hide('rp-ok','rp-err');
@@ -684,11 +707,13 @@ function printReceipt(){
 async function pageFeeSchedule(c){
   var yr=new Date().getFullYear();
   c.innerHTML='<div class="card"><h3><i class="fas fa-file-invoice"></i> '+t('feeSchedule')+'</h3>'+
-    '<div class="form-grid">'+selField('fs-grade',t('grade'))+field('fs-year',t('academicYear'),'text',yr+'-'+(yr+1))+selField('fs-term',t('term'))+field('fs-amount',t('amountField'),'number')+field('fs-desc',t('descr'))+'</div>'+
+    '<div class="form-grid">'+selField('fs-grade',t('stage'))+selField('fs-class',t('className'))+yearSelField('fs-year')+selField('fs-term',t('term'))+field('fs-amount',t('amountField'),'number')+field('fs-desc',t('descr'))+'</div>'+
     '<button class="btn" id="fsBtn" onclick="saveFee()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
     '<div class="msg ok" id="fs-ok"></div><div class="msg err" id="fs-err"></div>'+
     '<div id="fsBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
-  fillGradeSelect('fs-grade'); var ts=document.getElementById('fs-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option>';
+  await loadClassesData(); await loadYears(); fillStageSelect('fs-grade'); fillClassSelect('fs-class',''); fillYearSelect('fs-year');
+  document.getElementById('fs-grade').onchange=function(){ fillClassSelect('fs-class',this.value); };
+  var ts=document.getElementById('fs-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option>';
   loadFeeStruct();
 }
 async function loadFeeStruct(){
@@ -844,13 +869,13 @@ async function pageTopStudents(c){
   var yr=new Date().getFullYear();
   c.innerHTML='<div class="card"><h3><i class="fas fa-trophy"></i> '+t('topStudents')+'</h3>'+
     '<div class="filters">'+
-      '<div><label>'+t('academicYear')+'</label><input id="tp-year" value="'+yr+'-'+(yr+1)+'"></div>'+
+      '<div><label>'+t('academicYear')+'</label><select id="tp-year"></select></div>'+
       '<div><label>'+t('term')+'</label><select id="tp-term"><option>Term 1</option><option>Term 2</option></select></div>'+
       '<div><label>'+t('grade')+'</label><input id="tp-grade" placeholder="'+t('all')+'"></div>'+
       '<div><label>'+t('showTop')+'</label><select id="tp-limit"><option>10</option><option selected>20</option><option>50</option></select></div>'+
       '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadTop()"><i class="fas fa-magnifying-glass"></i></button></div>'+
     '</div><div id="tpBody">'+skeleton()+'</div></div>';
-  loadTop();
+  loadYears().then(function(){ fillYearSelect('tp-year'); loadTop(); });
 }
 async function loadTop(){
   var body=document.getElementById('tpBody'); body.innerHTML=skeleton();
@@ -873,7 +898,7 @@ async function pageRemarks(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-comment-dots"></i> '+t('reportRemarks')+'</h3>'+
     '<div class="filters">'+
       '<div><label>'+t('studentId')+'</label><input id="rm-student" list="rm-list"><datalist id="rm-list"></datalist></div>'+
-      '<div><label>'+t('academicYear')+'</label><input id="rm-year" value="'+yr+'-'+(yr+1)+'"></div>'+
+      '<div><label>'+t('academicYear')+'</label><select id="rm-year"></select></div>'+
       '<div><label>'+t('term')+'</label><select id="rm-term"><option>Term 1</option><option>Term 2</option></select></div>'+
       '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadRemarks()"><i class="fas fa-magnifying-glass"></i></button></div>'+
     '</div>'+
@@ -886,6 +911,7 @@ async function pageRemarks(c){
     '<button class="btn" onclick="saveRemarks()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
     '<div class="msg ok" id="rm-ok"></div><div class="msg err" id="rm-err"></div></div>';
   try{ if(!_allStudents.length){ var d=await api('get-all-students'); _allStudents=d.students||[]; } document.getElementById('rm-list').innerHTML=_allStudents.map(function(x){return '<option value="'+esc(x.student_id)+'">'+esc(x.full_name)+'</option>';}).join(''); }catch(e){}
+  await loadYears(); fillYearSelect('rm-year');
 }
 async function loadRemarks(){
   hide('rm-ok','rm-err');
@@ -910,12 +936,13 @@ async function pageViewReport(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-file-lines"></i> '+t('viewReport')+'</h3>'+
     '<div class="filters">'+
       '<div><label>'+t('studentId')+'</label><input id="vr-student" list="vr-list"><datalist id="vr-list"></datalist></div>'+
-      '<div><label>'+t('academicYear')+'</label><input id="vr-year" value="'+yr+'-'+(yr+1)+'"></div>'+
+      '<div><label>'+t('academicYear')+'</label><select id="vr-year"></select></div>'+
       '<div><label>'+t('term')+'</label><select id="vr-term"><option>Term 1</option><option>Term 2</option></select></div>'+
       '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="buildReport()"><i class="fas fa-eye"></i> '+t('view')+'</button></div>'+
     '</div><div class="msg err" id="vr-err"></div></div>'+
     '<div id="vr-sheet-wrap" style="display:none"><div style="text-align:center;margin-bottom:0.8rem"><button class="btn" onclick="printSheet(\'rcSheet\')"><i class="fas fa-print"></i> '+t('print')+'</button></div><div id="rcCanvas" style="overflow:auto;background:#e9eef5;padding:1rem;border-radius:12px;text-align:center"><div id="rcBody"></div></div></div>';
   try{ if(!_allStudents.length){ var d=await api('get-all-students'); _allStudents=d.students||[]; } document.getElementById('vr-list').innerHTML=_allStudents.map(function(x){return '<option value="'+esc(x.student_id)+'">'+esc(x.full_name)+'</option>';}).join(''); }catch(e){}
+  await loadYears(); fillYearSelect('vr-year');
 }
 async function buildReport(){
   hide('vr-err');
@@ -990,10 +1017,11 @@ async function pagePrintResults(c){
     '<div class="filters">'+
       '<div><label>'+t('grade')+'</label><input id="pb-grade"></div>'+
       '<div><label>'+t('className')+'</label><input id="pb-class"></div>'+
-      '<div><label>'+t('academicYear')+'</label><input id="pb-year" value="'+yr+'-'+(yr+1)+'"></div>'+
+      '<div><label>'+t('academicYear')+'</label><select id="pb-year"></select></div>'+
       '<div><label>'+t('term')+'</label><select id="pb-term"><option>Term 1</option><option>Term 2</option></select></div>'+
       '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="buildBroadsheet()"><i class="fas fa-table"></i> '+t('view')+'</button></div>'+
     '</div><div class="msg err" id="pb-err"></div><div id="pb-out" style="margin-top:1rem"></div></div>';
+  loadYears().then(function(){ fillYearSelect('pb-year'); });
 }
 async function buildBroadsheet(){
   hide('pb-err');
@@ -1030,12 +1058,13 @@ async function pageBulkResults(c){
     '<p style="color:var(--soft);font-size:0.85rem;margin-bottom:0.8rem">'+t('bulkDesc')+'</p>'+
     '<div class="form-grid">'+
       field('bl-grade',t('grade'))+field('bl-class',t('className'))+
-      selField('bl-subject',t('subject'))+field('bl-year',t('academicYear'),'text',yr+'-'+(yr+1))+
+      selField('bl-subject',t('subject'))+yearSelField('bl-year')+
       '<div><label>'+t('term')+'</label><select id="bl-term"><option>Term 1</option><option>Term 2</option></select></div>'+
     '</div>'+
     '<button class="btn ghost" style="margin-top:0.8rem" onclick="loadBulkRoster()"><i class="fas fa-users"></i> '+t('loadStudent')+'</button>'+
     '<div id="bl-list"></div><div class="msg ok" id="bl-ok"></div><div class="msg err" id="bl-err"></div></div>';
   try{ var sd=await api('get-subjects'); document.getElementById('bl-subject').innerHTML=(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
+  await loadYears(); fillYearSelect('bl-year');
 }
 async function loadBulkRoster(){
   hide('bl-ok','bl-err');
@@ -1209,10 +1238,11 @@ async function pageFeeTargets(c){
   var yr=new Date().getFullYear();
   c.innerHTML='<div class="card"><h3><i class="fas fa-bullseye"></i> '+t('feeTargets')+'</h3>'+
     '<p style="color:var(--soft);font-size:0.85rem;margin-bottom:0.8rem">'+t('feeTargetsDesc')+'</p>'+
-    '<div class="form-grid">'+field('ft-class',t('className'))+field('ft-year',t('academicYear'),'text',yr+'-'+(yr+1))+field('ft-institute',t('instituteAmount'),'number')+field('ft-exam',t('examAmount'),'number')+'</div>'+
+    '<div class="form-grid">'+field('ft-class',t('className'))+yearSelField('ft-year')+field('ft-institute',t('instituteAmount'),'number')+field('ft-exam',t('examAmount'),'number')+'</div>'+
     '<button class="btn" onclick="saveTarget()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
     '<div class="msg ok" id="ft-ok"></div><div class="msg err" id="ft-err"></div>'+
     '<div id="ftBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
+  await loadYears(); fillYearSelect('ft-year');
   loadTargets();
 }
 async function loadTargets(){
@@ -1269,11 +1299,12 @@ var _feeSummary=[], _feePayments=[];
 async function pageFees(c){
   var yr=new Date().getFullYear();
   c.innerHTML='<div class="card"><h3><i class="fas fa-sack-dollar"></i> '+t('fees')+'</h3>'+
-    '<div class="filters"><div><label>'+t('academicYear')+'</label><input id="fo-year" value="'+yr+'-'+(yr+1)+'"></div>'+
+    '<div class="filters"><div><label>'+t('academicYear')+'</label><select id="fo-year"></select></div>'+
     '<div><label>'+t('term')+'</label><select id="fo-term"><option>Term 1</option><option>Term 2</option></select></div>'+
     '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadFeesOverview()"><i class="fas fa-magnifying-glass"></i></button></div></div></div>'+
     '<div id="fo-body"><div class="card"><div class="empty"><i class="fas fa-sack-dollar"></i>'+t('pickFilters')+'</div></div></div>';
   window.loadFeesOverview=loadFeesOverview;
+  loadYears().then(function(){ fillYearSelect('fo-year'); });
 }
 async function loadFeesOverview(){
   var year=val('fo-year'), term=val('fo-term'), body=document.getElementById('fo-body');
