@@ -464,13 +464,12 @@ async function pageAttendance(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-clipboard-check"></i> '+t('attendance')+'</h3>'+
     '<div class="filters"><div><label>'+t('date')+'</label><input type="date" id="aDate" value="'+today+'"></div>'+
     '<div><label>'+t('grade')+'</label><select id="aGrade"></select></div>'+
-    '<div><label>'+t('className')+'</label><input id="aClass" placeholder="e.g. 7A"></div>'+
+    '<div><label>'+t('className')+'</label><select id="aClass"></select></div>'+
     '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadAtt()"><i class="fas fa-magnifying-glass"></i></button></div></div>'+
     '<div id="aBody"><div class="empty"><i class="fas fa-clipboard-check"></i>'+t('pickFilters')+'</div></div></div>';
   // fill grade options from classes
-  try{ var cd=await api('get-classes'); var grades={}; (cd.classes||[]).forEach(function(cl){ if(cl.stage) grades[cl.stage]=1; });
-    var sel=document.getElementById('aGrade'); sel.innerHTML='<option value="">—</option>'+Object.keys(grades).sort().map(function(g){return '<option>'+esc(g)+'</option>';}).join('');
-  }catch(e){}
+  await loadClassesData(); fillStageSelect('aGrade'); fillClassSelect('aClass','');
+  document.getElementById('aGrade').onchange=function(){ fillClassSelect('aClass',this.value); };
   window.loadAtt=async function(){
     var body=document.getElementById('aBody');
     var date=document.getElementById('aDate').value, grade=document.getElementById('aGrade').value, cls=document.getElementById('aClass').value.trim();
@@ -550,14 +549,20 @@ function loadStudentForEdit(){
   var dob=s.date_of_birth?String(s.date_of_birth).slice(0,10):'';
   document.getElementById('es-form').innerHTML='<input type="hidden" id="eu-id" value="'+esc(s.student_id)+'">'+
     '<div class="form-grid">'+
-      field('eu-name',t('fullName'),'text',s.full_name||'')+field('eu-grade',t('grade'),'text',s.grade_level||'')+
-      field('eu-class',t('className'),'text',s.class_name||'')+field('eu-nat',t('nationality'),'text',s.nationality||'')+
+      field('eu-name',t('fullName'),'text',s.full_name||'')+selField('eu-grade',t('stage'))+
+      selField('eu-class',t('className'))+field('eu-nat',t('nationality'),'text',s.nationality||'')+
       field('eu-guardian',t('guardianName'),'text',s.guardian_name||'')+field('eu-gphone',t('guardianPhone'),'text',s.guardian_phone||'')+
       field('eu-sphone',t('studentPhone'),'text',s.student_phone||'')+field('eu-dob',t('dob'),'date',dob)+
       field('eu-addr',t('address'),'text',s.address||'')+field('eu-pass',t('passwordField')+' ('+(lang==='ar'?'اتركه فارغاً':'blank = keep')+')','text','')+
     '</div>'+
     '<button class="btn" id="euBtn" onclick="saveStudentEdit()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
     '<div class="msg ok" id="eu-ok"></div><div class="msg err" id="eu-err"></div>';
+  // fill grade/class dropdowns with the student's current values pre-selected
+  (async function(){ await loadClassesData(); fillStageSelect('eu-grade'); 
+    var gs=document.getElementById('eu-grade'); if(gs){ gs.value=s.grade_level||''; } fillClassSelect('eu-class',s.grade_level||'');
+    var cs=document.getElementById('eu-class'); if(cs){ cs.value=s.class_name||''; }
+    if(gs) gs.onchange=function(){ fillClassSelect('eu-class',this.value); };
+  })();
 }
 async function saveStudentEdit(){
   hide('eu-ok','eu-err');
@@ -678,42 +683,76 @@ async function recordPay(){
   catch(e){ show('rp-err','❌ '+e.message); }
   btn.disabled=false;
 }
+// ===== Amount in Arabic words (Dalasi) =====
+function numToArabicWords(n){
+  n=Math.round(Number(n)||0);
+  if(n===0) return 'صفر';
+  var ones=['','واحد','اثنان','ثلاثة','أربعة','خمسة','ستة','سبعة','ثمانية','تسعة','عشرة','أحد عشر','اثنا عشر','ثلاثة عشر','أربعة عشر','خمسة عشر','ستة عشر','سبعة عشر','ثمانية عشر','تسعة عشر'];
+  var tens=['','','عشرون','ثلاثون','أربعون','خمسون','ستون','سبعون','ثمانون','تسعون'];
+  var hundreds=['','مائة','مئتان','ثلاثمائة','أربعمائة','خمسمائة','ستمائة','سبعمائة','ثمانمائة','تسعمائة'];
+  function below1000(x){ var parts=[]; var h=Math.floor(x/100); var r=x%100; if(h) parts.push(hundreds[h]); if(r){ if(r<20) parts.push(ones[r]); else { var t=Math.floor(r/10),o=r%10; if(o) parts.push(ones[o]+' و'+tens[t]); else parts.push(tens[t]); } } return parts.join(' و'); }
+  var parts=[];
+  var billions=Math.floor(n/1000000000); n%=1000000000;
+  var millions=Math.floor(n/1000000); n%=1000000;
+  var thousands=Math.floor(n/1000); var rest=n%1000;
+  if(billions) parts.push(below1000(billions)+' مليار');
+  if(millions) parts.push(below1000(millions)+' مليون');
+  if(thousands){ if(thousands===1) parts.push('ألف'); else if(thousands===2) parts.push('ألفان'); else if(thousands<11) parts.push(below1000(thousands)+' آلاف'); else parts.push(below1000(thousands)+' ألف'); }
+  if(rest) parts.push(below1000(rest));
+  return parts.join(' و');
+}
+function receiptHijri(d){ try{ return new Intl.DateTimeFormat('ar-SA-u-ca-islamic',{day:'numeric',month:'numeric',year:'numeric'}).format(d); }catch(e){ return ''; } }
+
 function showReceipt(r){
   var e=esc, origin=location.origin;
-  var paid=r.paidAt?new Date(r.paidAt).toLocaleString('en-GB'):new Date().toLocaleString('en-GB');
-  var sheet='<div id="rcptSheet" class="rcpt">'+
-    '<div class="rcpt-head"><img src="'+origin+'/favicon.png" onerror="this.style.display=\'none\'"><div><div class="rcpt-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="rcpt-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
-    '<div class="rcpt-title">إيصال دفع · PAYMENT RECEIPT</div>'+
-    '<div class="rcpt-no">'+t('receipt')+' #'+e(r.receiptNumber)+' · '+e(paid)+'</div>'+
-    '<table class="rcpt-tbl">'+
-      '<tr><td>'+t('name')+'</td><td>'+e(r.studentName)+'</td></tr>'+
-      '<tr><td>'+t('studentId')+'</td><td>'+e(r.studentId)+'</td></tr>'+
-      '<tr><td>'+t('grade')+'</td><td>'+e(r.stage||'')+' / '+e(r.className||'')+'</td></tr>'+
-      '<tr><td>'+t('guardian')+'</td><td>'+e(r.guardianName||'')+'</td></tr>'+
-      '<tr><td>'+t('academicYear')+'</td><td>'+e(r.academicYear)+' · '+e(r.term)+'</td></tr>'+
-      '<tr><td>'+t('method')+'</td><td>'+e(r.period||r.method||'')+'</td></tr>'+
-      (r.reference?'<tr><td>'+t('reference')+'</td><td>'+e(r.reference)+'</td></tr>':'')+
-      '<tr class="rcpt-amt"><td>'+t('amountField')+'</td><td>'+money(r.amount)+'</td></tr>'+
-    '</table>'+
-    '<div class="rcpt-sign">…………………………<br>'+t('cashier')+'</div></div>';
+  var paidDate=r.paidAt?new Date(r.paidAt):new Date();
+  var greg=paidDate.getDate()+' / '+(paidDate.getMonth()+1)+' / '+paidDate.getFullYear();
+  var hijri=receiptHijri(paidDate);
+  var amtWords=numToArabicWords(r.amount)+' دلاسي';
+  function copy(){
+    return '<div class="rc-copy">'+
+      '<div class="rc-head"><img src="'+origin+'/favicon.png" onerror="this.style.display=\'none\'">'+
+        '<div class="rc-school-ar">معهد النور الإسلامي بكانفنغ</div>'+
+        '<div class="rc-school-en">THE ISLAMIC NURR INSTITUTE KANIFING SOUTH</div>'+
+        '<div class="rc-tel">TEL: +2209611997/ 7540656 p.o. box</div></div>'+
+      '<div class="rc-datebar"><div class="rc-dg">'+e(greg)+'م / Date</div>'+
+        '<div class="rc-no">رقم: <span>'+e(r.receiptNumber||'')+'</span></div>'+
+        '<div class="rc-dh">'+e(hijri)+'هـ / التاريخ</div></div>'+
+      '<div class="rc-title">R E C I E P T</div>'+
+      '<table class="rc-tbl">'+
+        '<tr><td class="rc-en">RECEIVED FROM</td><td class="rc-v"></td><td class="rc-ar">استلمنا من السيد</td></tr>'+
+        '<tr><td class="rc-en">THE SUM OF</td><td class="rc-v rc-words">'+e(amtWords)+'</td><td class="rc-ar">مبلغاً قدره</td></tr>'+
+        '<tr><td class="rc-en">STUDENT\'S NAME</td><td class="rc-v">'+e(r.studentName||'')+'</td><td class="rc-ar">اسم الطالب(ة)</td></tr>'+
+        '<tr><td class="rc-en">BEING PAID FOR</td><td class="rc-v">'+e(r.reference||r.period||'رسوم المعهد')+'</td><td class="rc-ar">وذلك عن سداد</td></tr>'+
+        '<tr><td class="rc-en">CLASS</td><td class="rc-v">'+e(r.className||'')+'</td><td class="rc-ar">الصف</td></tr>'+
+        '<tr><td class="rc-en">TERM</td><td class="rc-v">'+e(r.period||r.term||'')+'</td><td class="rc-ar">الفترة</td></tr>'+
+        '<tr><td class="rc-amt" colspan="3">'+money(r.amount)+'</td></tr>'+
+      '</table>'+
+      '<div class="rc-sign">:التوقيع ................................... Signature</div>'+
+    '</div>';
+  }
+  var sheet='<div id="rcptSheet" class="rcpt2">'+copy()+'<div class="rc-cut"></div>'+copy()+'</div>';
   var m=document.getElementById('rcptModal');
   if(!m){ m=document.createElement('div'); m.id='rcptModal'; m.style.cssText='position:fixed;inset:0;background:rgba(13,42,74,.7);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem'; document.body.appendChild(m); }
-  m.innerHTML='<div style="background:#fff;border-radius:16px;max-width:460px;width:98%;max-height:94vh;display:flex;flex-direction:column"><div style="padding:0.8rem 1rem;border-bottom:1px solid var(--line);display:flex;gap:0.5rem;align-items:center"><b style="color:var(--blue-dark)"><i class="fas fa-receipt"></i> '+t('receipt')+'</b><button class="btn sm" style="margin-inline-start:auto" onclick="printReceipt()"><i class="fas fa-print"></i> '+t('print')+'</button><button class="btn ghost sm" onclick="document.getElementById(\'rcptModal\').remove()">✕</button></div><div style="overflow:auto;padding:1rem;background:#e9eef5;text-align:center"><div id="rcptHost"></div></div></div>';
+  m.innerHTML='<div style="background:#fff;border-radius:16px;max-width:620px;width:98%;max-height:94vh;display:flex;flex-direction:column"><div style="padding:0.8rem 1rem;border-bottom:1px solid var(--line);display:flex;gap:0.5rem;align-items:center"><b style="color:var(--blue-dark)"><i class="fas fa-receipt"></i> '+t('receipt')+'</b><button class="btn sm" style="margin-inline-start:auto" onclick="printReceipt()"><i class="fas fa-print"></i> '+t('print')+'</button><button class="btn ghost sm" onclick="document.getElementById(\'rcptModal\').remove()">✕</button></div><div style="overflow:auto;padding:1rem;background:#e9eef5;text-align:center"><div id="rcptHost"></div></div></div>';
   injectRcptCSS(); document.getElementById('rcptHost').innerHTML=sheet;
 }
 function injectRcptCSS(){
   if(document.getElementById('rcptStyle'))return; var st=document.createElement('style'); st.id='rcptStyle';
-  st.textContent=".rcpt{background:#fff;color:#000;width:90mm;padding:8mm 7mm;box-sizing:border-box;font-family:'Amiri','Times New Roman',serif;text-align:right;display:inline-block;box-shadow:0 4px 20px rgba(0,0,0,.2)}"+
-    ".rcpt-head{display:flex;align-items:center;gap:8px;border-bottom:2pt solid #0d3b6e;padding-bottom:6px}.rcpt-head img{width:42px;height:42px;object-fit:contain}.rcpt-school{font-size:11pt;font-weight:bold;line-height:1.1}.rcpt-sub{font-size:7.5pt;color:#444}"+
-    ".rcpt-title{text-align:center;font-size:12pt;font-weight:bold;letter-spacing:2px;margin:8px 0 2px}.rcpt-no{text-align:center;font-size:8.5pt;color:#333;margin-bottom:8px}"+
-    ".rcpt-tbl{width:100%;border-collapse:collapse;font-size:9.5pt}.rcpt-tbl td{border:0.5pt solid #bbb;padding:4px 6px}.rcpt-tbl td:first-child{font-weight:bold;background:#f4f6f9;width:42%}.rcpt-amt td{font-weight:bold;font-size:11pt;background:#eef7ff}"+
-    ".rcpt-sign{margin-top:16px;text-align:center;font-size:9pt}";
+  st.textContent=".rcpt2{background:#fff;color:#000;width:190mm;padding:6mm;box-sizing:border-box;font-family:'Amiri','Times New Roman',serif;display:inline-block;box-shadow:0 4px 20px rgba(0,0,0,.2)}"+
+    ".rc-copy{padding:4mm 6mm}"+
+    ".rc-head{text-align:center}.rc-head img{width:48px;height:48px;object-fit:contain}.rc-school-ar{font-size:12pt;font-weight:bold;color:#1a3a6b;margin-top:2px}.rc-school-en{font-size:10.5pt;font-weight:bold;color:#1a3a6b}.rc-tel{font-size:8.5pt;color:#333}"+
+    ".rc-datebar{display:flex;justify-content:space-between;align-items:center;border:1pt solid #000;margin-top:6px;font-size:9.5pt}.rc-dg,.rc-dh{padding:4px 8px}.rc-dg{border-inline-end:1pt solid #000}.rc-dh{border-inline-start:1pt solid #000;direction:rtl}.rc-no{flex:1;text-align:center;direction:rtl}.rc-no span{display:inline-block;min-width:60px;border:1pt solid #000;height:16px;vertical-align:middle;margin-inline-start:4px}"+
+    ".rc-title{text-align:center;color:#c0392b;font-weight:bold;font-size:15pt;letter-spacing:3px;margin:8px 0;font-family:Arial,sans-serif}"+
+    ".rc-tbl{width:100%;border-collapse:collapse;border:1pt solid #000;font-size:10pt}.rc-tbl td{border:1pt solid #000;padding:5px 8px}.rc-en{width:26%;font-weight:bold}.rc-ar{width:26%;text-align:right;direction:rtl;color:#1a3a6b}.rc-v{text-align:center;font-weight:bold;direction:rtl}.rc-words{font-size:11pt}.rc-amt{font-weight:bold;font-size:11pt}"+
+    ".rc-sign{direction:rtl;text-align:center;margin-top:10px;font-size:10pt}"+
+    ".rc-cut{border-top:1.5pt dashed #777;margin:6mm 0}";
   document.head.appendChild(st);
 }
 function printReceipt(){
   var sheet=document.getElementById('rcptSheet'); if(!sheet)return; var css=document.getElementById('rcptStyle').textContent;
   var win=window.open('','_blank'); if(!win)return;
-  win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet"><style>'+css+'@page{size:A5;margin:6mm}body{margin:0}.rcpt{box-shadow:none!important;margin:0 auto}</style></head><body>'+sheet.outerHTML+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
+  win.document.write('<!DOCTYPE html><html dir="ltr"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet"><style>'+css+'@page{size:A4;margin:8mm}body{margin:0}.rcpt2{box-shadow:none!important;margin:0 auto;width:100%}</style></head><body>'+sheet.outerHTML+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
   win.document.close();
 }
 
@@ -885,11 +924,13 @@ async function pageTopStudents(c){
     '<div class="filters">'+
       '<div><label>'+t('academicYear')+'</label><select id="tp-year"></select></div>'+
       '<div><label>'+t('term')+'</label><select id="tp-term"><option>Term 1</option><option>Term 2</option></select></div>'+
-      '<div><label>'+t('grade')+'</label><input id="tp-grade" placeholder="'+t('all')+'"></div>'+
+      '<div><label>'+t('stage')+'</label><select id="tp-grade"></select></div>'+
       '<div><label>'+t('showTop')+'</label><select id="tp-limit"><option>10</option><option selected>20</option><option>50</option></select></div>'+
       '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadTop()"><i class="fas fa-magnifying-glass"></i></button></div>'+
     '</div><div id="tpBody">'+skeleton()+'</div></div>';
-  loadYears().then(function(){ fillYearSelect('tp-year'); loadTop(); });
+  await loadClassesData(); fillStageSelect('tp-grade',true);
+  await loadYears(); fillYearSelect('tp-year'); loadTop();
+  ['tp-year','tp-term','tp-grade','tp-limit'].forEach(function(id){ var el=document.getElementById(id); if(el) el.onchange=loadTop; });
 }
 async function loadTop(){
   var body=document.getElementById('tpBody'); body.innerHTML=skeleton();
@@ -1029,12 +1070,13 @@ async function pagePrintResults(c){
   var yr=new Date().getFullYear();
   c.innerHTML='<div class="card"><h3><i class="fas fa-print"></i> '+t('printResults')+'</h3>'+
     '<div class="filters">'+
-      '<div><label>'+t('grade')+'</label><input id="pb-grade"></div>'+
-      '<div><label>'+t('className')+'</label><input id="pb-class"></div>'+
+      '<div><label>'+t('stage')+'</label><select id="pb-grade"></select></div>'+
+      '<div><label>'+t('className')+'</label><select id="pb-class"></select></div>'+
       '<div><label>'+t('academicYear')+'</label><select id="pb-year"></select></div>'+
       '<div><label>'+t('term')+'</label><select id="pb-term"><option>Term 1</option><option>Term 2</option></select></div>'+
       '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="buildBroadsheet()"><i class="fas fa-table"></i> '+t('view')+'</button></div>'+
     '</div><div class="msg err" id="pb-err"></div><div id="pb-out" style="margin-top:1rem"></div></div>';
+  loadClassesData().then(function(){ fillStageSelect('pb-grade'); fillClassSelect('pb-class',''); document.getElementById('pb-grade').onchange=function(){ fillClassSelect('pb-class',this.value); }; });
   loadYears().then(function(){ fillYearSelect('pb-year'); });
 }
 async function buildBroadsheet(){
@@ -1071,14 +1113,15 @@ async function pageBulkResults(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-layer-group"></i> '+t('bulkResults')+'</h3>'+
     '<p style="color:var(--soft);font-size:0.85rem;margin-bottom:0.8rem">'+t('bulkDesc')+'</p>'+
     '<div class="form-grid">'+
-      field('bl-grade',t('grade'))+field('bl-class',t('className'))+
+      selField('bl-grade',t('stage'))+selField('bl-class',t('className'))+
       selField('bl-subject',t('subject'))+yearSelField('bl-year')+
       '<div><label>'+t('term')+'</label><select id="bl-term"><option>Term 1</option><option>Term 2</option></select></div>'+
     '</div>'+
     '<button class="btn ghost" style="margin-top:0.8rem" onclick="loadBulkRoster()"><i class="fas fa-users"></i> '+t('loadStudent')+'</button>'+
     '<div id="bl-list"></div><div class="msg ok" id="bl-ok"></div><div class="msg err" id="bl-err"></div></div>';
   try{ var sd=await api('get-subjects'); document.getElementById('bl-subject').innerHTML=(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
-  await loadYears(); fillYearSelect('bl-year');
+  await loadClassesData(); await loadYears(); fillStageSelect('bl-grade'); fillClassSelect('bl-class',''); fillYearSelect('bl-year');
+  document.getElementById('bl-grade').onchange=function(){ fillClassSelect('bl-class',this.value); };
 }
 async function loadBulkRoster(){
   hide('bl-ok','bl-err');
@@ -1178,9 +1221,11 @@ function pickPhoto(sid){
 /* ======================= PRINT CLASS LIST ======================= */
 async function pageClassList(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-list"></i> '+t('printClassList')+'</h3>'+
-    '<div class="filters"><div><label>'+t('grade')+'</label><input id="cls-grade"></div><div><label>'+t('className')+'</label><input id="cls-class"></div>'+
+    '<div class="filters"><div><label>'+t('stage')+'</label><select id="cls-grade"></select></div><div><label>'+t('className')+'</label><select id="cls-class"></select></div>'+
     '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadClassList()"><i class="fas fa-magnifying-glass"></i></button></div></div>'+
     '<div class="msg err" id="cls-err"></div><div id="cls-out"></div></div>';
+  await loadClassesData(); fillStageSelect('cls-grade'); fillClassSelect('cls-class','');
+  document.getElementById('cls-grade').onchange=function(){ fillClassSelect('cls-class',this.value); };
 }
 async function loadClassList(){
   hide('cls-err');
@@ -1252,11 +1297,12 @@ async function pageFeeTargets(c){
   var yr=new Date().getFullYear();
   c.innerHTML='<div class="card"><h3><i class="fas fa-bullseye"></i> '+t('feeTargets')+'</h3>'+
     '<p style="color:var(--soft);font-size:0.85rem;margin-bottom:0.8rem">'+t('feeTargetsDesc')+'</p>'+
-    '<div class="form-grid">'+field('ft-class',t('className'))+yearSelField('ft-year')+field('ft-institute',t('instituteAmount'),'number')+field('ft-exam',t('examAmount'),'number')+'</div>'+
+    '<div class="form-grid">'+selField('ft-stage',t('stage'))+selField('ft-class',t('className'))+yearSelField('ft-year')+field('ft-institute',t('instituteAmount'),'number')+field('ft-exam',t('examAmount'),'number')+'</div>'+
     '<button class="btn" onclick="saveTarget()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
     '<div class="msg ok" id="ft-ok"></div><div class="msg err" id="ft-err"></div>'+
     '<div id="ftBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
-  await loadYears(); fillYearSelect('ft-year');
+  await loadClassesData(); await loadYears(); fillStageSelect('ft-stage'); fillClassSelect('ft-class',''); fillYearSelect('ft-year');
+  document.getElementById('ft-stage').onchange=function(){ fillClassSelect('ft-class',this.value); };
   loadTargets();
 }
 async function loadTargets(){
