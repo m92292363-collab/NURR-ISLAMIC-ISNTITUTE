@@ -20,7 +20,9 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
-body.rtl{direction:rtl;font-family:'Amiri','Nunito',serif}
+body.rtl{direction:rtl;font-family:'Amiri','Nunito',serif;font-size:1.06rem}
+body.rtl td,body.rtl th,body.rtl .sb-item,body.rtl label,body.rtl select,body.rtl input{font-weight:700;letter-spacing:0}
+body.rtl table{font-size:0.98rem}
 a{color:var(--blue)}
 input,select,textarea,button{font-family:inherit}
 input,select,textarea{width:100%;padding:0.6rem 0.75rem;border:1.5px solid var(--line);border-radius:10px;background:#fbfdff;color:var(--ink);outline:none;font-size:0.92rem}
@@ -56,7 +58,7 @@ label{display:block;font-size:0.8rem;font-weight:700;color:var(--soft);margin:0 
 .sb-brand span{font-size:0.72rem;color:#9fc0ea}
 .sb-scroll{flex:1;overflow-y:auto;padding:0.6rem 0.5rem}
 .sb-group{font-size:0.68rem;text-transform:uppercase;letter-spacing:.06em;color:#7ba3d6;padding:0.8rem 0.7rem 0.3rem;font-weight:800}
-.sb-item{display:flex;align-items:center;gap:0.7rem;padding:0.6rem 0.75rem;border-radius:10px;color:#cfe0f7;cursor:pointer;font-weight:700;font-size:0.9rem;margin-bottom:2px}
+.sb-item{display:flex;align-items:center;gap:0.7rem;padding:0.6rem 0.75rem;border-radius:10px;color:#cfe0f7;cursor:pointer;font-weight:700;font-size:0.95rem;margin-bottom:2px}
 .sb-item i{width:18px;text-align:center;font-size:0.95rem}
 .sb-item:hover{background:rgba(255,255,255,.08);color:#fff}
 .sb-item.on{background:#fff;color:var(--blue-dark)}
@@ -81,8 +83,9 @@ label{display:block;font-size:0.8rem;font-weight:700;color:var(--soft);margin:0 
 .stat .l{color:var(--soft);font-size:0.82rem;font-weight:700}
 .stat.green .ico{background:#e4f6ec;color:var(--ok)} .stat.gold .ico{background:#fdf3d8;color:var(--gold)} .stat.red .ico{background:#fbe9e9;color:var(--bad)}
 .tbl-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
-table{width:100%;border-collapse:collapse;font-size:0.86rem}
-th,td{padding:0.55rem 0.7rem;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap}
+table{width:100%;border-collapse:collapse;font-size:0.95rem}
+th,td{padding:0.6rem 0.75rem;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+tbody td{font-weight:600}
 th{background:var(--blue-soft);color:var(--blue-dark);font-size:0.74rem;text-transform:uppercase;letter-spacing:.03em;position:sticky;top:0}
 tr:hover td{background:#f6faff}
 .badge{display:inline-block;padding:0.12rem 0.55rem;border-radius:999px;font-size:0.72rem;font-weight:800}
@@ -178,7 +181,7 @@ var T = {
     topStudents:'Top Students', reportRemarks:'Report Remarks', viewReport:'View Report', printResults:'Print Results', bulkResults:'Bulk Results',
     studentHistory:'Student History', studentPhoto:'Student Photo', classList:'Print Class List', printClassList:'Print Class List', transcript:'Transcript', archive:'Archive', restore:'Restore', archived:'Archived', uploadPhoto:'Upload Photo', archiveReasonPrompt:'Reason (optional):',
     showTop:'Show Top', total:'Total', average:'Average', all:'All', view:'View', print:'Print', position:'Position', principal:'Principal',
-    conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.', receipt:'Receipt', cashier:'Cashier',
+    conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.', receipt:'Receipt', cashier:'Cashier', editAmountPrompt:'New amount:',
     feeTargets:'Fee Targets', feeTargetsDesc:'Official yearly fee per class — institute fee + exam fee.', instituteAmount:'Institute fee', examAmount:'Exam fee',
     expectedTotal:'Expected (total)', collectedTotal:'Collected', outstanding:'Outstanding', paidInFull:'Paid in full', partial:'Partial', unpaid:"Haven't paid", exportCsv:'Export CSV', feesByClass:'Fees by Class', instituteByClass:'Institute fees by class', examByClass:'Exam fees by class', paymentLedger:'Payment Ledger', studentFees:'Student Fees', instituteFee:'Institute fee', examFee:'Exam fee', instituteCollected:'Institute fees collected — Dalasi', examCollected:'Exam fees collected — Dalasi',
     paymentHistory:'Payment History', totalCollected:'Total Collected', payments:'Payments', confirmDeletePayment:'Delete this payment? This cannot be undone.',
@@ -217,7 +220,7 @@ var T = {
     topStudents:'الأوائل', reportRemarks:'ملاحظات التقرير', viewReport:'عرض التقرير', printResults:'طباعة النتائج', bulkResults:'إدخال جماعي',
     studentHistory:'سجل الطالب', studentPhoto:'صورة الطالب', classList:'طباعة قائمة الفصل', printClassList:'طباعة قائمة الفصل', transcript:'كشف النتائج', archive:'أرشفة', restore:'استعادة', archived:'مؤرشف', uploadPhoto:'رفع صورة', archiveReasonPrompt:'السبب (اختياري):',
     showTop:'عرض أفضل', total:'المجموع', average:'المعدل', all:'الكل', view:'عرض', print:'طباعة', position:'الترتيب', principal:'المدير',
-    conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.', receipt:'إيصال', cashier:'أمين الصندوق',
+    conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.', receipt:'إيصال', cashier:'أمين الصندوق', editAmountPrompt:'المبلغ الجديد:',
     feeTargets:'الرسوم الرسمية', feeTargetsDesc:'الرسوم السنوية لكل فصل — رسوم المعهد + رسوم الامتحان.', instituteAmount:'رسوم المعهد', examAmount:'رسوم الامتحان',
     expectedTotal:'المطلوب (الإجمالي)', collectedTotal:'المحصّل', outstanding:'المتبقي', paidInFull:'مدفوع كاملاً', partial:'جزئي', unpaid:'لم يدفع', exportCsv:'تصدير CSV', feesByClass:'الرسوم حسب الفصل', instituteByClass:'رسوم المعهد حسب الفصل', examByClass:'رسوم الامتحان حسب الفصل', paymentLedger:'سجل المدفوعات', studentFees:'رسوم الطلاب', instituteFee:'رسوم المعهد', examFee:'رسوم الامتحان', instituteCollected:'رسوم المعهد المحصّلة — دلاسي', examCollected:'رسوم الامتحان المحصّلة — دلاسي',
     paymentHistory:'سجل المدفوعات', totalCollected:'إجمالي المحصّل', payments:'الدفعات', confirmDeletePayment:'حذف هذه الدفعة؟ لا يمكن التراجع.',
@@ -786,10 +789,12 @@ async function saveFee(){
 /* ======================= TEACHERS ======================= */
 async function pageTeachers(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-chalkboard-user"></i> '+t('teachers')+'</h3>'+
-    '<div class="form-grid">'+field('tc-name',t('teacherName'))+field('tc-subject',t('teacherSubject'))+field('tc-grade',t('grade'))+field('tc-phone',t('teacherPhone'))+field('tc-username',t('username'))+field('tc-password',t('passwordField'))+'</div>'+'<p style="color:var(--soft);font-size:0.8rem;margin-top:0.4rem">'+(lang==='ar'?'اسم المستخدم وكلمة المرور مطلوبان لإنشاء رابط لهذا المعلم.':'Username & password are needed to create a link for this teacher.')+'</p>'+
+    '<div class="form-grid">'+field('tc-name',t('teacherName'))+selField('tc-subject',t('teacherSubject'))+selField('tc-grade',t('stage'))+field('tc-phone',t('teacherPhone'))+field('tc-username',t('username'))+field('tc-password',t('passwordField'))+'</div>'+'<p style="color:var(--soft);font-size:0.8rem;margin-top:0.4rem">'+(lang==='ar'?'اسم المستخدم وكلمة المرور مطلوبان لإنشاء رابط لهذا المعلم.':'Username & password are needed to create a link for this teacher.')+'</p>'+
     '<button class="btn" onclick="addTeacher()" style="margin-top:0.9rem"><i class="fas fa-plus"></i> '+t('add')+'</button>'+
     '<div class="msg ok" id="tc-ok"></div><div class="msg err" id="tc-err"></div>'+
     '<div id="tcBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
+  await loadClassesData(); fillStageSelect('tc-grade',true);
+  try{ var sd=await api('get-subjects'); document.getElementById('tc-subject').innerHTML='<option value="">—</option>'+(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
   loadTeachers();
 }
 async function loadTeachers(){
@@ -1420,7 +1425,7 @@ function renderFeesOverview(year){
     feeClassBarsHtml()+
     '<div class="card"><h3><i class="fas fa-book"></i> '+t('paymentLedger')+' <button class="btn ghost sm" style="margin-inline-start:auto" onclick="exportLedgerCsv()"><i class="fas fa-file-csv"></i> '+t('exportCsv')+'</button></h3>'+
       '<div class="tbl-wrap"><table><thead><tr><th>'+t('receipt')+'</th><th>'+t('date')+'</th><th>'+t('name')+'</th><th>'+t('className')+'</th><th>'+t('amountField')+'</th><th>'+t('method')+'</th><th>'+t('actions')+'</th></tr></thead><tbody>'+
-      (_feePayments.length? _feePayments.map(function(p){ var dt=p.paid_at?new Date(p.paid_at).toLocaleDateString('en-GB'):''; return '<tr><td>#'+esc(p.receipt_number||'')+'</td><td>'+esc(dt)+'</td><td>'+esc(p.full_name||'')+'<div style="font-size:0.72rem;color:var(--soft)">'+esc(p.student_id)+'</div></td><td>'+esc(p.class_name||'')+'</td><td><b>'+money(p.amount)+'</b></td><td>'+esc(p.method||'')+'</td><td class="row-actions"><button class="btn ghost sm" onclick="reprint('+p.id+')"><i class="fas fa-print"></i></button><button class="btn bad sm" onclick="delPaymentFO('+p.id+')"><i class="fas fa-trash"></i></button></td></tr>'; }).join('') : '<tr><td colspan="7">'+emptyBox()+'</td></tr>')+
+      (_feePayments.length? _feePayments.map(function(p){ var dt=p.paid_at?new Date(p.paid_at).toLocaleDateString('en-GB'):''; return '<tr><td>#'+esc(p.receipt_number||'')+'</td><td>'+esc(dt)+'</td><td>'+esc(p.full_name||'')+'<div style="font-size:0.72rem;color:var(--soft)">'+esc(p.student_id)+'</div></td><td>'+esc(p.class_name||'')+'</td><td><b>'+money(p.amount)+'</b></td><td>'+esc(p.method||'')+'</td><td class="row-actions"><button class="btn ghost sm" onclick="editPayment('+p.id+','+(Number(p.amount)||0)+')"><i class="fas fa-pen"></i></button><button class="btn ghost sm" onclick="reprint('+p.id+')"><i class="fas fa-print"></i></button><button class="btn bad sm" onclick="delPaymentFO('+p.id+')"><i class="fas fa-trash"></i></button></td></tr>'; }).join('') : '<tr><td colspan="7">'+emptyBox()+'</td></tr>')+
       '</tbody></table></div></div>';
   body.innerHTML=html;
   document.querySelectorAll('#foChips [data-chip]').forEach(function(ch){ ch.onclick=function(){ _foFilter=ch.dataset.chip; renderFeesOverview(year); }; });
@@ -1438,6 +1443,7 @@ function feeClassBarsHtml(){
 function csvDownload(name,head,rows){ var csv='\ufeff'+[head].concat(rows).map(function(r){return r.map(function(c){return '"'+String(c==null?'':c).replace(/"/g,'""')+'"';}).join(',');}).join('\n'); var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
 function exportFeesCsv(){ var year=val('fo-year'); csvDownload('student-fees.csv',[t('studentId'),t('name'),t('stage'),t('className'),t('instituteFee'),t('examFee'),t('status'),t('year')], _feeRows.map(function(r){return [r.student_id,r.full_name,r.grade_level,r.class_name,r.institute,r.exam,feeRowStatus(r,year),year];})); }
 function exportLedgerCsv(){ csvDownload('payment-ledger.csv',[t('receipt'),t('date'),t('studentId'),t('name'),t('className'),t('amountField'),t('method')], _feePayments.map(function(p){return [p.receipt_number,p.paid_at,p.student_id,p.full_name,p.class_name,p.amount,p.method];})); }
+async function editPayment(id,cur){ var v=prompt(t('editAmountPrompt')||'New amount:',cur); if(v===null) return; var amt=parseFloat(v); if(isNaN(amt)||amt<0){ alert(t('required')); return; } try{ await api('update-payment',{method:'POST',body:{id:id,amount:amt}}); loadFeesOverview(); }catch(e){ alert('❌ '+e.message); } }
 async function delPaymentFO(id){ if(!confirm(t('confirmDeletePayment'))) return; try{ await api('delete-payment',{method:'DELETE',body:{id:id}}); loadFeesOverview(); }catch(e){ alert('❌ '+e.message); } }
 
 /* ============ INSTALL (desktop app) ============ */
