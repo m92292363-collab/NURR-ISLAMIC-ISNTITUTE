@@ -105,6 +105,12 @@ tr:hover td{background:#f6faff}
 .install-bar .ib-t{flex:1;min-width:0}.install-bar .ib-t b{display:block;color:var(--blue-dark);font-size:0.95rem}.install-bar .ib-t span{color:var(--soft);font-size:0.82rem}
 .install-bar .ib-x{background:none;border:0;color:#9db2c9;font-size:1.3rem;cursor:pointer;padding:0.2rem 0.4rem;line-height:1}
 @media(max-width:860px){.install-bar{display:none!important}}
+.theme-dot{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;box-shadow:0 1px 4px rgba(0,0,0,.2)}.theme-dot.on{border-color:#111;transform:scale(1.1)}
+body.dark{--bg:#0f1826;--card:#17222f;--ink:#e6edf5;--soft:#9fb2c8;--line:#2a3a4d;--navy:#0b1420}
+body.dark .topbar,body.dark .card,body.dark table,body.dark input,body.dark select,body.dark textarea{background:var(--card);color:var(--ink)}
+body.dark input,body.dark select,body.dark textarea{border-color:var(--line)}
+body.dark th{background:#1d2a39;color:var(--ink)}
+body.eye{filter:sepia(0.18) brightness(0.97)}
 .fo-chip{border:1.5px solid var(--line);background:#fff;color:var(--soft);padding:0.35rem 0.8rem;border-radius:999px;font-weight:700;font-size:0.82rem;cursor:pointer}.fo-chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}.fo-chip b{font-weight:800}
 /* mobile sidebar */
 .menu-btn{display:none;background:none;border:0;font-size:1.3rem;color:var(--blue-dark);cursor:pointer}
@@ -181,7 +187,7 @@ var T = {
     topStudents:'Top Students', reportRemarks:'Report Remarks', viewReport:'View Report', printResults:'Print Results', bulkResults:'Bulk Results',
     studentHistory:'Student History', studentPhoto:'Student Photo', classList:'Print Class List', printClassList:'Print Class List', transcript:'Transcript', archive:'Archive', restore:'Restore', archived:'Archived', uploadPhoto:'Upload Photo', archiveReasonPrompt:'Reason (optional):',
     showTop:'Show Top', total:'Total', average:'Average', all:'All', view:'View', print:'Print', position:'Position', principal:'Principal',
-    conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.', receipt:'Receipt', cashier:'Cashier', editAmountPrompt:'New amount:',
+    conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.', receipt:'Receipt', cashier:'Cashier', editAmountPrompt:'New amount:', appearance:'Appearance', theme:'Theme colour', darkMode:'Dark mode', eyeComfort:'Eye comfort (warm)', changePassword:'Change password', currentPassword:'Current password', newPassword:'New password', confirmPassword:'Confirm new password', passwordMismatch:'Passwords do not match', passwordTooShort:'Password too short', passwordChanged:'Password changed', schoolName:'School name', format:'Format', oneCardPerStudent:'One report card per student (A4)', broadsheet:'Broadsheet (one table)',
     feeTargets:'Fee Targets', feeTargetsDesc:'Official yearly fee per class — institute fee + exam fee.', instituteAmount:'Institute fee', examAmount:'Exam fee',
     expectedTotal:'Expected (total)', collectedTotal:'Collected', outstanding:'Outstanding', paidInFull:'Paid in full', partial:'Partial', unpaid:"Haven't paid", exportCsv:'Export CSV', feesByClass:'Fees by Class', instituteByClass:'Institute fees by class', examByClass:'Exam fees by class', paymentLedger:'Payment Ledger', studentFees:'Student Fees', instituteFee:'Institute fee', examFee:'Exam fee', instituteCollected:'Institute fees collected — Dalasi', examCollected:'Exam fees collected — Dalasi',
     paymentHistory:'Payment History', totalCollected:'Total Collected', payments:'Payments', confirmDeletePayment:'Delete this payment? This cannot be undone.',
@@ -220,7 +226,7 @@ var T = {
     topStudents:'الأوائل', reportRemarks:'ملاحظات التقرير', viewReport:'عرض التقرير', printResults:'طباعة النتائج', bulkResults:'إدخال جماعي',
     studentHistory:'سجل الطالب', studentPhoto:'صورة الطالب', classList:'طباعة قائمة الفصل', printClassList:'طباعة قائمة الفصل', transcript:'كشف النتائج', archive:'أرشفة', restore:'استعادة', archived:'مؤرشف', uploadPhoto:'رفع صورة', archiveReasonPrompt:'السبب (اختياري):',
     showTop:'عرض أفضل', total:'المجموع', average:'المعدل', all:'الكل', view:'عرض', print:'طباعة', position:'الترتيب', principal:'المدير',
-    conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.', receipt:'إيصال', cashier:'أمين الصندوق', editAmountPrompt:'المبلغ الجديد:',
+    conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.', receipt:'إيصال', cashier:'أمين الصندوق', editAmountPrompt:'المبلغ الجديد:', appearance:'المظهر', theme:'لون الواجهة', darkMode:'الوضع الليلي', eyeComfort:'راحة العين (دافئ)', changePassword:'تغيير كلمة المرور', currentPassword:'كلمة المرور الحالية', newPassword:'كلمة المرور الجديدة', confirmPassword:'تأكيد كلمة المرور', passwordMismatch:'كلمتا المرور غير متطابقتين', passwordTooShort:'كلمة المرور قصيرة جداً', passwordChanged:'تم تغيير كلمة المرور', schoolName:'اسم المدرسة', format:'الصيغة', oneCardPerStudent:'كشف لكل طالب (A4)', broadsheet:'جدول شامل',
     feeTargets:'الرسوم الرسمية', feeTargetsDesc:'الرسوم السنوية لكل فصل — رسوم المعهد + رسوم الامتحان.', instituteAmount:'رسوم المعهد', examAmount:'رسوم الامتحان',
     expectedTotal:'المطلوب (الإجمالي)', collectedTotal:'المحصّل', outstanding:'المتبقي', paidInFull:'مدفوع كاملاً', partial:'جزئي', unpaid:'لم يدفع', exportCsv:'تصدير CSV', feesByClass:'الرسوم حسب الفصل', instituteByClass:'رسوم المعهد حسب الفصل', examByClass:'رسوم الامتحان حسب الفصل', paymentLedger:'سجل المدفوعات', studentFees:'رسوم الطلاب', instituteFee:'رسوم المعهد', examFee:'رسوم الامتحان', instituteCollected:'رسوم المعهد المحصّلة — دلاسي', examCollected:'رسوم الامتحان المحصّلة — دلاسي',
     paymentHistory:'سجل المدفوعات', totalCollected:'إجمالي المحصّل', payments:'الدفعات', confirmDeletePayment:'حذف هذه الدفعة؟ لا يمكن التراجع.',
@@ -505,7 +511,13 @@ async function loadYears(force){ if(_years&&!force) return _years; try{ var d=aw
 function stageList(){ var st={}; (_classes||[]).forEach(function(c){ if(c.stage) st[c.stage]=1; }); return Object.keys(st); }
 function classesForStage(stage){ return (_classes||[]).filter(function(c){ return String(c.stage)===String(stage); }); }
 function fillStageSelect(id,withAll){ var sel=document.getElementById(id); if(!sel)return; sel.innerHTML=(withAll?'<option value="">'+t('allStages')+'</option>':'<option value="">'+t('selectStage')+'</option>')+stageList().map(function(g){return '<option>'+esc(g)+'</option>';}).join(''); }
-function fillClassSelect(id,stage){ var sel=document.getElementById(id); if(!sel)return; var cs=stage?classesForStage(stage):(_classes||[]); sel.innerHTML='<option value="">'+t('selectClass')+'</option>'+cs.map(function(c){return '<option>'+esc(c.name)+'</option>';}).join(''); }
+function fillClassSelect(id,stage){ var sel=document.getElementById(id); if(!sel)return;
+  if(stage){ var cs=classesForStage(stage); sel.innerHTML='<option value="">'+t('selectClass')+'</option>'+cs.map(function(c){return '<option>'+esc(c.name)+'</option>';}).join(''); return; }
+  // no stage -> group all classes by stage with optgroup
+  var html='<option value="">'+t('selectClass')+'</option>';
+  stageList().forEach(function(g){ html+='<optgroup label="'+esc(g)+'">'+classesForStage(g).map(function(c){return '<option>'+esc(c.name)+'</option>';}).join('')+'</optgroup>'; });
+  sel.innerHTML=html;
+}
 function fillYearSelect(id,value){ var sel=document.getElementById(id); if(!sel)return; var cur=value||sel.value; sel.innerHTML=(_years||[]).map(function(y){return '<option'+(y===cur?' selected':'')+'>'+esc(y)+'</option>';}).join(''); }
 function yearSelField(id){ return '<div><label>'+t('academicYear')+'</label><select id="'+id+'"></select></div>'; }
 
@@ -672,7 +684,11 @@ async function pageRecordPayment(c){
 }
 function rpFillStudents(){ var g=val('rp-grade'), c=val('rp-class'), sel=document.getElementById('rp-student'); if(!sel)return;
   var list=_allStudents.filter(function(s){ return (!g||String(s.grade_level)===String(g))&&(!c||(s.class_name||'').toLowerCase()===c.toLowerCase())&&s.active!==false; });
-  sel.innerHTML='<option value="">'+t('selectStudent')+'</option>'+list.map(function(s){return '<option value="'+esc(s.student_id)+'">'+esc(s.full_name)+' ('+esc(s.student_id)+')</option>';}).join('');
+  // group by stage/class
+  var groups={}; list.forEach(function(s){ var k=(s.grade_level||'—')+' / '+(s.class_name||'—'); (groups[k]=groups[k]||[]).push(s); });
+  var html='<option value="">'+t('selectStudent')+'</option>';
+  Object.keys(groups).sort().forEach(function(k){ html+='<optgroup label="'+esc(k)+'">'+groups[k].map(function(s){return '<option value="'+esc(s.student_id)+'">'+esc(s.full_name)+' ('+esc(s.student_id)+')</option>';}).join('')+'</optgroup>'; });
+  sel.innerHTML=html;
 }
 async function recordPay(){
   hide('rp-ok','rp-err');
@@ -789,12 +805,12 @@ async function saveFee(){
 /* ======================= TEACHERS ======================= */
 async function pageTeachers(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-chalkboard-user"></i> '+t('teachers')+'</h3>'+
-    '<div class="form-grid">'+field('tc-name',t('teacherName'))+selField('tc-subject',t('teacherSubject'))+selField('tc-grade',t('stage'))+field('tc-phone',t('teacherPhone'))+field('tc-username',t('username'))+field('tc-password',t('passwordField'))+'</div>'+'<p style="color:var(--soft);font-size:0.8rem;margin-top:0.4rem">'+(lang==='ar'?'اسم المستخدم وكلمة المرور مطلوبان لإنشاء رابط لهذا المعلم.':'Username & password are needed to create a link for this teacher.')+'</p>'+
+    '<div class="form-grid">'+field('tc-name',t('teacherName'))+'<div><label>'+t('teacherSubject')+' <span style="color:var(--soft);font-weight:400">('+(lang==='ar'?'يمكن اختيار أكثر من مادة':'select one or more')+')</span></label><select id="tc-subject" multiple size="5" style="min-height:120px"></select></div>'+selField('tc-grade',t('stage'))+field('tc-phone',t('teacherPhone'))+field('tc-username',t('username'))+field('tc-password',t('passwordField'))+'</div>'+'<p style="color:var(--soft);font-size:0.8rem;margin-top:0.4rem">'+(lang==='ar'?'اسم المستخدم وكلمة المرور مطلوبان لإنشاء رابط لهذا المعلم.':'Username & password are needed to create a link for this teacher.')+'</p>'+
     '<button class="btn" onclick="addTeacher()" style="margin-top:0.9rem"><i class="fas fa-plus"></i> '+t('add')+'</button>'+
     '<div class="msg ok" id="tc-ok"></div><div class="msg err" id="tc-err"></div>'+
     '<div id="tcBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
   await loadClassesData(); fillStageSelect('tc-grade',true);
-  try{ var sd=await api('get-subjects'); document.getElementById('tc-subject').innerHTML='<option value="">—</option>'+(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
+  try{ var sd=await api('get-subjects'); document.getElementById('tc-subject').innerHTML=(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
   loadTeachers();
 }
 async function loadTeachers(){
@@ -803,7 +819,7 @@ async function loadTeachers(){
       rows.map(function(x){ return '<tr><td><b>'+esc(x.full_name)+'</b></td><td>'+esc(x.subject||'')+'</td><td>'+esc(x.grade_level||'')+'</td><td>'+esc(x.phone||'')+'</td><td><button class="btn bad sm" onclick="delTeacher('+x.id+')">'+t('del')+'</button></td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
   }catch(e){ document.getElementById('tcBody').innerHTML=errBox('teachers','loadTeachers'); }
 }
-async function addTeacher(){ hide('tc-ok','tc-err'); var b={ fullName:val('tc-name'), subject:val('tc-subject'), gradeLevel:val('tc-grade'), phone:val('tc-phone'), username:val('tc-username')||undefined, password:val('tc-password')||undefined }; if(!b.fullName){ show('tc-err',t('required')); return; } try{ await api('add-teacher',{method:'POST',body:b}); show('tc-ok','✅ '+t('added')); ['tc-name','tc-subject','tc-grade','tc-phone','tc-username','tc-password'].forEach(function(i){document.getElementById(i).value='';}); loadTeachers(); }catch(e){ show('tc-err','❌ '+e.message); } }
+async function addTeacher(){ hide('tc-ok','tc-err'); var subs=Array.prototype.slice.call(document.getElementById('tc-subject').selectedOptions).map(function(o){return o.value;}); var b={ fullName:val('tc-name'), subject:subs.join(', '), gradeLevel:val('tc-grade'), phone:val('tc-phone'), username:val('tc-username')||undefined, password:val('tc-password')||undefined }; if(!b.fullName){ show('tc-err',t('required')); return; } try{ await api('add-teacher',{method:'POST',body:b}); show('tc-ok','✅ '+t('added')); ['tc-name','tc-grade','tc-phone','tc-username','tc-password'].forEach(function(i){document.getElementById(i).value='';}); Array.prototype.slice.call(document.getElementById('tc-subject').options).forEach(function(o){o.selected=false;}); loadTeachers(); }catch(e){ show('tc-err','❌ '+e.message); } }
 async function delTeacher(id){ if(!confirm(t('confirm'))) return; try{ await api('delete-teacher',{method:'DELETE',body:{id:id}}); loadTeachers(); }catch(e){ alert(e.message); } }
 
 /* ======================= NEWS ======================= */
@@ -861,14 +877,51 @@ async function pageAudit(c){
 
 /* ======================= SETTINGS ======================= */
 async function pageSettings(c){
-  c.innerHTML='<div class="card"><h3><i class="fas fa-gear"></i> '+t('settings')+'</h3><div id="setBody">'+skeleton()+'</div></div>';
+  c.innerHTML='<div class="card"><h3><i class="fas fa-gear"></i> '+t('settings')+'</h3><div id="setBody">'+skeleton()+'</div></div>'+
+    '<div class="card"><h3><i class="fas fa-palette"></i> '+t('appearance')+'</h3>'+
+      '<label>'+t('theme')+'</label><div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.8rem" id="themeRow">'+
+        themeDot('blue','#1e6fd9')+themeDot('teal','#0f9b8e')+themeDot('purple','#6d4bd8')+themeDot('green','#1e9e5a')+themeDot('maroon','#a33265')+
+      '</div>'+
+      '<label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer"><input type="checkbox" id="set-dark" style="width:auto" onchange="setDark(this.checked)"> '+t('darkMode')+'</label>'+
+      '<label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;margin-top:0.5rem"><input type="checkbox" id="set-eye" style="width:auto" onchange="setEye(this.checked)"> '+t('eyeComfort')+'</label>'+
+    '</div>'+
+    '<div class="card"><h3><i class="fas fa-key"></i> '+t('changePassword')+'</h3>'+
+      '<div class="form-grid">'+field('pw-cur',t('currentPassword'),'password')+field('pw-new',t('newPassword'),'password')+field('pw-confirm',t('confirmPassword'),'password')+'</div>'+
+      '<button class="btn" onclick="changePassword()" style="margin-top:0.9rem"><i class="fas fa-key"></i> '+t('changePassword')+'</button>'+
+      '<div class="msg ok" id="pw-ok"></div><div class="msg err" id="pw-err"></div>'+
+    '</div>';
+  // reflect current theme state
+  var th=localStorage.getItem('nurr_theme')||'blue'; document.querySelectorAll('#themeRow [data-th]').forEach(function(d){ d.classList.toggle('on',d.dataset.th===th); });
+  var dk=document.getElementById('set-dark'); if(dk) dk.checked=localStorage.getItem('nurr_dark')==='1';
+  var ey=document.getElementById('set-eye'); if(ey) ey.checked=localStorage.getItem('nurr_eye')==='1';
   try{ var d=await api('get-school-settings'); var st=d.settings||{};
     document.getElementById('setBody').innerHTML='<div class="form-grid">'+
-      field('set-name','School name','text',st.school_name||'')+field('set-phone','Phone','text',st.phone||'')+field('set-email','Email','text',st.email||'')+field('set-address','Address','text',st.address||'')+
+      field('set-name',t('schoolName'),'text',st.school_name||'')+field('set-phone',t('phone'),'text',st.phone||'')+field('set-email',t('email'),'text',st.email||'')+field('set-address',t('address'),'text',st.address||'')+
     '</div><button class="btn" onclick="saveSettings()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button><div class="msg ok" id="set-ok"></div>';
   }catch(e){ document.getElementById('setBody').innerHTML=errBox('settings'); }
 }
+function themeDot(name,color){ return '<div class="theme-dot" data-th="'+name+'" onclick="setTheme(\''+name+'\')" style="background:'+color+'" title="'+name+'"></div>'; }
+var THEMES={blue:'#1e6fd9',teal:'#0f9b8e',purple:'#6d4bd8',green:'#1e9e5a',maroon:'#a33265'};
+function setTheme(name){ localStorage.setItem('nurr_theme',name); applyTheme(); document.querySelectorAll('#themeRow [data-th]').forEach(function(d){ d.classList.toggle('on',d.dataset.th===name); }); }
+function setDark(on){ localStorage.setItem('nurr_dark',on?'1':'0'); applyTheme(); }
+function setEye(on){ localStorage.setItem('nurr_eye',on?'1':'0'); applyTheme(); }
+function applyTheme(){
+  var th=localStorage.getItem('nurr_theme')||'blue'; var color=THEMES[th]||THEMES.blue;
+  document.documentElement.style.setProperty('--blue',color);
+  document.body.classList.toggle('dark',localStorage.getItem('nurr_dark')==='1');
+  document.body.classList.toggle('eye',localStorage.getItem('nurr_eye')==='1');
+}
+async function changePassword(){
+  hide('pw-ok','pw-err');
+  var cur=val('pw-cur'),nw=val('pw-new'),cf=val('pw-confirm');
+  if(!cur||!nw){ show('pw-err',t('required')); return; }
+  if(nw!==cf){ show('pw-err',t('passwordMismatch')); return; }
+  if(nw.length<4){ show('pw-err',t('passwordTooShort')); return; }
+  try{ await api('change-admin-password',{method:'POST',body:{currentPassword:cur,newPassword:nw}}); show('pw-ok','✅ '+t('passwordChanged')); ['pw-cur','pw-new','pw-confirm'].forEach(function(i){document.getElementById(i).value='';}); }
+  catch(e){ show('pw-err','❌ '+e.message); }
+}
 async function saveSettings(){ hide('set-ok'); try{ await api('set-school-settings',{method:'POST',body:{school_name:val('set-name'),phone:val('set-phone'),email:val('set-email'),address:val('set-address')}}); show('set-ok','✅ '+t('saved')); }catch(e){ alert(e.message); } }
+
 
 /* ======================= TEACHER LINKS ======================= */
 async function pageLinks(c){
@@ -1072,41 +1125,84 @@ function printSheet(sheetId){
 
 /* ======================= PRINT RESULTS (broadsheet) ======================= */
 async function pagePrintResults(c){
-  var yr=new Date().getFullYear();
   c.innerHTML='<div class="card"><h3><i class="fas fa-print"></i> '+t('printResults')+'</h3>'+
     '<div class="filters">'+
       '<div><label>'+t('stage')+'</label><select id="pb-grade"></select></div>'+
       '<div><label>'+t('className')+'</label><select id="pb-class"></select></div>'+
       '<div><label>'+t('academicYear')+'</label><select id="pb-year"></select></div>'+
       '<div><label>'+t('term')+'</label><select id="pb-term"><option>Term 1</option><option>Term 2</option></select></div>'+
-      '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="buildBroadsheet()"><i class="fas fa-table"></i> '+t('view')+'</button></div>'+
-    '</div><div class="msg err" id="pb-err"></div><div id="pb-out" style="margin-top:1rem"></div></div>';
+    '</div>'+
+    '<div class="filters">'+
+      '<div><label>'+t('format')+'</label><select id="pb-format"><option value="cards">'+t('oneCardPerStudent')+'</option><option value="broadsheet">'+t('broadsheet')+'</option></select></div>'+
+      '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="buildPrintResults()"><i class="fas fa-eye"></i> '+t('view')+'</button></div>'+
+    '</div>'+
+    '<div class="msg err" id="pb-err"></div><div id="pb-out" style="margin-top:1rem"></div></div>';
   loadClassesData().then(function(){ fillStageSelect('pb-grade'); fillClassSelect('pb-class',''); document.getElementById('pb-grade').onchange=function(){ fillClassSelect('pb-class',this.value); }; });
   loadYears().then(function(){ fillYearSelect('pb-year'); });
 }
-async function buildBroadsheet(){
+async function buildPrintResults(){
   hide('pb-err');
-  var grade=val('pb-grade'), cls=val('pb-class'), year=val('pb-year'), term=val('pb-term');
+  var grade=val('pb-grade'), cls=val('pb-class'), year=val('pb-year'), term=val('pb-term'), fmt=val('pb-format');
   if(!grade||!cls){ show('pb-err',t('required')); return; }
-  document.getElementById('pb-out').innerHTML=skeleton();
+  var out=document.getElementById('pb-out'); out.innerHTML=skeleton();
   try{
-    var p=['academicYear='+encodeURIComponent(year),'term='+encodeURIComponent(term),'gradeLevel='+encodeURIComponent(grade)];
-    var res=await fetch('/api/get-all-results?'+p.join('&'),{headers:{'Authorization':'Bearer '+tok()}}); var d=await res.json();
+    var qp=['academicYear='+encodeURIComponent(year),'term='+encodeURIComponent(term),'gradeLevel='+encodeURIComponent(grade)];
+    var res=await fetch('/api/get-all-results?'+qp.join('&'),{headers:{'Authorization':'Bearer '+tok()}}); var d=await res.json();
     var rows=(d.results||[]).filter(function(r){ return String(r.class_name).toLowerCase()===cls.toLowerCase(); });
-    if(!rows.length){ document.getElementById('pb-out').innerHTML=emptyBox(); return; }
-    var subjects=[]; rows.forEach(function(r){ if(subjects.indexOf(r.subject)<0)subjects.push(r.subject); });
-    var byStu={}; rows.forEach(function(r){ if(!byStu[r.student_id])byStu[r.student_id]={name:r.full_name,scores:{},total:0}; byStu[r.student_id].scores[r.subject]=r.score; byStu[r.student_id].total+=Number(r.score||0); });
-    var studs=Object.keys(byStu).map(function(k){return {id:k,v:byStu[k]};}).sort(function(a,b){return b.v.total-a.v.total;});
-    var head='<tr><th>#</th><th>'+t('name')+'</th>'+subjects.map(function(s){return '<th>'+esc(s)+'</th>';}).join('')+'<th>'+t('total')+'</th><th>'+t('position')+'</th></tr>';
-    var body=studs.map(function(s,i){ return '<tr><td>'+(i+1)+'</td><td class="s">'+esc(s.v.name)+'</td>'+subjects.map(function(sub){return '<td>'+(s.v.scores[sub]!=null?esc(s.v.scores[sub]):'')+'</td>';}).join('')+'<td><b>'+s.v.total+'</b></td><td>'+(i+1)+'</td></tr>'; }).join('');
-    document.getElementById('pb-out').innerHTML='<div style="text-align:center;margin-bottom:0.8rem"><button class="btn" onclick="printBroadsheet()"><i class="fas fa-print"></i> '+t('print')+'</button></div>'+
-      '<div id="bsSheet" style="background:#fff;padding:10mm;border:1px solid #000"><h3 style="text-align:center">NURR · '+t('printResults')+' — Grade '+esc(grade)+' / '+esc(cls)+' · '+esc(term)+' '+esc(year)+'</h3><div class="tbl-wrap"><table class="bs"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div></div>';
-    if(!document.getElementById('bsStyle')){ var st=document.createElement('style'); st.id='bsStyle'; st.textContent='.bs{width:100%;border-collapse:collapse;font-size:9pt}.bs th,.bs td{border:1px solid #000;padding:3px 5px;text-align:center}.bs td.s{text-align:right;white-space:nowrap}.bs th{background:#eef2f7}'; document.head.appendChild(st); }
+    if(!rows.length){ out.innerHTML=emptyBox(); return; }
+    // group per student
+    var byStu={}; rows.forEach(function(r){ if(!byStu[r.student_id])byStu[r.student_id]={id:r.student_id,name:r.full_name,grade:r.grade_level,cls:r.class_name,subs:[],total:0}; byStu[r.student_id].subs.push({subject:r.subject,score:Number(r.score),grade:r.grade}); byStu[r.student_id].total+=Number(r.score||0); });
+    var studs=Object.keys(byStu).map(function(k){return byStu[k];}).sort(function(a,b){return b.total-a.total;});
+    studs.forEach(function(s,i){ s.position=i+1; });
+    var classSize=studs.length;
+    if(fmt==='broadsheet'){ renderBroadsheet(studs,grade,cls,year,term); return; }
+    // one report-card per student, page-break between
+    injectPrintCardCSS();
+    var pages=studs.map(function(s){
+      var rowsHtml=s.subs.map(function(x){ return '<tr><td class="pc-s">'+esc(x.subject)+'</td><td>'+(x.score!=null?esc(x.score):'')+'</td><td>'+esc(x.grade||'')+'</td></tr>'; }).join('');
+      var avg=s.subs.length?(s.total/s.subs.length):0;
+      return '<div class="pc-page"><div class="pc">'+
+        '<div class="pc-head"><img src="'+location.origin+'/favicon.png" onerror="this.style.display=\'none\'"><div><div class="pc-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="pc-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
+        '<div class="pc-title">كشف الدرجات · REPORT CARD</div>'+
+        '<div class="pc-info"><span><b>'+t('name')+':</b> '+esc(s.name)+'</span><span><b>'+t('studentId')+':</b> '+esc(s.id)+'</span><span><b>'+t('grade')+':</b> '+esc(s.grade||'')+' / '+esc(s.cls||'')+'</span><span><b>'+t('term')+':</b> '+esc(term)+' · '+esc(year)+'</span></div>'+
+        '<table class="pc-tbl"><thead><tr><th>'+t('subject')+'</th><th>'+t('score')+'</th><th>'+t('gradeCol')+'</th></tr></thead><tbody>'+rowsHtml+
+          '<tr class="pc-total"><td>'+t('total')+'</td><td>'+s.total+'</td><td>'+avg.toFixed(1)+'%</td></tr></tbody></table>'+
+        '<div class="pc-pos"><span><b>'+t('position')+':</b> '+s.position+' / '+classSize+'</span></div>'+
+        '<div class="pc-sign">…………………………<br>'+t('principal')+'</div>'+
+      '</div></div>';
+    }).join('');
+    out.innerHTML='<div style="text-align:center;margin-bottom:0.8rem"><button class="btn" onclick="printCards()"><i class="fas fa-print"></i> '+t('print')+' ('+studs.length+' '+t('students')+')</button></div><div id="pcSheets" style="background:#e9eef5;padding:1rem;border-radius:12px;max-height:70vh;overflow:auto;text-align:center">'+pages+'</div>';
   }catch(e){ show('pb-err','❌ '+e.message); }
 }
+function injectPrintCardCSS(){
+  if(document.getElementById('pcStyle'))return; var st=document.createElement('style'); st.id='pcStyle';
+  st.textContent=".pc-page{background:#fff;width:200mm;min-height:150mm;margin:0 auto 1rem;box-shadow:0 2px 12px rgba(0,0,0,.15);display:inline-block}"+
+    ".pc{padding:12mm;color:#000;font-family:'Amiri','Times New Roman',serif;text-align:right}"+
+    ".pc-head{display:flex;align-items:center;gap:12px;border-bottom:2.5pt solid #0d3b6e;padding-bottom:8px}.pc-head img{width:60px;height:60px;object-fit:contain}.pc-school{font-size:15pt;font-weight:bold}.pc-sub{font-size:9pt;color:#444}"+
+    ".pc-title{text-align:center;font-size:16pt;font-weight:bold;letter-spacing:4px;margin:12px 0}"+
+    ".pc-info{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;font-size:10.5pt;border:1pt solid #000;padding:8px;margin-bottom:10px}"+
+    ".pc-tbl{width:100%;border-collapse:collapse;border:1.5pt solid #000;font-size:10.5pt}.pc-tbl th,.pc-tbl td{border:1pt solid #000;padding:5px 6px;text-align:center}.pc-tbl th{background:#eef2f7}.pc-s{text-align:right;font-weight:600}.pc-total td{font-weight:bold;background:#f4f9ff}"+
+    ".pc-pos{margin-top:10px;font-size:10.5pt}.pc-sign{margin-top:22px;text-align:center;font-size:10.5pt}";
+  document.head.appendChild(st);
+}
+function printCards(){
+  var sheets=document.getElementById('pcSheets'); if(!sheets)return;
+  var css=document.getElementById('pcStyle').textContent;
+  var win=window.open('','_blank'); if(!win){ alert('Allow popups'); return; }
+  win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet"><style>'+css+'@page{size:A4 portrait;margin:0}body{margin:0}.pc-page{box-shadow:none!important;margin:0!important;width:210mm;min-height:297mm;page-break-after:always;display:block}</style></head><body>'+sheets.innerHTML+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
+  win.document.close();
+}
+function renderBroadsheet(studs,grade,cls,year,term){
+  var out=document.getElementById('pb-out');
+  var subjects=[]; studs.forEach(function(s){ s.subs.forEach(function(x){ if(subjects.indexOf(x.subject)<0)subjects.push(x.subject); }); });
+  var head='<tr><th>#</th><th>'+t('name')+'</th>'+subjects.map(function(x){return '<th>'+esc(x)+'</th>';}).join('')+'<th>'+t('total')+'</th><th>'+t('position')+'</th></tr>';
+  var body=studs.map(function(s){ var sc={}; s.subs.forEach(function(x){sc[x.subject]=x.score;}); return '<tr><td>'+s.position+'</td><td class="s">'+esc(s.name)+'</td>'+subjects.map(function(sub){return '<td>'+(sc[sub]!=null?esc(sc[sub]):'')+'</td>';}).join('')+'<td><b>'+s.total+'</b></td><td>'+s.position+'</td></tr>'; }).join('');
+  out.innerHTML='<div style="text-align:center;margin-bottom:0.8rem"><button class="btn" onclick="printBroadsheet()"><i class="fas fa-print"></i> '+t('print')+'</button></div>'+
+    '<div id="bsSheet" style="background:#fff;padding:10mm;border:1px solid #000"><h3 style="text-align:center">NURR · '+t('printResults')+' — '+esc(grade)+' / '+esc(cls)+' · '+esc(term)+' '+esc(year)+'</h3><div class="tbl-wrap"><table class="bs"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div></div>';
+  if(!document.getElementById('bsStyle')){ var st=document.createElement('style'); st.id='bsStyle'; st.textContent='.bs{width:100%;border-collapse:collapse;font-size:9pt}.bs th,.bs td{border:1px solid #000;padding:3px 5px;text-align:center}.bs td.s{text-align:right;white-space:nowrap}.bs th{background:#eef2f7}'; document.head.appendChild(st); }
+}
 function printBroadsheet(){
-  var sheet=document.getElementById('bsSheet'); if(!sheet)return;
-  var css=document.getElementById('bsStyle').textContent;
+  var sheet=document.getElementById('bsSheet'); if(!sheet)return; var css=document.getElementById('bsStyle').textContent;
   var win=window.open('','_blank'); if(!win)return;
   win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>'+css+'@page{size:A4 landscape;margin:8mm}h3{text-align:center}</style></head><body>'+sheet.innerHTML+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
   win.document.close();
