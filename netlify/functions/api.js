@@ -129,6 +129,8 @@ const ROUTE_AUTH = {
   'get-remarks':'any', 'save-remarks':'admin',
   'student-history':'any', 'archive-student':'admin', 'get-student-photo':'any', 'admin-upload-photo':'admin', 'class-list':'any',
   'get-years':'any',
+  'teacher-assignment':'admin', 'get-teacher-assignments':'any',
+  'get-subject-stages':'any', 'set-subject-stages':'admin',
 };
 
 // ---------- small helpers ----------
@@ -264,6 +266,9 @@ async function ensureLinkSchema() {
   await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS profile_photo TEXT`;
   await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ`;
   await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS archive_reason TEXT`;
+  await sql`CREATE TABLE IF NOT EXISTS subject_stages (subject TEXT NOT NULL, stage TEXT NOT NULL, UNIQUE(subject, stage))`;
+  await sql`CREATE TABLE IF NOT EXISTS teacher_assignments (id SERIAL PRIMARY KEY, teacher_id INTEGER NOT NULL, academic_year TEXT NOT NULL, grade_level TEXT NOT NULL, class_name TEXT NOT NULL, subject TEXT NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW(), UNIQUE(teacher_id, academic_year, grade_level, class_name, subject))`;
+  await sql`ALTER TABLE teachers ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT TRUE`;
   await sql`CREATE TABLE IF NOT EXISTS report_remarks (id SERIAL PRIMARY KEY, student_id TEXT NOT NULL, academic_year TEXT NOT NULL, term TEXT NOT NULL, conduct TEXT, teacher_remark TEXT, head_remark TEXT, next_term_date TEXT, updated_at TIMESTAMPTZ DEFAULT NOW(), UNIQUE(student_id, academic_year, term))`;
   _linkReady = true;
 }
@@ -283,6 +288,47 @@ const routes = {
     if (!years.includes(cur)) years.push(cur);
     years.sort().reverse();
     return ok({ years });
+  }},
+  'get-subject-stages': { GET: async () => {
+    await ensureLinkSchema();
+    const rows = await sql`SELECT subject, stage FROM subject_stages`;
+    return ok({ map: rows });
+  }},
+  'set-subject-stages': { POST: async (event) => {
+    await ensureLinkSchema();
+    const { subject, stages } = readBody(event);
+    if (!subject || !Array.isArray(stages)) return err('بيانات ناقصة');
+    await sql`DELETE FROM subject_stages WHERE subject = ${subject}`;
+    for (const st of stages) { if (st) await sql`INSERT INTO subject_stages (subject, stage) VALUES (${subject}, ${st}) ON CONFLICT DO NOTHING`; }
+    return ok({ message: 'تم حفظ مراحل المادة' });
+  }},
+  'get-teacher-assignments': { GET: async () => {
+    await ensureLinkSchema();
+    const assignments = await sql`SELECT id, teacher_id, academic_year, grade_level, class_name, subject FROM teacher_assignments ORDER BY academic_year DESC, grade_level, class_name, subject`;
+    return ok({ assignments });
+  }},
+  'teacher-assignment': { POST: async (event) => {
+    await ensureLinkSchema();
+    const { action, id, teacherId, academicYear, gradeLevel, className, subjects } = readBody(event);
+    if (action === 'remove') {
+      if (!id) return err('id مطلوب');
+      const rows = await sql`DELETE FROM teacher_assignments WHERE id = ${parseInt(id)} RETURNING id`;
+      if (!rows.length) return err('التكليف غير موجود', 404);
+      return ok({ message: 'تم حذف التكليف' });
+    }
+    if (!teacherId || !academicYear || !gradeLevel || !className || !Array.isArray(subjects) || !subjects.length)
+      return err('المعلم والعام والمرحلة والفصل ومادة واحدة على الأقل مطلوبة');
+    const t = await sql`SELECT id FROM teachers WHERE id = ${parseInt(teacherId)}`;
+    if (!t.length) return err('المعلم غير موجود', 404);
+    let n = 0;
+    for (const subRaw of subjects) {
+      const sub = String(subRaw).trim(); if (!sub) continue;
+      const r = await sql`INSERT INTO teacher_assignments (teacher_id, academic_year, grade_level, class_name, subject)
+        VALUES (${parseInt(teacherId)}, ${academicYear}, ${gradeLevel}, ${className}, ${sub})
+        ON CONFLICT (teacher_id, academic_year, grade_level, class_name, subject) DO NOTHING RETURNING id`;
+      if (r.length) n++;
+    }
+    return ok({ message: 'تم تكليف ' + n + ' مادة' });
   }},
   'student-history': { GET: async (event) => {
     await ensureLinkSchema();
@@ -905,11 +951,26 @@ const routes = {
   // ---------------- TEACHERS ----------------
   'get-teachers': { GET: async () => {
     await ensureLinkSchema();
-    const teachers = await sql`SELECT id, full_name, subject, grade_level, phone, username, (teacher_password IS NOT NULL) AS has_login FROM teachers ORDER BY full_name`;
-    return ok({ teachers });
+    const teachers = await sql`SELECT id, full_name, subject, grade_level, phone, username, COALESCE(active,true) AS active, (teacher_password IS NOT NULL) AS has_login FROM teachers ORDER BY full_name`;
+    const assignments = await sql`SELECT id, teacher_id, academic_year, grade_level, class_name, subject FROM teacher_assignments ORDER BY academic_year DESC, grade_level, class_name, subject`;
+    return ok({ teachers, assignments });
   }},
   'add-teacher': { POST: async (event) => {
-    const { fullName, subject, gradeLevel, phone, username, password, actor } = readBody(event);
+    const _b = readBody(event);
+    const { fullName, subject, gradeLevel, phone, username, password, id, active, actor } = _b;
+    // enable/disable only
+    if (id && typeof active === 'boolean') {
+      const r = await sql`UPDATE teachers SET active = ${active} WHERE id = ${parseInt(id)} RETURNING id`;
+      if (!r.length) return err('المعلم غير موجود', 404);
+      return ok({ message: active ? 'تم تفعيل الحساب' : 'تم تعطيل الحساب' });
+    }
+    // edit existing
+    if (id) {
+      await ensureLinkSchema();
+      await sql`UPDATE teachers SET full_name = ${(fullName||'').trim()}, subject = ${subject||null}, grade_level = ${gradeLevel||null}, phone = ${phone||null}${username?sql`, username = ${username.trim()}`:sql``} WHERE id = ${parseInt(id)}`;
+      if (password) await sql`UPDATE teachers SET teacher_password = ${hashPassword(password)} WHERE id = ${parseInt(id)}`;
+      return ok({ message: 'تم تحديث المعلم' });
+    }
     if (!fullName || !fullName.trim()) return err('اسم المعلم مطلوب');
     if (username || password) { await ensureLinkSchema();
       if (!username || !password) return err('اسم المستخدم وكلمة المرور معاً مطلوبان للروابط');
