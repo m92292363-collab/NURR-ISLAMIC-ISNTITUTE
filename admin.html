@@ -187,7 +187,8 @@ var T = {
     topStudents:'Top Students', reportRemarks:'Report Remarks', viewReport:'View Report', printResults:'Print Results', bulkResults:'Bulk Results',
     studentHistory:'Student History', studentPhoto:'Student Photo', classList:'Print Class List', printClassList:'Print Class List', transcript:'Transcript', archive:'Archive', restore:'Restore', archived:'Archived', uploadPhoto:'Upload Photo', archiveReasonPrompt:'Reason (optional):',
     showTop:'Show Top', total:'Total', average:'Average', all:'All', view:'View', print:'Print', position:'Position', principal:'Principal',
-    conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.', receipt:'Receipt', cashier:'Cashier', editAmountPrompt:'New amount:', appearance:'Appearance', theme:'Theme colour', darkMode:'Dark mode', eyeComfort:'Eye comfort (warm)', changePassword:'Change password', currentPassword:'Current password', newPassword:'New password', confirmPassword:'Confirm new password', passwordMismatch:'Passwords do not match', passwordTooShort:'Password too short', passwordChanged:'Password changed', schoolName:'School name', format:'Format', oneCardPerStudent:'One report card per student (A4)', broadsheet:'Broadsheet (one table)',
+    conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.', bulkGridDesc:'Tick subjects, load the class, then fill scores in the grid — many subjects at once.', loadGrid:'Load grid', pickOneSubject:'Pick at least one subject', enterOneScore:'Enter at least one score', receipt:'Receipt', cashier:'Cashier', editAmountPrompt:'New amount:', appearance:'Appearance', theme:'Theme colour', darkMode:'Dark mode', eyeComfort:'Eye comfort (warm)', changePassword:'Change password', currentPassword:'Current password', newPassword:'New password', confirmPassword:'Confirm new password', passwordMismatch:'Passwords do not match', passwordTooShort:'Password too short', passwordChanged:'Password changed', schoolName:'School name', printList:'Print list', feeList:'Fee list', format:'Format', oneCardPerStudent:'One report card per student (A4)', broadsheet:'Broadsheet (one table)',
+    teacherAccounts:'Teacher Accounts', teacherAccountsDesc:'Create the teacher account here, assign their classes below, then send them a personal access link in Teacher Links.', createTeacher:'Create Teacher', saveChanges:'Save changes', clear:'Clear', thisYear:'This year', assignClasses:'Assign Classes & Subjects', subjectsTick:'Subjects (tick one or more)', assign:'Assign', selectTeacherFirst:'Select a teacher', selectTeacher:'-- Select Teacher --', subjectsWord:'subject(s)', enable:'Enable', disable:'Disable', disabled:'Disabled', noAssignments:'No assignments yet', assignRequired:'Teacher, grade, class and at least one subject are required', passwordRequiredNew:'A password is required for a new teacher',
     feeTargets:'Fee Targets', feeTargetsDesc:'Official yearly fee per class — institute fee + exam fee.', instituteAmount:'Institute fee', examAmount:'Exam fee',
     expectedTotal:'Expected (total)', collectedTotal:'Collected', outstanding:'Outstanding', paidInFull:'Paid in full', partial:'Partial', unpaid:"Haven't paid", exportCsv:'Export CSV', feesByClass:'Fees by Class', instituteByClass:'Institute fees by class', examByClass:'Exam fees by class', paymentLedger:'Payment Ledger', studentFees:'Student Fees', instituteFee:'Institute fee', examFee:'Exam fee', instituteCollected:'Institute fees collected — Dalasi', examCollected:'Exam fees collected — Dalasi',
     paymentHistory:'Payment History', totalCollected:'Total Collected', payments:'Payments', confirmDeletePayment:'Delete this payment? This cannot be undone.',
@@ -226,7 +227,8 @@ var T = {
     topStudents:'الأوائل', reportRemarks:'ملاحظات التقرير', viewReport:'عرض التقرير', printResults:'طباعة النتائج', bulkResults:'إدخال جماعي',
     studentHistory:'سجل الطالب', studentPhoto:'صورة الطالب', classList:'طباعة قائمة الفصل', printClassList:'طباعة قائمة الفصل', transcript:'كشف النتائج', archive:'أرشفة', restore:'استعادة', archived:'مؤرشف', uploadPhoto:'رفع صورة', archiveReasonPrompt:'السبب (اختياري):',
     showTop:'عرض أفضل', total:'المجموع', average:'المعدل', all:'الكل', view:'عرض', print:'طباعة', position:'الترتيب', principal:'المدير',
-    conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.', receipt:'إيصال', cashier:'أمين الصندوق', editAmountPrompt:'المبلغ الجديد:', appearance:'المظهر', theme:'لون الواجهة', darkMode:'الوضع الليلي', eyeComfort:'راحة العين (دافئ)', changePassword:'تغيير كلمة المرور', currentPassword:'كلمة المرور الحالية', newPassword:'كلمة المرور الجديدة', confirmPassword:'تأكيد كلمة المرور', passwordMismatch:'كلمتا المرور غير متطابقتين', passwordTooShort:'كلمة المرور قصيرة جداً', passwordChanged:'تم تغيير كلمة المرور', schoolName:'اسم المدرسة', format:'الصيغة', oneCardPerStudent:'كشف لكل طالب (A4)', broadsheet:'جدول شامل',
+    conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.', bulkGridDesc:'اختر المواد، حمّل الفصل، ثم أدخل الدرجات في الجدول — عدة مواد دفعة واحدة.', loadGrid:'تحميل الجدول', pickOneSubject:'اختر مادة واحدة على الأقل', enterOneScore:'أدخل درجة واحدة على الأقل', receipt:'إيصال', cashier:'أمين الصندوق', editAmountPrompt:'المبلغ الجديد:', appearance:'المظهر', theme:'لون الواجهة', darkMode:'الوضع الليلي', eyeComfort:'راحة العين (دافئ)', changePassword:'تغيير كلمة المرور', currentPassword:'كلمة المرور الحالية', newPassword:'كلمة المرور الجديدة', confirmPassword:'تأكيد كلمة المرور', passwordMismatch:'كلمتا المرور غير متطابقتين', passwordTooShort:'كلمة المرور قصيرة جداً', passwordChanged:'تم تغيير كلمة المرور', schoolName:'اسم المدرسة', printList:'طباعة القائمة', feeList:'قائمة الرسوم', format:'الصيغة', oneCardPerStudent:'كشف لكل طالب (A4)', broadsheet:'جدول شامل',
+    teacherAccounts:'حسابات المعلمين', teacherAccountsDesc:'أنشئ حساب المعلم هنا، كلّفه بالفصول أدناه، ثم أرسل له رابط الوصول الشخصي من روابط المعلمين.', createTeacher:'إنشاء معلم', saveChanges:'حفظ التغييرات', clear:'مسح', thisYear:'هذا العام', assignClasses:'تكليف الفصول والمواد', subjectsTick:'المواد (اختر واحدة أو أكثر)', assign:'تكليف', selectTeacherFirst:'اختر معلماً', selectTeacher:'-- اختر المعلم --', subjectsWord:'مادة', enable:'تفعيل', disable:'تعطيل', disabled:'معطّل', noAssignments:'لا توجد تكليفات بعد', assignRequired:'المعلم والمرحلة والفصل ومادة واحدة على الأقل مطلوبة', passwordRequiredNew:'كلمة المرور مطلوبة للمعلم الجديد',
     feeTargets:'الرسوم الرسمية', feeTargetsDesc:'الرسوم السنوية لكل فصل — رسوم المعهد + رسوم الامتحان.', instituteAmount:'رسوم المعهد', examAmount:'رسوم الامتحان',
     expectedTotal:'المطلوب (الإجمالي)', collectedTotal:'المحصّل', outstanding:'المتبقي', paidInFull:'مدفوع كاملاً', partial:'جزئي', unpaid:'لم يدفع', exportCsv:'تصدير CSV', feesByClass:'الرسوم حسب الفصل', instituteByClass:'رسوم المعهد حسب الفصل', examByClass:'رسوم الامتحان حسب الفصل', paymentLedger:'سجل المدفوعات', studentFees:'رسوم الطلاب', instituteFee:'رسوم المعهد', examFee:'رسوم الامتحان', instituteCollected:'رسوم المعهد المحصّلة — دلاسي', examCollected:'رسوم الامتحان المحصّلة — دلاسي',
     paymentHistory:'سجل المدفوعات', totalCollected:'إجمالي المحصّل', payments:'الدفعات', confirmDeletePayment:'حذف هذه الدفعة؟ لا يمكن التراجع.',
@@ -758,20 +760,20 @@ function showReceipt(r){
 }
 function injectRcptCSS(){
   if(document.getElementById('rcptStyle'))return; var st=document.createElement('style'); st.id='rcptStyle';
-  st.textContent=".rcpt2{background:#fff;color:#000;width:190mm;padding:6mm;box-sizing:border-box;font-family:'Amiri','Times New Roman',serif;display:inline-block;box-shadow:0 4px 20px rgba(0,0,0,.2)}"+
-    ".rc-copy{padding:4mm 6mm}"+
-    ".rc-head{text-align:center}.rc-head img{width:48px;height:48px;object-fit:contain}.rc-school-ar{font-size:12pt;font-weight:bold;color:#1a3a6b;margin-top:2px}.rc-school-en{font-size:10.5pt;font-weight:bold;color:#1a3a6b}.rc-tel{font-size:8.5pt;color:#333}"+
+  st.textContent=".rcpt2{background:#fff;color:#000;width:190mm;padding:4mm;box-sizing:border-box;font-family:'Amiri','Times New Roman',serif;display:inline-block;box-shadow:0 4px 20px rgba(0,0,0,.2)}"+
+    ".rc-copy{padding:2.5mm 6mm}"+
+    ".rc-head{text-align:center}.rc-head img{width:42px;height:42px;object-fit:contain}.rc-school-ar{font-size:12pt;font-weight:bold;color:#1a3a6b;margin-top:2px}.rc-school-en{font-size:10.5pt;font-weight:bold;color:#1a3a6b}.rc-tel{font-size:8.5pt;color:#333}"+
     ".rc-datebar{display:flex;justify-content:space-between;align-items:center;border:1pt solid #000;margin-top:6px;font-size:9.5pt}.rc-dg,.rc-dh{padding:4px 8px}.rc-dg{border-inline-end:1pt solid #000}.rc-dh{border-inline-start:1pt solid #000;direction:rtl}.rc-no{flex:1;text-align:center;direction:rtl}.rc-no span{display:inline-block;min-width:60px;border:1pt solid #000;height:16px;vertical-align:middle;margin-inline-start:4px}"+
     ".rc-title{text-align:center;color:#c0392b;font-weight:bold;font-size:15pt;letter-spacing:3px;margin:8px 0;font-family:Arial,sans-serif}"+
-    ".rc-tbl{width:100%;border-collapse:collapse;border:1pt solid #000;font-size:10pt}.rc-tbl td{border:1pt solid #000;padding:5px 8px}.rc-en{width:26%;font-weight:bold}.rc-ar{width:26%;text-align:right;direction:rtl;color:#1a3a6b}.rc-v{text-align:center;font-weight:bold;direction:rtl}.rc-words{font-size:11pt}.rc-amt{font-weight:bold;font-size:11pt}"+
+    ".rc-tbl{width:100%;border-collapse:collapse;border:1pt solid #000;font-size:10pt}.rc-tbl td{border:1pt solid #000;padding:3px 8px}.rc-en{width:26%;font-weight:bold}.rc-ar{width:26%;text-align:right;direction:rtl;color:#1a3a6b}.rc-v{text-align:center;font-weight:bold;direction:rtl}.rc-words{font-size:11pt}.rc-amt{font-weight:bold;font-size:11pt}"+
     ".rc-sign{direction:rtl;text-align:center;margin-top:10px;font-size:10pt}"+
-    ".rc-cut{border-top:1.5pt dashed #777;margin:6mm 0}";
+    ".rc-cut{border-top:1.5pt dashed #777;margin:3mm 0}";
   document.head.appendChild(st);
 }
 function printReceipt(){
   var sheet=document.getElementById('rcptSheet'); if(!sheet)return; var css=document.getElementById('rcptStyle').textContent;
   var win=window.open('','_blank'); if(!win)return;
-  win.document.write('<!DOCTYPE html><html dir="ltr"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet"><style>'+css+'@page{size:A4;margin:8mm}body{margin:0}.rcpt2{box-shadow:none!important;margin:0 auto;width:100%}</style></head><body>'+sheet.outerHTML+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
+  win.document.write('<!DOCTYPE html><html dir="ltr"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet"><style>'+css+'@page{size:A4 portrait;margin:6mm}body{margin:0}.rcpt2{box-shadow:none!important;margin:0 auto;width:100%;page-break-inside:avoid}.rc-copy{page-break-inside:avoid}</style></head><body>'+sheet.outerHTML+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
   win.document.close();
 }
 
@@ -804,23 +806,82 @@ async function saveFee(){
 
 /* ======================= TEACHERS ======================= */
 async function pageTeachers(c){
-  c.innerHTML='<div class="card"><h3><i class="fas fa-chalkboard-user"></i> '+t('teachers')+'</h3>'+
-    '<div class="form-grid">'+field('tc-name',t('teacherName'))+'<div><label>'+t('teacherSubject')+' <span style="color:var(--soft);font-weight:400">('+(lang==='ar'?'يمكن اختيار أكثر من مادة':'select one or more')+')</span></label><select id="tc-subject" multiple size="5" style="min-height:120px"></select></div>'+selField('tc-grade',t('stage'))+field('tc-phone',t('teacherPhone'))+field('tc-username',t('username'))+field('tc-password',t('passwordField'))+'</div>'+'<p style="color:var(--soft);font-size:0.8rem;margin-top:0.4rem">'+(lang==='ar'?'اسم المستخدم وكلمة المرور مطلوبان لإنشاء رابط لهذا المعلم.':'Username & password are needed to create a link for this teacher.')+'</p>'+
-    '<button class="btn" onclick="addTeacher()" style="margin-top:0.9rem"><i class="fas fa-plus"></i> '+t('add')+'</button>'+
+  c.innerHTML=
+   '<div class="card"><h3><i class="fas fa-chalkboard-user"></i> '+t('teacherAccounts')+'</h3>'+
+    '<p style="color:var(--soft);font-size:0.88rem;margin-bottom:0.8rem">'+t('teacherAccountsDesc')+'</p>'+
+    '<input type="hidden" id="tc-id">'+
+    '<div class="form-grid">'+field('tc-username',t('username'))+field('tc-name',t('fullName'))+field('tc-phone',t('teacherPhone'))+field('tc-password',t('passwordField'))+'</div>'+
+    '<div style="display:flex;gap:0.5rem;margin-top:0.9rem"><button class="btn" id="tcSaveBtn" onclick="saveTeacher()"><i class="fas fa-save"></i> <span id="tcSaveLabel">'+t('createTeacher')+'</span></button><button class="btn ghost" onclick="clearTeacherForm()"><i class="fas fa-xmark"></i> '+t('clear')+'</button></div>'+
     '<div class="msg ok" id="tc-ok"></div><div class="msg err" id="tc-err"></div>'+
-    '<div id="tcBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
-  await loadClassesData(); fillStageSelect('tc-grade',true);
-  try{ var sd=await api('get-subjects'); document.getElementById('tc-subject').innerHTML=(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
+    '<div id="tcBody" style="margin-top:1rem">'+skeleton()+'</div></div>'+
+   '<div class="card"><h3><i class="fas fa-list-check"></i> '+t('assignClasses')+'</h3>'+
+    '<div class="form-grid">'+
+      '<div><label>'+t('teachers')+'</label><select id="ta-teacher" onchange="loadAssignments()"></select></div>'+
+      '<div><label>'+t('academicYear')+'</label><select id="ta-year"></select></div>'+
+      '<div><label>'+t('stage')+'</label><select id="ta-grade"></select></div>'+
+      '<div><label>'+t('className')+'</label><select id="ta-class"></select></div>'+
+    '</div>'+
+    '<label style="margin-top:0.6rem">'+t('subjectsTick')+'</label><div id="ta-subjects" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.4rem;margin-top:0.4rem"></div>'+
+    '<button class="btn" onclick="addAssignment()" style="margin-top:0.9rem"><i class="fas fa-plus"></i> '+t('assign')+'</button>'+
+    '<div class="msg ok" id="ta-ok"></div><div class="msg err" id="ta-err"></div>'+
+    '<div id="ta-body" style="margin-top:1rem"><div class="muted" style="text-align:center;padding:1rem">'+t('selectTeacherFirst')+'</div></div></div>';
+  await loadClassesData(); await loadYears();
+  fillStageSelect('ta-grade'); fillClassSelect('ta-class',''); fillYearSelect('ta-year');
+  document.getElementById('ta-grade').onchange=function(){ fillClassSelect('ta-class',this.value); };
+  // subjects checkboxes
+  try{ var sd=await api('get-subjects'); document.getElementById('ta-subjects').innerHTML=(sd.subjects||[]).map(function(x){ return '<label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-weight:600"><input type="checkbox" class="ta-sub" value="'+esc(x)+'" style="width:auto"> '+esc(x)+'</label>'; }).join(''); }catch(e){}
   loadTeachers();
 }
+var _teachers=[], _assignments=[];
 async function loadTeachers(){
-  try{ var d=await api('get-teachers'); var rows=d.teachers||[]; window._teachers=rows;
-    document.getElementById('tcBody').innerHTML = rows.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('teacherName')+'</th><th>'+t('teacherSubject')+'</th><th>'+t('grade')+'</th><th>'+t('teacherPhone')+'</th><th>'+t('actions')+'</th></tr></thead><tbody>'+
-      rows.map(function(x){ return '<tr><td><b>'+esc(x.full_name)+'</b></td><td>'+esc(x.subject||'')+'</td><td>'+esc(x.grade_level||'')+'</td><td>'+esc(x.phone||'')+'</td><td><button class="btn bad sm" onclick="delTeacher('+x.id+')">'+t('del')+'</button></td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
+  try{ var d=await api('get-teachers'); _teachers=d.teachers||[]; _assignments=d.assignments||[];
+    // fill assign teacher select
+    var ts=document.getElementById('ta-teacher'); if(ts){ var keep=ts.value; ts.innerHTML='<option value="">'+t('selectTeacher')+'</option>'+_teachers.map(function(x){return '<option value="'+x.id+'">'+esc(x.full_name)+'</option>';}).join(''); if(keep) ts.value=keep; }
+    document.getElementById('tcBody').innerHTML = _teachers.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('name')+'</th><th>'+t('username')+'</th><th>'+t('teacherPhone')+'</th><th>'+t('thisYear')+'</th><th>'+t('status')+'</th><th>'+t('actions')+'</th></tr></thead><tbody>'+
+      _teachers.map(function(x){
+        var mine=_assignments.filter(function(a){return a.teacher_id===x.id;});
+        var yrs={}, subs={}; mine.forEach(function(a){ yrs[a.grade_level]=1; subs[a.subject]=1; });
+        var summary=Object.keys(yrs).sort().join(', ')+(Object.keys(subs).length?' · '+Object.keys(subs).length+' '+t('subjectsWord'):'');
+        var st=x.active===false?'<span class="badge b-gray">'+t('disabled')+'</span>':'<span class="badge b-green">'+t('active')+'</span>';
+        return '<tr><td><b>'+esc(x.full_name)+'</b></td><td>'+esc(x.username||'')+'</td><td>'+esc(x.phone||'')+'</td><td>'+esc(summary||'—')+'</td><td>'+st+'</td>'+
+          '<td class="row-actions"><button class="btn ghost sm" onclick="editTeacher('+x.id+')"><i class="fas fa-pen"></i> '+t('edit')+'</button>'+
+          '<button class="btn ghost sm" onclick="assignTo('+x.id+')"><i class="fas fa-list-check"></i> '+t('assign')+'</button>'+
+          '<button class="btn ghost sm" onclick="toggleTeacher('+x.id+','+(x.active===false)+')">'+(x.active===false?'<i class="fas fa-check"></i> '+t('enable'):'<i class="fas fa-ban"></i> '+t('disable'))+'</button>'+
+          '<button class="btn bad sm" onclick="delTeacher('+x.id+')"><i class="fas fa-trash"></i></button></td></tr>';
+      }).join('')+'</tbody></table></div>' : emptyBox();
   }catch(e){ document.getElementById('tcBody').innerHTML=errBox('teachers','loadTeachers'); }
 }
-async function addTeacher(){ hide('tc-ok','tc-err'); var subs=Array.prototype.slice.call(document.getElementById('tc-subject').selectedOptions).map(function(o){return o.value;}); var b={ fullName:val('tc-name'), subject:subs.join(', '), gradeLevel:val('tc-grade'), phone:val('tc-phone'), username:val('tc-username')||undefined, password:val('tc-password')||undefined }; if(!b.fullName){ show('tc-err',t('required')); return; } try{ await api('add-teacher',{method:'POST',body:b}); show('tc-ok','✅ '+t('added')); ['tc-name','tc-grade','tc-phone','tc-username','tc-password'].forEach(function(i){document.getElementById(i).value='';}); Array.prototype.slice.call(document.getElementById('tc-subject').options).forEach(function(o){o.selected=false;}); loadTeachers(); }catch(e){ show('tc-err','❌ '+e.message); } }
+function clearTeacherForm(){ ['tc-id','tc-username','tc-name','tc-phone','tc-password'].forEach(function(i){document.getElementById(i).value='';}); document.getElementById('tcSaveLabel').textContent=t('createTeacher'); hide('tc-ok','tc-err'); }
+function editTeacher(id){ var x=_teachers.find(function(t){return t.id===id;}); if(!x)return; document.getElementById('tc-id').value=x.id; document.getElementById('tc-username').value=x.username||''; document.getElementById('tc-name').value=x.full_name||''; document.getElementById('tc-phone').value=x.phone||''; document.getElementById('tc-password').value=''; document.getElementById('tcSaveLabel').textContent=t('saveChanges'); window.scrollTo(0,0); }
+async function saveTeacher(){
+  hide('tc-ok','tc-err');
+  var id=val('tc-id'); var b={ username:val('tc-username'), fullName:val('tc-name'), phone:val('tc-phone'), password:val('tc-password')||undefined };
+  if(id) b.id=parseInt(id);
+  if(!b.username||!b.fullName){ show('tc-err',t('required')); return; }
+  if(!id && !b.password){ show('tc-err',t('passwordRequiredNew')); return; }
+  try{ var d=await api('add-teacher',{method:'POST',body:b}); show('tc-ok','✅ '+(d.message||t('saved'))); clearTeacherForm(); loadTeachers(); }
+  catch(e){ show('tc-err','❌ '+e.message); }
+}
+async function toggleTeacher(id,enable){ try{ await api('add-teacher',{method:'POST',body:{id:id,active:!!enable}}); loadTeachers(); }catch(e){ alert(e.message); } }
 async function delTeacher(id){ if(!confirm(t('confirm'))) return; try{ await api('delete-teacher',{method:'DELETE',body:{id:id}}); loadTeachers(); }catch(e){ alert(e.message); } }
+function assignTo(id){ document.getElementById('ta-teacher').value=id; loadAssignments(); document.getElementById('ta-teacher').scrollIntoView({behavior:'smooth'}); }
+function loadAssignments(){
+  var tid=parseInt(val('ta-teacher')); var body=document.getElementById('ta-body');
+  if(!tid){ body.innerHTML='<div class="muted" style="text-align:center;padding:1rem">'+t('selectTeacherFirst')+'</div>'; return; }
+  var mine=_assignments.filter(function(a){return a.teacher_id===tid;});
+  body.innerHTML = mine.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('year')+'</th><th>'+t('stage')+'</th><th>'+t('className')+'</th><th>'+t('subject')+'</th><th></th></tr></thead><tbody>'+
+    mine.map(function(a){ return '<tr><td>'+esc(a.academic_year)+'</td><td>'+esc(a.grade_level)+'</td><td>'+esc(a.class_name)+'</td><td>'+esc(a.subject)+'</td><td><button class="btn bad sm" onclick="removeAssignment('+a.id+')"><i class="fas fa-trash"></i></button></td></tr>'; }).join('')+'</tbody></table></div>' : '<div class="muted" style="text-align:center;padding:1rem">'+t('noAssignments')+'</div>';
+}
+async function addAssignment(){
+  hide('ta-ok','ta-err');
+  var teacherId=parseInt(val('ta-teacher')), academicYear=val('ta-year'), gradeLevel=val('ta-grade'), className=val('ta-class');
+  var subjects=Array.prototype.slice.call(document.querySelectorAll('.ta-sub:checked')).map(function(x){return x.value;});
+  if(!teacherId||!gradeLevel||!className||!subjects.length){ show('ta-err',t('assignRequired')); return; }
+  try{ var d=await api('teacher-assignment',{method:'POST',body:{action:'add',teacherId:teacherId,academicYear:academicYear,gradeLevel:gradeLevel,className:className,subjects:subjects}}); show('ta-ok','✅ '+(d.message||t('saved'))); document.querySelectorAll('.ta-sub:checked').forEach(function(x){x.checked=false;}); await loadTeachers(); loadAssignments(); }
+  catch(e){ show('ta-err','❌ '+e.message); }
+}
+async function removeAssignment(id){ if(!confirm(t('confirm'))) return; try{ await api('teacher-assignment',{method:'POST',body:{action:'remove',id:id}}); await loadTeachers(); loadAssignments(); }catch(e){ alert(e.message); } }
+
 
 /* ======================= NEWS ======================= */
 async function pageNews(c){
@@ -1210,39 +1271,49 @@ function printBroadsheet(){
 
 /* ======================= BULK RESULTS ======================= */
 async function pageBulkResults(c){
-  var yr=new Date().getFullYear();
   c.innerHTML='<div class="card"><h3><i class="fas fa-layer-group"></i> '+t('bulkResults')+'</h3>'+
-    '<p style="color:var(--soft);font-size:0.85rem;margin-bottom:0.8rem">'+t('bulkDesc')+'</p>'+
+    '<p style="color:var(--soft);font-size:0.9rem;margin-bottom:0.8rem">'+t('bulkGridDesc')+'</p>'+
     '<div class="form-grid">'+
       selField('bl-grade',t('stage'))+selField('bl-class',t('className'))+
-      selField('bl-subject',t('subject'))+yearSelField('bl-year')+
+      yearSelField('bl-year')+
       '<div><label>'+t('term')+'</label><select id="bl-term"><option>Term 1</option><option>Term 2</option></select></div>'+
     '</div>'+
-    '<button class="btn ghost" style="margin-top:0.8rem" onclick="loadBulkRoster()"><i class="fas fa-users"></i> '+t('loadStudent')+'</button>'+
-    '<div id="bl-list"></div><div class="msg ok" id="bl-ok"></div><div class="msg err" id="bl-err"></div></div>';
-  try{ var sd=await api('get-subjects'); document.getElementById('bl-subject').innerHTML=(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
+    '<label style="margin-top:0.6rem">'+t('subjectsTick')+'</label>'+
+    '<div id="bl-subjects" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.4rem;margin:0.4rem 0 0.8rem"></div>'+
+    '<button class="btn" onclick="loadBulkRoster()"><i class="fas fa-table-cells"></i> '+t('loadGrid')+'</button>'+
+    '<div id="bl-list" style="margin-top:1rem"></div><div class="msg ok" id="bl-ok"></div><div class="msg err" id="bl-err"></div></div>';
+  try{ var sd=await api('get-subjects'); document.getElementById('bl-subjects').innerHTML=(sd.subjects||[]).map(function(x){ return '<label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-weight:600"><input type="checkbox" class="bl-sub" value="'+esc(x)+'" style="width:auto"> '+esc(x)+'</label>'; }).join(''); }catch(e){}
   await loadClassesData(); await loadYears(); fillStageSelect('bl-grade'); fillClassSelect('bl-class',''); fillYearSelect('bl-year');
   document.getElementById('bl-grade').onchange=function(){ fillClassSelect('bl-class',this.value); };
 }
 async function loadBulkRoster(){
   hide('bl-ok','bl-err');
   var g=val('bl-grade'), cls=val('bl-class');
+  var subjects=Array.prototype.slice.call(document.querySelectorAll('.bl-sub:checked')).map(function(x){return x.value;});
   if(!g||!cls){ show('bl-err',t('required')); return; }
+  if(!subjects.length){ show('bl-err',t('pickOneSubject')); return; }
   try{ var sd=await api('get-all-students'); var roster=(sd.students||[]).filter(function(s){return String(s.grade_level)===String(g)&&(s.class_name||'').toLowerCase()===cls.toLowerCase()&&s.active!==false;});
     if(!roster.length){ document.getElementById('bl-list').innerHTML=emptyBox(); return; }
-    document.getElementById('bl-list').innerHTML='<div class="tbl-wrap" style="margin-top:1rem"><table><thead><tr><th>#</th><th>'+t('name')+'</th><th>'+t('score')+'</th></tr></thead><tbody>'+
-      roster.map(function(s,i){ return '<tr><td>'+(i+1)+'</td><td>'+esc(s.full_name)+'<div style="font-size:0.72rem;color:var(--soft)">'+esc(s.student_id)+'</div></td><td><input class="bl-score" style="width:80px" inputmode="numeric" data-sid="'+esc(s.student_id)+'"></td></tr>'; }).join('')+'</tbody></table></div>'+
+    window._blSubjects=subjects;
+    var head='<tr><th>#</th><th style="text-align:right">'+t('name')+'</th>'+subjects.map(function(sub){return '<th>'+esc(sub)+'</th>';}).join('')+'</tr>';
+    var rows=roster.map(function(s,i){
+      var cells=subjects.map(function(sub){ return '<td><input class="bl-score" style="width:70px;text-align:center" inputmode="numeric" data-sid="'+esc(s.student_id)+'" data-sub="'+esc(sub)+'"></td>'; }).join('');
+      return '<tr><td>'+(i+1)+'</td><td style="text-align:right;white-space:nowrap"><b>'+esc(s.full_name)+'</b><div style="font-size:0.72rem;color:var(--soft)">'+esc(s.student_id)+'</div></td>'+cells+'</tr>';
+    }).join('');
+    document.getElementById('bl-list').innerHTML='<div class="tbl-wrap"><table><thead>'+head+'</thead><tbody>'+rows+'</tbody></table></div>'+
       '<button class="btn" onclick="saveBulk()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>';
   }catch(e){ show('bl-err','❌ '+e.message); }
 }
 function gradeForScore(sc){ sc=Number(sc); if(isNaN(sc))return''; if(sc>=85)return'ممتاز'; if(sc>=75)return'جيد جداً'; if(sc>=65)return'جيد'; if(sc>=50)return'مقبول'; if(sc>=40)return'ضعيف'; return'راسب'; }
 async function saveBulk(){
   hide('bl-ok','bl-err');
-  var subject=val('bl-subject'), year=val('bl-year'), term=val('bl-term');
-  var scores=[]; document.querySelectorAll('.bl-score').forEach(function(inp){ if(inp.value.trim()!=='') scores.push({studentId:inp.dataset.sid,score:inp.value.trim()}); });
-  if(!subject||!scores.length){ show('bl-err',t('required')); return; }
+  var year=val('bl-year'), term=val('bl-term');
+  var entries=[]; document.querySelectorAll('.bl-score').forEach(function(inp){ var v=inp.value.trim(); if(v!=='') entries.push({studentId:inp.dataset.sid,subject:inp.dataset.sub,score:v}); });
+  if(!entries.length){ show('bl-err',t('enterOneScore')); return; }
+  var btn=event&&event.target?event.target.closest('button'):null; if(btn)btn.disabled=true;
   var n=0;
-  for(var i=0;i<scores.length;i++){ try{ await api('add-marks',{method:'POST',body:{studentId:scores[i].studentId,subject:subject,score:parseFloat(scores[i].score),grade:gradeForScore(scores[i].score),academicYear:year,term:term}}); n++; }catch(e){} }
+  for(var i=0;i<entries.length;i++){ try{ await api('add-marks',{method:'POST',body:{studentId:entries[i].studentId,subject:entries[i].subject,score:parseFloat(entries[i].score),grade:gradeForScore(entries[i].score),academicYear:year,term:term}}); n++; }catch(e){} }
+  if(btn)btn.disabled=false;
   show('bl-ok','✅ '+t('saved')+' ('+n+')');
 }
 
@@ -1491,7 +1562,10 @@ async function loadFeesOverview(){
       if(ref.indexOf('امتحان')>=0||ref.toLowerCase().indexOf('exam')>=0) byStu[p.student_id].exam+=Number(p.amount)||0;
       else byStu[p.student_id].institute+=Number(p.amount)||0;
     });
-    // ALSO include students who paid nothing (from get-all-students for that filter) — optional; keep payers for now
+    // include ALL active students so non-payers show as "haven't paid"
+    try{ if(!_allStudents.length){ var sd=await api('get-all-students'); _allStudents=sd.students||[]; }
+      _allStudents.forEach(function(st){ if(st.active===false)return; if(!byStu[st.student_id]) byStu[st.student_id]={student_id:st.student_id,full_name:st.full_name,grade_level:st.grade_level,class_name:st.class_name,institute:0,exam:0}; });
+    }catch(e){}
     _feeRows=Object.keys(byStu).map(function(k){return byStu[k];});
     renderFeesOverview(year);
   }catch(e){ body.innerHTML='<div class="card">'+errBox('fees','loadFeesOverview')+'</div>'; }
@@ -1513,7 +1587,7 @@ function renderFeesOverview(year){
     '</div>'+
     '<div class="card"><div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.8rem" id="foChips">'+
       feChip('all',t('all'),_feeRows.length)+feChip('paid',t('paidInFull'),cnt.paid)+feChip('partial',t('partial'),cnt.partial)+feChip('unpaid',t('unpaid'),cnt.unpaid)+
-      '<button class="btn ghost sm" style="margin-inline-start:auto" onclick="exportFeesCsv()"><i class="fas fa-file-csv"></i> '+t('exportCsv')+'</button>'+
+      '<button class="btn ghost sm" style="margin-inline-start:auto" onclick="printFeeList()"><i class="fas fa-print"></i> '+t('printList')+'</button>'+'<button class="btn ghost sm" onclick="exportFeesCsv()"><i class="fas fa-file-csv"></i> '+t('exportCsv')+'</button>'+
     '</div>'+
     '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('stage')+'</th><th>'+t('className')+'</th><th>'+t('instituteFee')+'</th><th>'+t('examFee')+'</th><th>'+t('status')+'</th><th>'+t('year')+'</th></tr></thead><tbody id="foRows">'+
     (rows.length? rows.filter(function(r){ return _foFilter==='all'||feeRowStatus(r,year)===_foFilter; }).map(function(r,i){ var st=feeRowStatus(r,year); return '<tr><td>'+(i+1)+'</td><td>'+esc(r.student_id)+'</td><td>'+esc(r.full_name)+'</td><td>'+esc(r.grade_level||'')+'</td><td>'+esc(r.class_name||'')+'</td><td>'+money(r.institute)+'</td><td>'+money(r.exam)+'</td><td>'+(badge[st]||'')+'</td><td>'+esc(year)+'</td></tr>'; }).join('') : '<tr><td colspan="9">'+emptyBox()+'</td></tr>')+
@@ -1538,6 +1612,21 @@ function feeClassBarsHtml(){
 }
 function csvDownload(name,head,rows){ var csv='\ufeff'+[head].concat(rows).map(function(r){return r.map(function(c){return '"'+String(c==null?'':c).replace(/"/g,'""')+'"';}).join(',');}).join('\n'); var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
 function exportFeesCsv(){ var year=val('fo-year'); csvDownload('student-fees.csv',[t('studentId'),t('name'),t('stage'),t('className'),t('instituteFee'),t('examFee'),t('status'),t('year')], _feeRows.map(function(r){return [r.student_id,r.full_name,r.grade_level,r.class_name,r.institute,r.exam,feeRowStatus(r,year),year];})); }
+function printFeeList(){
+  var year=val('fo-year'), stage=val('fo-stage'), cls=val('fo-class'), f=_foFilter||'all';
+  var rows=_feeRows.filter(function(r){ if(stage&&String(r.grade_level)!==String(stage))return false; if(cls&&(r.class_name||'')!==cls)return false; var st=feeRowStatus(r,year); if(f!=='all'&&st!==f)return false; return true; });
+  if(!rows.length){ alert(t('noData')); return; }
+  var statusLabel={all:t('all'),paid:t('paidInFull'),partial:t('partial'),unpaid:t('unpaid')}[f];
+  var badge={paid:t('paidInFull'),partial:t('partial'),unpaid:t('unpaid')};
+  var totInst=0,totExam=0; rows.forEach(function(r){ totInst+=r.institute; totExam+=r.exam; });
+  var head='<tr><th>#</th><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('stage')+'</th><th>'+t('className')+'</th><th>'+t('instituteFee')+'</th><th>'+t('examFee')+'</th><th>'+t('status')+'</th></tr>';
+  var body=rows.map(function(r,i){ return '<tr><td>'+(i+1)+'</td><td>'+esc(r.student_id)+'</td><td class="nm">'+esc(r.full_name)+'</td><td>'+esc(r.grade_level||'')+'</td><td>'+esc(r.class_name||'')+'</td><td>'+money(r.institute)+'</td><td>'+money(r.exam)+'</td><td>'+(badge[feeRowStatus(r,year)]||'')+'</td></tr>'; }).join('');
+  var title='NURR · '+t('feeList')+' — '+statusLabel+(stage?' · '+esc(stage):'')+(cls?' / '+esc(cls):'')+' · '+esc(year);
+  var css='table{width:100%;border-collapse:collapse;font-size:10pt}th,td{border:1px solid #000;padding:4px 6px;text-align:center}td.nm{text-align:right;white-space:nowrap;font-weight:bold}th{background:#eef2f7}h3{text-align:center}.sum{margin-top:6px;font-size:10pt}';
+  var win=window.open('','_blank'); if(!win){ alert('Allow popups'); return; }
+  win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet"><style>'+css+'@page{size:A4 portrait;margin:10mm}body{font-family:Amiri,serif}</style></head><body><h3>'+title+'</h3><table><thead>'+head+'</thead><tbody>'+body+'</tbody></table><p class="sum">'+t('totalStudents')+': '+rows.length+' · '+t('instituteCollected')+': '+money(totInst)+' · '+t('examCollected')+': '+money(totExam)+'</p><'+'script>window.onload=function(){window.print()}<'+'/script></body></html>');
+  win.document.close();
+}
 function exportLedgerCsv(){ csvDownload('payment-ledger.csv',[t('receipt'),t('date'),t('studentId'),t('name'),t('className'),t('amountField'),t('method')], _feePayments.map(function(p){return [p.receipt_number,p.paid_at,p.student_id,p.full_name,p.class_name,p.amount,p.method];})); }
 async function editPayment(id,cur){ var v=prompt(t('editAmountPrompt')||'New amount:',cur); if(v===null) return; var amt=parseFloat(v); if(isNaN(amt)||amt<0){ alert(t('required')); return; } try{ await api('update-payment',{method:'POST',body:{id:id,amount:amt}}); loadFeesOverview(); }catch(e){ alert('❌ '+e.message); } }
 async function delPaymentFO(id){ if(!confirm(t('confirmDeletePayment'))) return; try{ await api('delete-payment',{method:'DELETE',body:{id:id}}); loadFeesOverview(); }catch(e){ alert('❌ '+e.message); } }
