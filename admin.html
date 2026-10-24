@@ -780,7 +780,7 @@ function showReceipt(r){
   var amtWords=numToArabicWords(r.amount)+' دلاسي';
   function copy(){
     return '<div class="rc-copy">'+
-      '<div class="rc-head"><img src="'+origin+'/favicon.png" onerror="this.style.display=\'none\'">'+
+      '<div class="rc-head"><img src="'+origin+'/nurry.png" onerror="this.style.display=\'none\'">'+
         '<div class="rc-school-ar">معهد النور الإسلامي بكانفنغ</div>'+
         '<div class="rc-school-en">THE ISLAMIC NURR INSTITUTE KANIFING SOUTH</div>'+
         '<div class="rc-tel">TEL: +2209611997/ 7540656 p.o. box</div></div>'+
@@ -1263,7 +1263,7 @@ function renderReportCard(stu, myResults, allResults, remarks, year, term){
   var r=remarks||{};
   var rows=subj.map(function(x){ return '<tr><td class="s">'+e(x.subject)+'</td><td>'+(x.score!=null?e(x.score):'')+'</td><td>'+e(x.grade||'')+'</td></tr>'; }).join('');
   var sheet='<div id="rcSheet" class="rc">'+
-    '<div class="rc-head"><img src="'+origin+'/favicon.png" onerror="this.style.display=\'none\'"><div><div class="rc-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="rc-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
+    '<div class="rc-head"><img src="'+origin+'/nurry.png" onerror="this.style.display=\'none\'"><div><div class="rc-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="rc-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
     '<div class="rc-title">كشف الدرجات · REPORT CARD</div>'+
     '<div class="rc-info"><span><b>'+t('name')+':</b> '+e(stu.full_name)+'</span><span><b>'+t('studentId')+':</b> '+e(stu.student_id)+'</span><span><b>'+t('grade')+':</b> '+e(stu.grade_level||'')+' / '+e(stu.class_name||'')+'</span><span><b>'+t('term')+':</b> '+e(term)+' · '+e(year)+'</span></div>'+
     '<table class="rc-table"><thead><tr><th>'+t('subject')+'</th><th>'+t('score')+'</th><th>'+t('gradeCol')+'</th></tr></thead><tbody>'+rows+
@@ -1342,7 +1342,7 @@ async function buildPrintResults(){
       var rowsHtml=s.subs.map(function(x){ return '<tr><td class="pc-s">'+esc(x.subject)+'</td><td>'+(x.score!=null?esc(x.score):'')+'</td><td>'+esc(x.grade||'')+'</td></tr>'; }).join('');
       var avg=s.subs.length?(s.total/s.subs.length):0;
       return '<div class="pc-page"><div class="pc">'+
-        '<div class="pc-head"><img src="'+location.origin+'/favicon.png" onerror="this.style.display=\'none\'"><div><div class="pc-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="pc-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
+        '<div class="pc-head"><img src="'+location.origin+'/nurry.png" onerror="this.style.display=\'none\'"><div><div class="pc-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="pc-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
         '<div class="pc-title">كشف الدرجات · REPORT CARD</div>'+
         '<div class="pc-info"><span><b>'+t('name')+':</b> '+esc(s.name)+'</span><span><b>'+t('studentId')+':</b> '+esc(s.id)+'</span><span><b>'+t('grade')+':</b> '+esc(s.grade||'')+' / '+esc(s.cls||'')+'</span><span><b>'+t('term')+':</b> '+esc(term)+' · '+esc(year)+'</span></div>'+
         '<table class="pc-tbl"><thead><tr><th>'+t('subject')+'</th><th>'+t('score')+'</th><th>'+t('gradeCol')+'</th></tr></thead><tbody>'+rowsHtml+
