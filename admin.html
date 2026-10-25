@@ -1134,19 +1134,12 @@ function renderAnnounceList(){
 function anSelectAll(on){ document.querySelectorAll('.an-chk').forEach(function(c){c.checked=on;}); anUpdateCount(); }
 function anUpdateCount(){ var n=document.querySelectorAll('.an-chk:checked').length; var el=document.getElementById('an-count'); if(el) el.textContent=n+' '+t('selected'); }
 function waLinkMessage(link, username, until, pw){
-  var ar='*معهد النور الإسلامي*\n\n'+
-    'السلام عليكم. هذا رابطك الشخصي لإدخال الدرجات والحضور.\n'+
-    'اسم المستخدم: '+username+'\n'+(pw?'كلمة المرور: '+pw+'\n':'')+
-    'صالح حتى: '+until+'\n'+
-    'الرابط: '+link+'\n'+
-    'لا تشارك هذا الرابط مع أحد.';
-  var en='———\n*NURR ISLAMIC INSTITUTE*\n\n'+
-    'Assalaamu alaikum. This is your personal link to enter scores and attendance.\n'+
-    'Username: '+username+'\n'+(pw?'Password: '+pw+'\n':'')+
-    'Valid until: '+until+'\n'+
-    'Link: '+link+'\n'+
-    'Please do not share this link.';
-  return ar+'\n\n'+en;
+  var I=function(x){ return '\u2066'+x+'\u2069'; }; /* keeps English values from scrambling the Arabic lines */
+  var p=String(until||'').split('-'), mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var dAr=p.length===3?p[2]+'-'+p[1]+'-'+p[0]:until, dEn=p.length===3?p[2]+' '+mo[parseInt(p[1],10)-1]+' '+p[0]:until;
+  var ar='*معهد النور الإسلامي*\nالسلام عليكم، هذا رابطك الشخصي لإدخال الدرجات وتسجيل الحضور.\n\n👤 اسم المستخدم: '+I(username)+'\n'+(pw?'🔑 كلمة المرور: '+I(pw)+'\n':'')+'📅 صالح حتى: '+I(dAr)+'\n⚠️ لا تشارك هذا الرابط مع أحد.';
+  var en='*NURR ISLAMIC INSTITUTE*\nAssalaamu alaikum. This is your personal link to enter scores and mark attendance.\n\n👤 Username: '+username+'\n'+(pw?'🔑 Password: '+pw+'\n':'')+'📅 Valid until: '+dEn+'\n⚠️ Please do not share this link.';
+  return ar+'\n\n━━━━━━━━━━\n\n'+en+'\n\n🔗 '+link;
 }
 function buildAnnounceText(){
   var ar=val('an-ar').trim(), en=val('an-en').trim();
@@ -1207,7 +1200,7 @@ async function createLink(){
   if(!teacherId||!until){ show('lk-err',t('required')); return; }
   var btn=document.getElementById('lkBtn'); btn.disabled=true;
   try{ var d=await api('create-staff-link',{method:'POST',body:{teacherId:parseInt(teacherId),validUntil:until}});
-    _lastLink=location.origin+'/staff/?k='+encodeURIComponent(d.key);
+    _lastLink=location.origin+'/t/'+d.key;
     document.getElementById('lk-url').textContent=_lastLink;
     // find teacher phone for direct WhatsApp
     var teach=(_teachers||[]).find(function(x){return String(x.id)===String(teacherId);});
