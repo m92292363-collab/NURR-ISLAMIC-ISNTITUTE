@@ -119,7 +119,7 @@ const ROUTE_AUTH = {
   'set-student-device-pin':'admin', 'sync-punches-to-attendance':'admin',
   'add-subject':'admin', 'delete-subject':'admin',
   'set-fee-structure':'admin', 'delete-fee-structure':'admin',
-  'set-fee-target':'admin', 'delete-fee-target':'admin', 'set-school-settings':'admin',
+  'set-fee-target':'admin', 'set-stage-fees':'admin', 'delete-fee-target':'admin', 'set-school-settings':'admin',
   'record-payment':'admin', 'update-payment':'admin', 'delete-payment':'admin',
   'add-exam':'admin', 'delete-exam':'admin', 'add-behavior':'admin', 'delete-behavior':'admin',
   'promote-students':'admin', 'promote-entire-school':'admin', 'send-sms':'admin',
@@ -271,6 +271,11 @@ async function ensureLinkSchema() {
   await sql`CREATE TABLE IF NOT EXISTS teacher_assignments (id SERIAL PRIMARY KEY, teacher_id INTEGER NOT NULL, academic_year TEXT NOT NULL, grade_level TEXT NOT NULL, class_name TEXT NOT NULL, subject TEXT NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW(), UNIQUE(teacher_id, academic_year, grade_level, class_name, subject))`;
   await sql`ALTER TABLE teachers ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT TRUE`;
   await sql`CREATE TABLE IF NOT EXISTS report_remarks (id SERIAL PRIMARY KEY, student_id TEXT NOT NULL, academic_year TEXT NOT NULL, term TEXT NOT NULL, conduct TEXT, teacher_remark TEXT, head_remark TEXT, next_term_date TEXT, updated_at TIMESTAMPTZ DEFAULT NOW(), UNIQUE(student_id, academic_year, term))`;
+  try { await sql`CREATE TABLE IF NOT EXISTS behavior_records (id SERIAL PRIMARY KEY, student_id TEXT NOT NULL, type TEXT NOT NULL, category TEXT, description TEXT, points INTEGER DEFAULT 0, recorded_by TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`; } catch (e) {}
+  try { await sql`ALTER TABLE behavior_records ADD COLUMN IF NOT EXISTS incident_date DATE`; } catch (e) {}
+  try { await sql`ALTER TABLE behavior_records ADD COLUMN IF NOT EXISTS severity TEXT`; } catch (e) {}
+  try { await sql`ALTER TABLE behavior_records ADD COLUMN IF NOT EXISTS action_taken TEXT`; } catch (e) {}
+  try { await sql`ALTER TABLE fee_targets ADD COLUMN IF NOT EXISTS registration_amount NUMERIC DEFAULT 0`; } catch (e) {}
   _linkReady = true;
 }
 function hashKey(k){ return crypto.createHash('sha256').update(String(k)).digest('hex'); }
@@ -419,10 +424,24 @@ const routes = {
     if (isNaN(expires.getTime()) || expires.getTime() <= Date.now()) return err('يجب أن يكون التاريخ اليوم أو بعده');
     const t = (await sql`SELECT id, full_name, username, teacher_password FROM teachers WHERE id = ${parseInt(teacherId)}`)[0];
     if (!t) return err('المعلم غير موجود', 404);
-    if (!t.username || !t.teacher_password) return err('هذا المعلم ليس لديه اسم مستخدم/كلمة مرور. عدّل بياناته أولاً.');
+    let generatedPassword = null;
+    if (!t.username || !t.teacher_password) {
+      let uname = t.username;
+      if (!uname) {
+        const base = 't' + t.id; uname = base; let n = 0;
+        while ((await sql`SELECT 1 FROM teachers WHERE username = ${uname}`).length) { n++; uname = base + '_' + n; }
+      }
+      if (!t.teacher_password) {
+        generatedPassword = String(crypto.randomInt(100000, 1000000));
+        await sql`UPDATE teachers SET username = ${uname}, teacher_password = ${hashPassword(generatedPassword)} WHERE id = ${t.id}`;
+      } else {
+        await sql`UPDATE teachers SET username = ${uname} WHERE id = ${t.id}`;
+      }
+      t.username = uname;
+    }
     const key = crypto.randomBytes(24).toString('base64url');
     const r = (await sql`INSERT INTO staff_links (teacher_id, key_hash, expires_at) VALUES (${t.id}, ${hashKey(key)}, ${expires.toISOString()}) RETURNING id`)[0];
-    return ok({ id: r.id, key, validUntil, teacher: t.full_name, username: t.username });
+    return ok({ id: r.id, key, validUntil, teacher: t.full_name, username: t.username, password: generatedPassword });
   }},
   'revoke-staff-link': { POST: async (event) => {
     await ensureLinkSchema();
@@ -1140,24 +1159,47 @@ const routes = {
   // Per-class (not per-stage) because the real fee schedule varies within
   // a stage (Grade 12 pays more than 10/11; 6/9/12 have a higher exam fee).
   'get-fee-targets': { GET: async () => {
+    await ensureLinkSchema();
     const rows = await sql`
-      SELECT id, class_name, academic_year, institute_amount, exam_amount
+      SELECT id, class_name, academic_year, institute_amount, exam_amount, registration_amount
       FROM fee_targets ORDER BY academic_year DESC, class_name`;
     return ok({ targets: rows });
   }},
 
   'set-fee-target': { POST: async (event) => {
-    const { className, academicYear, instituteAmount, examAmount, actor } = readBody(event);
+    await ensureLinkSchema();
+    const { className, academicYear, instituteAmount, examAmount, registrationAmount, actor } = readBody(event);
+    const regN = (registrationAmount === undefined || registrationAmount === '' || registrationAmount === null) ? null : parseFloat(registrationAmount);
     if (!className || !academicYear) return err('الفصل والعام الدراسي مطلوبان');
     const inst = parseFloat(instituteAmount), exam = parseFloat(examAmount);
     if (isNaN(inst) || inst < 0 || isNaN(exam) || exam < 0) return err('المبالغ غير صحيحة');
     await sql`
-      INSERT INTO fee_targets (class_name, academic_year, institute_amount, exam_amount)
-      VALUES (${className}, ${academicYear}, ${inst}, ${exam})
+      INSERT INTO fee_targets (class_name, academic_year, institute_amount, exam_amount, registration_amount)
+      VALUES (${className}, ${academicYear}, ${inst}, ${exam}, ${regN || 0})
       ON CONFLICT (class_name, academic_year)
-      DO UPDATE SET institute_amount = EXCLUDED.institute_amount, exam_amount = EXCLUDED.exam_amount`;
+      DO UPDATE SET institute_amount = EXCLUDED.institute_amount, exam_amount = EXCLUDED.exam_amount,
+                    registration_amount = COALESCE(${regN}::numeric, fee_targets.registration_amount)`;
     await logActivity(`تحديد الرسوم الرسمية: ${className} (${academicYear}) — معهد ${inst} / امتحان ${exam}`, actor);
     return ok({ message: 'تم الحفظ' });
+  }},
+
+  // One level (stage) at a time: sets registration + institute + exam fee for every class in it.
+  'set-stage-fees': { POST: async (event) => {
+    await ensureLinkSchema();
+    const { stage, academicYear, instituteAmount, examAmount, registrationAmount, actor } = readBody(event);
+    if (!stage || !academicYear) return err('المرحلة والعام الدراسي مطلوبان');
+    const inst = parseFloat(instituteAmount) || 0, exam = parseFloat(examAmount) || 0, reg = parseFloat(registrationAmount) || 0;
+    if (inst < 0 || exam < 0 || reg < 0) return err('المبالغ غير صحيحة');
+    const cls = await sql`SELECT name FROM classes WHERE stage = ${stage}`;
+    if (!cls.length) return err('لا توجد فصول لهذه المرحلة', 404);
+    for (const c of cls) {
+      await sql`INSERT INTO fee_targets (class_name, academic_year, institute_amount, exam_amount, registration_amount)
+                VALUES (${c.name}, ${academicYear}, ${inst}, ${exam}, ${reg})
+                ON CONFLICT (class_name, academic_year)
+                DO UPDATE SET institute_amount = EXCLUDED.institute_amount, exam_amount = EXCLUDED.exam_amount, registration_amount = EXCLUDED.registration_amount`;
+    }
+    await logActivity(`رسوم المرحلة ${stage} (${academicYear}) — تسجيل ${reg} / معهد ${inst} / امتحان ${exam}`, actor);
+    return ok({ message: 'تم الحفظ', classes: cls.length });
   }},
 
   'delete-fee-target': { DELETE: async (event) => {
@@ -1369,19 +1411,20 @@ const routes = {
 
   // ---------------- BEHAVIOR / DISCIPLINE LOG ----------------
   'get-behavior': { GET: async (event) => {
+    await ensureLinkSchema();
     const { studentId, gradeLevel, className } = event.queryStringParameters || {};
     let rows;
     if (studentId) {
-      rows = await sql`SELECT b.id, b.student_id, s.full_name, b.type, b.category, b.description, b.points, b.recorded_by, b.created_at
+      rows = await sql`SELECT b.id, b.student_id, s.full_name, b.type, b.category, b.description, b.points, b.recorded_by, b.created_at, b.incident_date, b.severity, b.action_taken
                        FROM behavior_records b JOIN students s ON s.student_id = b.student_id
                        WHERE b.student_id = ${studentId} ORDER BY b.created_at DESC`;
     } else if (gradeLevel && className) {
-      rows = await sql`SELECT b.id, b.student_id, s.full_name, b.type, b.category, b.description, b.points, b.recorded_by, b.created_at
+      rows = await sql`SELECT b.id, b.student_id, s.full_name, b.type, b.category, b.description, b.points, b.recorded_by, b.created_at, b.incident_date, b.severity, b.action_taken
                        FROM behavior_records b JOIN students s ON s.student_id = b.student_id
                        WHERE s.grade_level = ${gradeLevel} AND s.class_name = ${className}
                        ORDER BY b.created_at DESC`;
     } else {
-      rows = await sql`SELECT b.id, b.student_id, s.full_name, b.type, b.category, b.description, b.points, b.recorded_by, b.created_at
+      rows = await sql`SELECT b.id, b.student_id, s.full_name, b.type, b.category, b.description, b.points, b.recorded_by, b.created_at, b.incident_date, b.severity, b.action_taken
                        FROM behavior_records b JOIN students s ON s.student_id = b.student_id
                        ORDER BY b.created_at DESC LIMIT 100`;
     }
@@ -1389,14 +1432,15 @@ const routes = {
   }},
 
   'add-behavior': { POST: async (event) => {
-    const { studentId, type, category, description, points, actor } = readBody(event);
+    await ensureLinkSchema();
+    const { studentId, type, category, description, points, incidentDate, severity, actionTaken, actor } = readBody(event);
     if (!studentId || !type) return err('رقم الطالب والنوع مطلوبان');
     if (!['positive', 'negative'].includes(type)) return err('النوع يجب أن يكون positive أو negative');
     const stud = await sql`SELECT 1 FROM students WHERE student_id = ${studentId}`;
     if (!stud.length) return err('لا يوجد طالب بهذا الرقم', 404);
     await sql`
-      INSERT INTO behavior_records (student_id, type, category, description, points, recorded_by)
-      VALUES (${studentId}, ${type}, ${category || null}, ${description || null}, ${points || 0}, ${actor || null})`;
+      INSERT INTO behavior_records (student_id, type, category, description, points, recorded_by, incident_date, severity, action_taken)
+      VALUES (${studentId}, ${type}, ${category || null}, ${description || null}, ${points || 0}, ${actor || null}, ${incidentDate || null}::date, ${severity || null}, ${actionTaken || null})`;
     await logActivity(`سجل سلوك: ${studentId} (${type})`, actor);
     return ok({ message: 'تم التسجيل' });
   }},
