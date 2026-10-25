@@ -189,6 +189,7 @@ var T = {
     showTop:'Show Top', total:'Total', average:'Average', all:'All', view:'View', print:'Print', position:'Position', principal:'Principal',
     conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.', bulkGridDesc:'Tick subjects, load the class, then fill scores in the grid — many subjects at once.', loadGrid:'Load grid', pickOneSubject:'Pick at least one subject', enterOneScore:'Enter at least one score', receipt:'Receipt', cashier:'Cashier', editAmountPrompt:'New amount:', appearance:'Appearance', theme:'Theme colour', darkMode:'Dark mode', eyeComfort:'Eye comfort (warm)', changePassword:'Change password', currentPassword:'Current password', newPassword:'New password', confirmPassword:'Confirm new password', passwordMismatch:'Passwords do not match', passwordTooShort:'Password too short', passwordChanged:'Password changed', schoolName:'School name', printList:'Print list', feeList:'Fee list', addYear:'Add another year…', enterYear:'Enter academic year (e.g. 2027-2028):', yearFormat:'Use format like 2027-2028', levels:'Levels', allLevels:'All levels', levelsFor:'Levels for', levelsHint:'Tick the levels that learn this subject. Leave all unticked to allow all levels.', cancel:'Cancel', noSubjectsForLevel:'No subjects set for this level yet (assign them in Subjects).',
     announce:'Announcements',
+    pickStageFirst:'Select a stage first', enterMarksDesc:'Pick stage, class and subject — the class list opens below so you can type every student’s score.', selectSubject:'Select subject', feeSetupDesc:'Set the registration, institute and exam fee for each level, per academic year. Saving a level applies it to every class in that level.', registrationFee:'Registration fee', classesWord:'classes', payStatus:'Payment status', allStudentsOpt:'All students', paidCol:'Paid', dueCol:'Due', balanceCol:'Balance', sendAllAtOnce:'Send to all at once', copyNumbers:'Copy numbers', saveContacts:'Save contacts (.vcf)', msgCopied:'Message copied — pick all teachers in WhatsApp and send', waBulkHint:'WhatsApp opens once with your message: tick all the teachers you want and send. For a permanent group, save the contacts (.vcf), then create a WhatsApp group or broadcast list.', loginAuto:'login will be created', characterReports:'Character Reports', characterDesc:'Record a student’s behaviour — fights, indiscipline or good conduct — for the school record.', chStudent:'Student', chType:'Type', chNegative:'Problem', chPositive:'Good conduct', chCategory:'Category', chSeverity:'Severity', chDesc:'What happened', chAction:'Action taken', chRecords:'Records', sevMinor:'Minor', sevModerate:'Moderate', sevSerious:'Serious',
     statistics:'Statistics', byLevel:'Students by level', principalView:"Principal's View", importStudents:'Import Students', importDesc:'Paste or upload a CSV: student ID, name, password, guardian, phone, nationality. Pick the stage and class first.', pasteCsv:'Paste CSV rows', csvPlaceholder:'NR0001, Student Name, password, Guardian, 7001234, Gambian', uploadCsv:'Upload file', importNow:'Import now', csvEmpty:'Nothing to import', csvNoRows:'No valid rows found', imported:'Imported', classResults:'Class Results', newIntake:'New Intake', newIntakeDesc:'Newly enrolled students, newest first.', enrolled:'Enrolled', exportData:'Export Data', exportDataDesc:'Download your data as CSV (opens in Excel).', exported:'Downloaded', attendanceBook:'Attendance Book', month:'Month', notMarked:'not marked', announceDesc:'Write a message (Arabic on top, English below) and send it to teachers on WhatsApp — for staff meetings or any notice.', messageArabic:'Message (Arabic)', messageEnglish:'Message (English)', messageArabicPh:'نص الرسالة بالعربية…', messageEnglishPh:'Message in English…', whatsappNo:'WhatsApp number', selectAll:'Select all', selectNone:'None', selected:'selected', noPhoneNote:'No WhatsApp number (skipped)', sendWhatsapp:'Send on WhatsApp', waHint:'This opens WhatsApp with your message ready — you just press send. No charge.', writeMessage:'Write a message first', pickRecipient:'Pick at least one teacher', waClickEach:'Click each teacher to open their WhatsApp with the message ready:', done:'Done', format:'Format', oneCardPerStudent:'One report card per student (A4)', broadsheet:'Broadsheet (one table)',
     teacherAccounts:'Teacher Accounts', teacherAccountsDesc:'Create the teacher account here, assign their classes below, then send them a personal access link in Teacher Links.', createTeacher:'Create Teacher', saveChanges:'Save changes', clear:'Clear', thisYear:'This year', assignClasses:'Assign Classes & Subjects', subjectsTick:'Subjects (tick one or more)', assign:'Assign', selectTeacherFirst:'Select a teacher', selectTeacher:'-- Select Teacher --', subjectsWord:'subject(s)', enable:'Enable', disable:'Disable', disabled:'Disabled', noAssignments:'No assignments yet', assignRequired:'Teacher, grade, class and at least one subject are required', passwordRequiredNew:'A password is required for a new teacher',
     feeTargets:'Fee Targets', feeTargetsDesc:'Official yearly fee per class — institute fee + exam fee.', instituteAmount:'Institute fee', examAmount:'Exam fee',
@@ -231,6 +232,7 @@ var T = {
     showTop:'عرض أفضل', total:'المجموع', average:'المعدل', all:'الكل', view:'عرض', print:'طباعة', position:'الترتيب', principal:'المدير',
     conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.', bulkGridDesc:'اختر المواد، حمّل الفصل، ثم أدخل الدرجات في الجدول — عدة مواد دفعة واحدة.', loadGrid:'تحميل الجدول', pickOneSubject:'اختر مادة واحدة على الأقل', enterOneScore:'أدخل درجة واحدة على الأقل', receipt:'إيصال', cashier:'أمين الصندوق', editAmountPrompt:'المبلغ الجديد:', appearance:'المظهر', theme:'لون الواجهة', darkMode:'الوضع الليلي', eyeComfort:'راحة العين (دافئ)', changePassword:'تغيير كلمة المرور', currentPassword:'كلمة المرور الحالية', newPassword:'كلمة المرور الجديدة', confirmPassword:'تأكيد كلمة المرور', passwordMismatch:'كلمتا المرور غير متطابقتين', passwordTooShort:'كلمة المرور قصيرة جداً', passwordChanged:'تم تغيير كلمة المرور', schoolName:'اسم المدرسة', printList:'طباعة القائمة', feeList:'قائمة الرسوم', addYear:'إضافة عام آخر…', enterYear:'أدخل العام الدراسي (مثال 2027-2028):', yearFormat:'استخدم صيغة مثل 2027-2028', levels:'المراحل', allLevels:'كل المراحل', levelsFor:'مراحل', levelsHint:'اختر المراحل التي تدرس هذه المادة. اترك الكل فارغاً للسماح لكل المراحل.', cancel:'إلغاء', noSubjectsForLevel:'لا توجد مواد لهذه المرحلة بعد (كلّفها في المواد).',
     announce:'الإعلانات',
+    pickStageFirst:'اختر المرحلة أولاً', enterMarksDesc:'اختر المرحلة والفصل والمادة، وستظهر قائمة الطلاب لإدخال درجة كل طالب.', selectSubject:'اختر المادة', feeSetupDesc:'حدد رسوم التسجيل ورسوم المعهد ورسوم الامتحان لكل مرحلة وفق العام الدراسي. الحفظ يطبق على جميع فصول المرحلة.', registrationFee:'رسوم التسجيل', classesWord:'فصول', payStatus:'حالة الدفع', allStudentsOpt:'جميع الطلاب', paidCol:'المدفوع', dueCol:'المطلوب', balanceCol:'المتبقي', sendAllAtOnce:'إرسال للجميع دفعة واحدة', copyNumbers:'نسخ الأرقام', saveContacts:'حفظ جهات الاتصال (.vcf)', msgCopied:'تم نسخ الرسالة — اختر كل المعلمين في واتساب وأرسل', waBulkHint:'يفتح واتساب مرة واحدة بالرسالة: حدّد جميع المعلمين وأرسل. لمجموعة دائمة احفظ جهات الاتصال (.vcf) ثم أنشئ مجموعة أو قائمة بث.', loginAuto:'سيتم إنشاء حساب دخول', characterReports:'تقارير السلوك', characterDesc:'سجّل سلوك الطالب — شجار أو مخالفة انضباط أو حسن سلوك — لأغراض السجل.', chStudent:'الطالب', chType:'النوع', chNegative:'مشكلة', chPositive:'حسن سلوك', chCategory:'التصنيف', chSeverity:'الدرجة', chDesc:'ما حدث', chAction:'الإجراء المتخذ', chRecords:'السجلات', sevMinor:'بسيط', sevModerate:'متوسط', sevSerious:'خطير',
     statistics:'الإحصائيات', byLevel:'الطلاب حسب المرحلة', principalView:'لوحة المدير', importStudents:'استيراد الطلاب', importDesc:'الصق أو ارفع ملف CSV: رقم الطالب، الاسم، كلمة المرور، ولي الأمر، الهاتف، الجنسية. اختر المرحلة والفصل أولاً.', pasteCsv:'الصق صفوف CSV', csvPlaceholder:'NR0001, اسم الطالب, كلمة المرور, ولي الأمر, 7001234, غامبي', uploadCsv:'رفع ملف', importNow:'استيراد الآن', csvEmpty:'لا يوجد ما يُستورد', csvNoRows:'لم توجد صفوف صالحة', imported:'تم الاستيراد', classResults:'نتائج الفصل', newIntake:'المستجدون', newIntakeDesc:'الطلاب المسجلون حديثاً، الأحدث أولاً.', enrolled:'تاريخ التسجيل', exportData:'تصدير البيانات', exportDataDesc:'نزّل بياناتك كملف CSV (يفتح في Excel).', exported:'تم التنزيل', attendanceBook:'دفتر الحضور', month:'الشهر', notMarked:'لم يُسجل', announceDesc:'اكتب رسالة (العربية في الأعلى، الإنجليزية أسفلها) وأرسلها للمعلمين عبر واتساب — للاجتماعات أو أي إشعار.', messageArabic:'الرسالة (عربي)', messageEnglish:'الرسالة (إنجليزي)', messageArabicPh:'نص الرسالة بالعربية…', messageEnglishPh:'الرسالة بالإنجليزية…', whatsappNo:'رقم واتساب', selectAll:'تحديد الكل', selectNone:'لا شيء', selected:'محدد', noPhoneNote:'بدون رقم واتساب (تم تخطيه)', sendWhatsapp:'إرسال عبر واتساب', waHint:'يفتح واتساب ورسالتك جاهزة — تضغط إرسال فقط. بدون رسوم.', writeMessage:'اكتب الرسالة أولاً', pickRecipient:'اختر معلماً واحداً على الأقل', waClickEach:'اضغط على كل معلم لفتح واتساب ورسالته جاهزة:', done:'تم', format:'الصيغة', oneCardPerStudent:'كشف لكل طالب (A4)', broadsheet:'جدول شامل',
     teacherAccounts:'حسابات المعلمين', teacherAccountsDesc:'أنشئ حساب المعلم هنا، كلّفه بالفصول أدناه، ثم أرسل له رابط الوصول الشخصي من روابط المعلمين.', createTeacher:'إنشاء معلم', saveChanges:'حفظ التغييرات', clear:'مسح', thisYear:'هذا العام', assignClasses:'تكليف الفصول والمواد', subjectsTick:'المواد (اختر واحدة أو أكثر)', assign:'تكليف', selectTeacherFirst:'اختر معلماً', selectTeacher:'-- اختر المعلم --', subjectsWord:'مادة', enable:'تفعيل', disable:'تعطيل', disabled:'معطّل', noAssignments:'لا توجد تكليفات بعد', assignRequired:'المعلم والمرحلة والفصل ومادة واحدة على الأقل مطلوبة', passwordRequiredNew:'كلمة المرور مطلوبة للمعلم الجديد',
     feeTargets:'الرسوم الرسمية', feeTargetsDesc:'الرسوم السنوية لكل فصل — رسوم المعهد + رسوم الامتحان.', instituteAmount:'رسوم المعهد', examAmount:'رسوم الامتحان',
@@ -316,6 +318,7 @@ var NAV=[
     {id:'newIntake',icon:'fa-user-clock'},
     {id:'editStudent',icon:'fa-user-pen'},
     {id:'studentHistory',icon:'fa-clock-rotate-left'},
+    {id:'characterReports',icon:'fa-user-shield'},
     {id:'studentPhoto',icon:'fa-image-portrait'},
     {id:'classList',icon:'fa-list'},
     {id:'promotion',icon:'fa-arrow-up-right-dots'},
@@ -387,7 +390,7 @@ function openPage(id, keep){
   document.querySelectorAll('.sb-item').forEach(function(x){ x.classList.toggle('on', x.dataset.page===id); });
   var c=document.getElementById('content');
   var fn={dashboard:pageDashboard,statistics:pageStatistics,principal:pagePrincipal,importStudents:pageImport,newIntake:pageNewIntake,classResults:pageClassResults,exportData:pageExport,attendanceBook:pageAttendanceBook,students:pageStudents,results:pageResults,fees:pageFees,attendance:pageAttendance,
-    addStudent:pageAddStudent,editStudent:pageEditStudent,studentHistory:pageStudentHistory,studentPhoto:pageStudentPhoto,classList:pageClassList,promotion:pagePromotion,classes:pageClasses,addMarks:pageAddMarks,subjects:pageSubjects,
+    addStudent:pageAddStudent,editStudent:pageEditStudent,studentHistory:pageStudentHistory,characterReports:pageCharacter,studentPhoto:pageStudentPhoto,classList:pageClassList,promotion:pagePromotion,classes:pageClasses,addMarks:pageAddMarks,subjects:pageSubjects,
     recordPayment:pageRecordPayment,feeSchedule:pageFeeSchedule,feeTargets:pageFeeTargets,payments:pagePayments,topStudents:pageTopStudents,reportRemarks:pageRemarks,viewReport:pageViewReport,printResults:pagePrintResults,bulkResults:pageBulkResults,teachers:pageTeachers,announce:pageAnnounce,links:pageLinks,news:pageNews,
     audit:pageAudit,settings:pageSettings}[id];
   if(fn) fn(c); else c.innerHTML=emptyBox();
@@ -522,7 +525,7 @@ function errBox(page, fn){ return '<div class="empty"><i class="fas fa-triangle-
 var _subjects=null, _subjectStages=null;
 async function loadSubjectsData(force){ if(_subjects&&!force) return _subjects; try{ var d=await api('get-subjects'); _subjects=d.subjects||[]; }catch(e){ _subjects=_subjects||[]; } return _subjects; }
 async function loadSubjectStages(force){ if(_subjectStages&&!force) return _subjectStages; try{ var d=await api('get-subject-stages'); _subjectStages=d.map||[]; }catch(e){ _subjectStages=_subjectStages||[]; } return _subjectStages; }
-function subjectsForStage(stage){ if(!stage) return (_subjects||[]).slice(); var tagged=(_subjectStages||[]).filter(function(m){return m.stage===stage;}).map(function(m){return m.subject;}); if(!tagged.length) return (_subjects||[]).slice(); return (_subjects||[]).filter(function(n){ return tagged.indexOf(n)>=0; }); }
+function subjectsForStage(stage){ if(!stage) return []; var tagged=(_subjectStages||[]).filter(function(m){return m.stage===stage;}).map(function(m){return m.subject;}); if(!tagged.length) return (_subjectStages&&_subjectStages.length)?[]:(_subjects||[]).slice(); return (_subjects||[]).filter(function(n){ return tagged.indexOf(n)>=0; }); }
 function stagesForSubject(subj){ return (_subjectStages||[]).filter(function(m){return m.subject===subj;}).map(function(m){return m.stage;}); }
 
 /* ---- shared: student picker filtered by stage/class, sorted by number ---- */
@@ -670,28 +673,43 @@ async function delClass(id){ if(!confirm(t('confirm'))) return; try{ await api('
 
 /* ======================= ENTER MARKS ======================= */
 async function pageAddMarks(c){
-  var yr=new Date().getFullYear();
   c.innerHTML='<div class="card"><h3><i class="fas fa-pen-to-square"></i> '+t('addMarks')+'</h3>'+
-    '<div class="form-grid">'+
-      field('am-student',t('studentId'))+selField('am-subject',t('subject'))+
-      field('am-score',t('score'),'number')+yearSelField('am-year')+
-      selField('am-term',t('term'))+
+    '<p style="color:var(--soft);font-size:0.9rem;margin-bottom:0.8rem">'+t('enterMarksDesc')+'</p>'+
+    '<div class="form-grid">'+selField('am-grade',t('stage'))+selField('am-class',t('className'))+yearSelField('am-year')+
+      '<div><label>'+t('term')+'</label><select id="am-term"><option>Term 1</option><option>Term 2</option></select></div>'+
+      selField('am-subject',t('subject'))+
     '</div>'+
-    '<button class="btn" id="amBtn" onclick="saveMarks()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
-    '<div class="msg ok" id="am-ok"></div><div class="msg err" id="am-err"></div></div>';
-  // subjects
-  try{ var sd=await api('get-subjects'); var sel=document.getElementById('am-subject'); sel.innerHTML=(sd.subjects||[]).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }catch(e){}
-  var ts=document.getElementById('am-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option>';
-  await loadYears(); fillYearSelect('am-year');
+    '<div id="am-list" style="margin-top:1rem"></div><div class="msg ok" id="am-ok"></div><div class="msg err" id="am-err"></div></div>';
+  await loadSubjectsData(); await loadSubjectStages(); await loadClassesData(); await loadYears();
+  fillStageSelect('am-grade'); fillClassSelect('am-class',''); fillYearSelect('am-year'); amFillSubjects('');
+  document.getElementById('am-grade').onchange=function(){ fillClassSelect('am-class',this.value); amFillSubjects(this.value); loadMarksGrid(); };
+  document.getElementById('am-class').onchange=loadMarksGrid;
+  document.getElementById('am-subject').onchange=loadMarksGrid;
+}
+function amFillSubjects(stage){ var sel=document.getElementById('am-subject'); if(!sel)return; var subs=subjectsForStage(stage); sel.innerHTML='<option value="">'+(stage?t('selectSubject'):t('pickStageFirst'))+'</option>'+subs.map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }
+async function loadMarksGrid(){
+  hide('am-ok','am-err');
+  var g=val('am-grade'), cls=val('am-class'), sub=val('am-subject'), el=document.getElementById('am-list');
+  if(!g||!cls||!sub){ el.innerHTML=''; return; }
+  var kept={}; document.querySelectorAll('.am-score').forEach(function(i){ if(i.value!=='') kept[i.dataset.sid]=i.value; });
+  await ensureStudents();
+  var roster=sortByNum(_allStudents.filter(function(s){ return String(s.grade_level)===String(g)&&(s.class_name||'').toLowerCase()===cls.toLowerCase()&&s.active!==false; }));
+  if(!roster.length){ el.innerHTML=emptyBox(); return; }
+  el.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>#</th><th style="text-align:right">'+t('name')+'</th><th>'+esc(sub)+'</th></tr></thead><tbody>'+
+    roster.map(function(s,i){ return '<tr><td>'+(i+1)+'</td><td style="text-align:right;white-space:nowrap"><b>'+esc(s.full_name)+'</b><div style="font-size:0.72rem;color:var(--soft)">'+esc(s.student_id)+'</div></td><td><input class="am-score" style="width:80px;text-align:center" inputmode="decimal" data-sid="'+esc(s.student_id)+'" value="'+esc(kept[s.student_id]||'')+'"></td></tr>'; }).join('')+
+    '</tbody></table></div><button class="btn" onclick="saveMarks()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>';
 }
 async function saveMarks(){
   hide('am-ok','am-err');
-  var b={ studentId:val('am-student'), subject:val('am-subject'), score:parseFloat(val('am-score')), academicYear:val('am-year'), term:val('am-term') };
-  if(!b.studentId||!b.subject||isNaN(b.score)||!b.academicYear||!b.term){ show('am-err',t('required')); return; }
-  var btn=document.getElementById('amBtn'); btn.disabled=true;
-  try{ var d=await api('add-marks',{method:'POST',body:b}); show('am-ok','✅ '+(d.message||t('saved'))); document.getElementById('am-score').value=''; document.getElementById('am-student').focus(); }
-  catch(e){ show('am-err','❌ '+e.message); }
-  btn.disabled=false;
+  var year=val('am-year'), term=val('am-term'), sub=val('am-subject'), entries=[], bad=false;
+  document.querySelectorAll('.am-score').forEach(function(i){ var v=i.value.trim(); if(v==='')return; var n=parseFloat(v); if(isNaN(n)||n<0||n>100){ bad=true; i.style.borderColor='var(--bad)'; return; } i.style.borderColor=''; entries.push({sid:i.dataset.sid,score:n}); });
+  if(bad){ show('am-err','Scores must be between 0 and 100'); return; }
+  if(!entries.length){ show('am-err',t('enterOneScore')); return; }
+  var btn=event&&event.target?event.target.closest('button'):null; if(btn)btn.disabled=true;
+  var n=0;
+  for(var i=0;i<entries.length;i+=6){ await Promise.all(entries.slice(i,i+6).map(function(en){ return api('add-marks',{method:'POST',body:{studentId:en.sid,subject:sub,score:en.score,grade:gradeForScore(en.score),academicYear:year,term:term}}).then(function(){n++;}).catch(function(){}); })); }
+  if(btn)btn.disabled=false;
+  show('am-ok','✅ '+t('saved')+' ('+n+'/'+entries.length+')');
 }
 
 /* ======================= SUBJECTS ======================= */
@@ -834,29 +852,39 @@ function printReceipt(){
 
 /* ======================= FEE SETUP ======================= */
 async function pageFeeSchedule(c){
-  var yr=new Date().getFullYear();
   c.innerHTML='<div class="card"><h3><i class="fas fa-file-invoice"></i> '+t('feeSchedule')+'</h3>'+
-    '<div class="form-grid">'+selField('fs-grade',t('stage'))+selField('fs-class',t('className'))+yearSelField('fs-year')+selField('fs-term',t('term'))+field('fs-amount',t('amountField'),'number')+field('fs-desc',t('descr'))+'</div>'+
-    '<button class="btn" id="fsBtn" onclick="saveFee()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
+    '<p style="color:var(--soft);font-size:0.88rem;margin-bottom:0.8rem">'+t('feeSetupDesc')+'</p>'+
+    '<div class="form-grid">'+yearSelField('fs-year')+'</div>'+
     '<div class="msg ok" id="fs-ok"></div><div class="msg err" id="fs-err"></div>'+
     '<div id="fsBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
-  await loadClassesData(); await loadYears(); fillStageSelect('fs-grade'); fillClassSelect('fs-class',''); fillYearSelect('fs-year');
-  document.getElementById('fs-grade').onchange=function(){ fillClassSelect('fs-class',this.value); };
-  var ts=document.getElementById('fs-term'); ts.innerHTML='<option>Term 1</option><option>Term 2</option>';
+  await loadClassesData(); await loadYears(); fillYearSelect('fs-year');
+  document.getElementById('fs-year')._userOnchange=loadFeeStruct;
   loadFeeStruct();
 }
 async function loadFeeStruct(){
-  try{ var d=await api('get-fee-structure'); var rows=d.feeStructure||[];
-    document.getElementById('fsBody').innerHTML = rows.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('grade')+'</th><th>'+t('academicYear')+'</th><th>'+t('term')+'</th><th>'+t('amountField')+'</th><th>'+t('descr')+'</th></tr></thead><tbody>'+
-      rows.map(function(x){ return '<tr><td>'+esc(x.grade_level)+'</td><td>'+esc(x.academic_year)+'</td><td>'+esc(x.term)+'</td><td>'+money(x.amount)+'</td><td>'+esc(x.description||'')+'</td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
-  }catch(e){ document.getElementById('fsBody').innerHTML=errBox('feeSchedule','loadFeeStruct'); }
+  var year=val('fs-year'), body=document.getElementById('fsBody'); if(!body)return;
+  try{ var d=await api('get-fee-targets'); var tg=(d.targets||[]).filter(function(x){ return x.academic_year===year; });
+    var stages=stageList(); if(!stages.length){ body.innerHTML=emptyBox(); return; }
+    body.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>'+t('stage')+'</th><th>'+t('registrationFee')+'</th><th>'+t('instituteAmount')+'</th><th>'+t('examAmount')+'</th><th>'+t('total')+'</th><th></th></tr></thead><tbody>'+
+      stages.map(function(st,i){
+        var names=classesForStage(st).map(function(c){return c.name;});
+        var row=tg.find(function(x){ return names.indexOf(x.class_name)>=0; })||{};
+        var inp=function(k,v){ return '<input class="fs-in" data-k="'+k+'" data-i="'+i+'" type="number" min="0" value="'+((v!=null&&v!=='')?Number(v):'')+'" style="width:110px;text-align:center" oninput="fsTotal('+i+')">'; };
+        var tot=(Number(row.registration_amount)||0)+(Number(row.institute_amount)||0)+(Number(row.exam_amount)||0);
+        return '<tr data-stage="'+esc(st)+'"><td><b>'+esc(st)+'</b><div class="muted" style="font-size:0.75rem">'+names.length+' '+t('classesWord')+'</div></td><td>'+inp('reg',row.registration_amount)+'</td><td>'+inp('inst',row.institute_amount)+'</td><td>'+inp('exam',row.exam_amount)+'</td><td id="fs-tot-'+i+'"><b>'+money(tot)+'</b></td><td><button class="btn sm" onclick="saveStageFee('+i+')"><i class="fas fa-save"></i> '+t('save')+'</button></td></tr>';
+      }).join('')+'</tbody></table></div>';
+  }catch(e){ body.innerHTML=errBox('feeSchedule','loadFeeStruct'); }
 }
-async function saveFee(){
+function fsVals(i){ var o={}; document.querySelectorAll('.fs-in[data-i="'+i+'"]').forEach(function(x){ o[x.dataset.k]=parseFloat(x.value)||0; }); return o; }
+function fsTotal(i){ var o=fsVals(i), el=document.getElementById('fs-tot-'+i); if(el) el.innerHTML='<b>'+money((o.reg||0)+(o.inst||0)+(o.exam||0))+'</b>'; }
+async function saveStageFee(i){
   hide('fs-ok','fs-err');
-  var b={ gradeLevel:val('fs-grade'), academicYear:val('fs-year'), term:val('fs-term'), amount:parseFloat(val('fs-amount')), description:val('fs-desc') };
-  if(!b.gradeLevel||!b.academicYear||!b.term||isNaN(b.amount)){ show('fs-err',t('required')); return; }
-  try{ await api('set-fee-structure',{method:'POST',body:b}); show('fs-ok','✅ '+t('saved')); loadFeeStruct(); }
+  var tr=document.querySelector('.fs-in[data-i="'+i+'"]').closest('tr'), o=fsVals(i), year=val('fs-year');
+  if(!year){ show('fs-err',t('required')); return; }
+  var btn=event&&event.target?event.target.closest('button'):null; if(btn)btn.disabled=true;
+  try{ var d=await api('set-stage-fees',{method:'POST',body:{stage:tr.dataset.stage,academicYear:year,registrationAmount:o.reg||0,instituteAmount:o.inst||0,examAmount:o.exam||0}}); show('fs-ok','✅ '+t('saved')+' — '+tr.dataset.stage+' ('+year+')'); }
   catch(e){ show('fs-err','❌ '+e.message); }
+  if(btn)btn.disabled=false;
 }
 
 /* ======================= TEACHERS ======================= */
@@ -887,7 +915,7 @@ async function pageTeachers(c){
   renderTaSubjects(val('ta-grade'));
   loadTeachers();
 }
-function renderTaSubjects(stage){ var el=document.getElementById('ta-subjects'); if(!el)return; var subs=subjectsForStage(stage); el.innerHTML=subs.length?subs.map(function(x){ return '<label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-weight:600"><input type="checkbox" class="ta-sub" value="'+esc(x)+'" style="width:auto"> '+esc(x)+'</label>'; }).join(''):'<div class="muted" style="font-size:0.85rem">'+t('noSubjectsForLevel')+'</div>'; }
+function renderTaSubjects(stage){ var el=document.getElementById('ta-subjects'); if(!el)return; var subs=subjectsForStage(stage); el.innerHTML=subs.length?subs.map(function(x){ return '<label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-weight:600"><input type="checkbox" class="ta-sub" value="'+esc(x)+'" style="width:auto"> '+esc(x)+'</label>'; }).join(''):'<div class="muted" style="font-size:0.85rem">'+(stage?t('noSubjectsForLevel'):t('pickStageFirst'))+'</div>'; }
 var _teachers=[], _assignments=[];
 async function loadTeachers(){
   try{ var d=await api('get-teachers'); _teachers=d.teachers||[]; _assignments=d.assignments||[];
@@ -1062,23 +1090,24 @@ function renderAnnounceList(){
   var html='<div class="tbl-wrap"><table><thead><tr><th style="width:40px"></th><th>'+t('name')+'</th><th>'+t('whatsappNo')+'</th></tr></thead><tbody>'+
     withPhone.map(function(x){ return '<tr><td><input type="checkbox" class="an-chk" value="'+x.id+'" data-phone="'+esc(x.phone)+'" data-name="'+esc(x.full_name)+'" checked style="width:auto" onchange="anUpdateCount()"></td><td><b>'+esc(x.full_name)+'</b></td><td dir="ltr">'+esc(x.phone)+'</td></tr>'; }).join('')+'</tbody></table></div>'+
     (noPhone.length?'<p class="muted" style="font-size:0.82rem;margin-top:0.4rem">'+t('noPhoneNote')+': '+noPhone.map(function(x){return esc(x.full_name);}).join('، ')+'</p>':'')+
-    '<button class="btn" onclick="sendAnnounce()" style="margin-top:0.9rem"><i class="fab fa-whatsapp"></i> '+t('sendWhatsapp')+'</button>'+
+    '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.9rem"><button class="btn" onclick="sendAnnounce()"><i class="fab fa-whatsapp"></i> '+t('sendAllAtOnce')+'</button><button class="btn ghost" onclick="copyAnnounceNumbers()"><i class="fas fa-copy"></i> '+t('copyNumbers')+'</button><button class="btn ghost" onclick="downloadAnnounceVcf()"><i class="fas fa-address-book"></i> '+t('saveContacts')+'</button></div>'+
+    '<p class="muted" style="font-size:0.8rem;margin-top:0.5rem">'+t('waBulkHint')+'</p>'+
     '<p class="muted" style="font-size:0.8rem;margin-top:0.4rem">'+t('waHint')+'</p>';
   document.getElementById('an-list').innerHTML=html;
   anUpdateCount();
 }
 function anSelectAll(on){ document.querySelectorAll('.an-chk').forEach(function(c){c.checked=on;}); anUpdateCount(); }
 function anUpdateCount(){ var n=document.querySelectorAll('.an-chk:checked').length; var el=document.getElementById('an-count'); if(el) el.textContent=n+' '+t('selected'); }
-function waLinkMessage(link, username, until){
+function waLinkMessage(link, username, until, pw){
   var ar='*معهد النور الإسلامي*\n\n'+
     'السلام عليكم. هذا رابطك الشخصي لإدخال الدرجات والحضور.\n'+
-    'اسم المستخدم: '+username+'\n'+
+    'اسم المستخدم: '+username+'\n'+(pw?'كلمة المرور: '+pw+'\n':'')+
     'صالح حتى: '+until+'\n'+
     'الرابط: '+link+'\n'+
     'لا تشارك هذا الرابط مع أحد.';
   var en='———\n*NURR ISLAMIC INSTITUTE*\n\n'+
     'Assalaamu alaikum. This is your personal link to enter scores and attendance.\n'+
-    'Username: '+username+'\n'+
+    'Username: '+username+'\n'+(pw?'Password: '+pw+'\n':'')+
     'Valid until: '+until+'\n'+
     'Link: '+link+'\n'+
     'Please do not share this link.';
@@ -1092,19 +1121,31 @@ function buildAnnounceText(){
   if(en) parts.push('———\n'+en);
   return parts.join('\n\n');
 }
+function anChosen(){ return Array.prototype.slice.call(document.querySelectorAll('.an-chk:checked')); }
+function anFlash(msg){ var el=document.getElementById('an-count'); if(el){ el.textContent=msg; setTimeout(anUpdateCount,2500); } }
 function sendAnnounce(){
   var ar=val('an-ar').trim(), en=val('an-en').trim();
   if(!ar && !en){ alert(t('writeMessage')); return; }
-  var chosen=Array.prototype.slice.call(document.querySelectorAll('.an-chk:checked'));
-  if(!chosen.length){ alert(t('pickRecipient')); return; }
-  var text=encodeURIComponent(buildAnnounceText());
-  // open one WhatsApp chat per teacher (first few immediately, rest via a list to click)
-  if(chosen.length===1){ var ph=waNormalize(chosen[0].dataset.phone); window.open('https://wa.me/'+ph+'?text='+text,'_blank'); return; }
-  // many: show a panel of send links so popups aren't blocked
-  var links=chosen.map(function(c){ var ph=waNormalize(c.dataset.phone); return '<a class="btn ghost sm" style="display:inline-flex;margin:3px" href="https://wa.me/'+ph+'?text='+text+'" target="_blank"><i class="fab fa-whatsapp"></i> '+esc(c.dataset.name)+'</a>'; }).join('');
-  var m=document.getElementById('anModal'); if(!m){ m=document.createElement('div'); m.id='anModal'; m.style.cssText='position:fixed;inset:0;background:rgba(13,42,74,.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem'; document.body.appendChild(m); }
-  m.innerHTML='<div style="background:var(--card);border-radius:16px;max-width:560px;width:98%;max-height:88vh;overflow:auto;padding:1rem"><h3 style="margin-bottom:0.3rem"><i class="fab fa-whatsapp"></i> '+t('sendWhatsapp')+'</h3><p style="color:var(--soft);font-size:0.85rem">'+t('waClickEach')+'</p><div style="margin:0.6rem 0">'+links+'</div><div style="text-align:center"><button class="btn" onclick="document.getElementById(\'anModal\').remove()">'+t('done')+'</button></div></div>';
+  if(!anChosen().length){ alert(t('pickRecipient')); return; }
+  var msg=buildAnnounceText();
+  // WhatsApp cannot be told to message many numbers by a website, but when a message is
+  // shared to it you can tick as many contacts as you like and send once.
+  try{ if(navigator.clipboard) navigator.clipboard.writeText(msg); }catch(e){}
+  if(navigator.share){ navigator.share({text:msg}).catch(function(){}); return; }
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  anFlash('✅ '+t('msgCopied'));
 }
+function copyAnnounceNumbers(){
+  var nums=anChosen().map(function(c){ return '+'+waNormalize(c.dataset.phone); }).filter(function(x){return x.length>4;});
+  if(!nums.length){ alert(t('pickRecipient')); return; }
+  try{ navigator.clipboard.writeText(nums.join('\n')); anFlash('✅ '+nums.length+' '+t('copyNumbers')); }catch(e){ prompt('',nums.join(', ')); }
+}
+function downloadAnnounceVcf(){
+  var ch=anChosen(); if(!ch.length){ alert(t('pickRecipient')); return; }
+  var v=ch.map(function(c){ return 'BEGIN:VCARD\r\nVERSION:3.0\r\nFN:NURR - '+c.dataset.name+'\r\nTEL;TYPE=CELL:+'+waNormalize(c.dataset.phone)+'\r\nEND:VCARD'; }).join('\r\n');
+  var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([v],{type:'text/vcard;charset=utf-8'})); a.download='nurr-teachers.vcf'; document.body.appendChild(a); a.click(); a.remove();
+}
+
 async function pageLinks(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-link"></i> '+t('links')+'</h3>'+
     '<p style="color:var(--soft);font-size:0.86rem;margin-bottom:0.9rem">'+t('linkDesc')+'</p>'+
@@ -1113,7 +1154,7 @@ async function pageLinks(c){
     '<div class="msg ok" id="lk-ok"></div><div class="msg err" id="lk-err"></div>'+
     '<div id="lk-result" style="display:none;margin-top:1rem" class="card"><h3><i class="fas fa-check-circle" style="color:var(--ok)"></i> '+t('linkReady')+'</h3><div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center"><code id="lk-url" style="background:#f4f9ff;border:1px solid var(--line);padding:0.5rem 0.8rem;border-radius:8px;font-size:0.8rem;word-break:break-all;flex:1;min-width:220px"></code><button class="btn ghost sm" onclick="copyLink()"><i class="fas fa-copy"></i> '+t('copy')+'</button><a class="btn ghost sm" id="lk-wa" target="_blank" style="text-decoration:none"><i class="fab fa-whatsapp"></i> '+t('whatsapp')+'</a></div></div>'+
     '<div id="lkBody" style="margin-top:1rem">'+skeleton()+'</div></div>';
-  try{ var d=await api('get-teachers'); _teachers=d.teachers||[]; var sel=document.getElementById('lk-teacher'); var withLogin=(d.teachers||[]).filter(function(x){return x.has_login;}); sel.innerHTML=withLogin.length?withLogin.map(function(x){return '<option value="'+x.id+'">'+esc(x.full_name)+(x.subject?' — '+esc(x.subject):'')+'</option>';}).join(''):'<option value="">'+(lang==='ar'?'لا يوجد معلم لديه حساب دخول':'No teacher has a login yet')+'</option>'; }catch(e){}
+  try{ var d=await api('get-teachers'); _teachers=d.teachers||[]; var sel=document.getElementById('lk-teacher'); var withLogin=(d.teachers||[]); sel.innerHTML=withLogin.length?withLogin.map(function(x){return '<option value="'+x.id+'">'+esc(x.full_name)+(x.subject?' — '+esc(x.subject):'')+(x.has_login?'':' ('+t('loginAuto')+')')+'</option>';}).join(''):'<option value="">'+(lang==='ar'?'لا يوجد معلم لديه حساب دخول':'No teacher has a login yet')+'</option>'; }catch(e){}
   var u=document.getElementById('lk-until'); var dt=new Date(); dt.setDate(dt.getDate()+14); u.value=dt.toISOString().slice(0,10); u.min=new Date().toISOString().slice(0,10);
   loadLinks();
 }
@@ -1136,10 +1177,10 @@ async function createLink(){
     // find teacher phone for direct WhatsApp
     var teach=(_teachers||[]).find(function(x){return String(x.id)===String(teacherId);});
     var phone=teach?teach.phone:'';
-    var msg=waLinkMessage(_lastLink, d.username||'', until);
+    var msg=waLinkMessage(_lastLink, d.username||'', until, d.password||'');
     var waBase=phone?('https://wa.me/'+waNormalize(phone)+'?text='):'https://wa.me/?text=';
     document.getElementById('lk-wa').href=waBase+encodeURIComponent(msg);
-    document.getElementById('lk-result').style.display=''; show('lk-ok','✅ '+t('created')); loadLinks();
+    document.getElementById('lk-result').style.display=''; show('lk-ok','✅ '+t('created')+(d.password?' · '+d.username+' / '+d.password:'')); loadLinks();
   }catch(e){ show('lk-err','❌ '+e.message); }
   btn.disabled=false;
 }
@@ -1496,21 +1537,26 @@ async function pageBulkResults(c){
   await loadSubjectsData(); await loadSubjectStages();
   await loadClassesData(); await loadYears(); fillStageSelect('bl-grade'); fillClassSelect('bl-class',''); fillYearSelect('bl-year');
   renderBlSubjects(val('bl-grade'));
-  document.getElementById('bl-grade').onchange=function(){ fillClassSelect('bl-class',this.value); renderBlSubjects(this.value); };
+  document.getElementById('bl-grade').onchange=function(){ fillClassSelect('bl-class',this.value); renderBlSubjects(this.value); document.getElementById('bl-list').innerHTML=''; };
+  document.getElementById('bl-class').onchange=function(){ loadBulkRoster(true); };
+  document.getElementById('bl-subjects').addEventListener('change',function(){ loadBulkRoster(true); });
 }
-function renderBlSubjects(stage){ var el=document.getElementById('bl-subjects'); if(!el)return; var subs=subjectsForStage(stage); el.innerHTML=subs.length?subs.map(function(x){ return '<label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-weight:600"><input type="checkbox" class="bl-sub" value="'+esc(x)+'" style="width:auto"> '+esc(x)+'</label>'; }).join(''):'<div class="muted" style="font-size:0.85rem">'+t('noSubjectsForLevel')+'</div>'; }
-async function loadBulkRoster(){
+function renderBlSubjects(stage){ var el=document.getElementById('bl-subjects'); if(!el)return; var subs=subjectsForStage(stage); el.innerHTML=subs.length?subs.map(function(x){ return '<label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-weight:600"><input type="checkbox" class="bl-sub" value="'+esc(x)+'" style="width:auto"> '+esc(x)+'</label>'; }).join(''):'<div class="muted" style="font-size:0.85rem">'+(stage?t('noSubjectsForLevel'):t('pickStageFirst'))+'</div>'; }
+async function loadBulkRoster(auto){
+  if(auto!==true) auto=false;
   hide('bl-ok','bl-err');
   var g=val('bl-grade'), cls=val('bl-class');
   var subjects=Array.prototype.slice.call(document.querySelectorAll('.bl-sub:checked')).map(function(x){return x.value;});
+  if(auto&&(!g||!cls||!subjects.length)){ document.getElementById('bl-list').innerHTML=''; return; }
   if(!g||!cls){ show('bl-err',t('required')); return; }
   if(!subjects.length){ show('bl-err',t('pickOneSubject')); return; }
-  try{ var sd=await api('get-all-students'); var roster=(sd.students||[]).filter(function(s){return String(s.grade_level)===String(g)&&(s.class_name||'').toLowerCase()===cls.toLowerCase()&&s.active!==false;});
+  var kept={}; document.querySelectorAll('.bl-score').forEach(function(i){ if(i.value!=='') kept[i.dataset.sid+'|'+i.dataset.sub]=i.value; });
+  try{ await ensureStudents(); var sd={students:_allStudents}; var roster=(sd.students||[]).filter(function(s){return String(s.grade_level)===String(g)&&(s.class_name||'').toLowerCase()===cls.toLowerCase()&&s.active!==false;});
     if(!roster.length){ document.getElementById('bl-list').innerHTML=emptyBox(); return; }
     window._blSubjects=subjects;
     var head='<tr><th>#</th><th style="text-align:right">'+t('name')+'</th>'+subjects.map(function(sub){return '<th>'+esc(sub)+'</th>';}).join('')+'</tr>';
     var rows=roster.map(function(s,i){
-      var cells=subjects.map(function(sub){ return '<td><input class="bl-score" style="width:70px;text-align:center" inputmode="numeric" data-sid="'+esc(s.student_id)+'" data-sub="'+esc(sub)+'"></td>'; }).join('');
+      var cells=subjects.map(function(sub){ return '<td><input class="bl-score" style="width:70px;text-align:center" inputmode="numeric" data-sid="'+esc(s.student_id)+'" data-sub="'+esc(sub)+'" value="'+esc(kept[s.student_id+'|'+sub]||'')+'"></td>'; }).join('');
       return '<tr><td>'+(i+1)+'</td><td style="text-align:right;white-space:nowrap"><b>'+esc(s.full_name)+'</b><div style="font-size:0.72rem;color:var(--soft)">'+esc(s.student_id)+'</div></td>'+cells+'</tr>';
     }).join('');
     document.getElementById('bl-list').innerHTML='<div class="tbl-wrap"><table><thead>'+head+'</thead><tbody>'+rows+'</tbody></table></div>'+
@@ -1525,11 +1571,59 @@ async function saveBulk(){
   if(!entries.length){ show('bl-err',t('enterOneScore')); return; }
   var btn=event&&event.target?event.target.closest('button'):null; if(btn)btn.disabled=true;
   var n=0;
-  for(var i=0;i<entries.length;i++){ try{ await api('add-marks',{method:'POST',body:{studentId:entries[i].studentId,subject:entries[i].subject,score:parseFloat(entries[i].score),grade:gradeForScore(entries[i].score),academicYear:year,term:term}}); n++; }catch(e){} }
+  for(var i=0;i<entries.length;i+=6){ await Promise.all(entries.slice(i,i+6).map(function(en){ return api('add-marks',{method:'POST',body:{studentId:en.studentId,subject:en.subject,score:parseFloat(en.score),grade:gradeForScore(en.score),academicYear:year,term:term}}).then(function(){n++;}).catch(function(){}); })); }
   if(btn)btn.disabled=false;
   show('bl-ok','✅ '+t('saved')+' ('+n+')');
 }
 
+
+/* ======================= CHARACTER REPORTS ======================= */
+var _chRecs=[];
+var CH_NEG=['Fighting','Indiscipline','Disrespect to teacher','Lateness / absconding','Bullying','Damage to property','Bad language','Other'];
+var CH_POS=['Good conduct','Helpfulness','Leadership','Honesty','Other'];
+async function pageCharacter(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-user-shield"></i> '+t('characterReports')+'</h3>'+
+    '<p style="color:var(--soft);font-size:0.88rem;margin-bottom:0.8rem">'+t('characterDesc')+'</p>'+
+    '<div class="form-grid">'+selField('ch-grade',t('stage'))+selField('ch-class',t('className'))+selField('ch-student',t('chStudent'))+field('ch-date',t('date'),'date')+
+    '<div><label>'+t('chType')+'</label><select id="ch-type"><option value="negative">'+t('chNegative')+'</option><option value="positive">'+t('chPositive')+'</option></select></div>'+
+    '<div><label>'+t('chCategory')+'</label><select id="ch-cat"></select></div>'+
+    '<div><label>'+t('chSeverity')+'</label><select id="ch-sev"><option value="Minor">'+t('sevMinor')+'</option><option value="Moderate">'+t('sevModerate')+'</option><option value="Serious">'+t('sevSerious')+'</option></select></div></div>'+
+    '<label style="margin-top:0.6rem">'+t('chDesc')+'</label><textarea id="ch-desc" rows="3"></textarea>'+
+    '<label style="margin-top:0.6rem">'+t('chAction')+'</label><textarea id="ch-act" rows="2"></textarea>'+
+    '<button class="btn" id="chBtn" onclick="saveCharacter()" style="margin-top:0.9rem"><i class="fas fa-save"></i> '+t('save')+'</button>'+
+    '<div class="msg ok" id="ch-ok"></div><div class="msg err" id="ch-err"></div></div>'+
+    '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap"><h3 style="margin:0"><i class="fas fa-clipboard-list"></i> '+t('chRecords')+'</h3><button class="btn ghost sm" onclick="printCharacter()"><i class="fas fa-print"></i> '+t('print')+'</button></div><div id="chBody" style="margin-top:0.8rem">'+skeleton()+'</div></div>';
+  await loadClassesData(); await ensureStudents();
+  fillStageSelect('ch-grade'); fillClassSelect('ch-class',''); chFillStudents(); chFillCats();
+  document.getElementById('ch-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('ch-grade').onchange=function(){ fillClassSelect('ch-class',this.value); chFillStudents(); loadCharacter(); };
+  document.getElementById('ch-class').onchange=function(){ chFillStudents(); loadCharacter(); };
+  document.getElementById('ch-type').onchange=chFillCats;
+  loadCharacter();
+}
+function chFillCats(){ var neg=val('ch-type')!=='positive'; document.getElementById('ch-cat').innerHTML=(neg?CH_NEG:CH_POS).map(function(x){return '<option>'+esc(x)+'</option>';}).join(''); }
+function chFillStudents(){ var g=val('ch-grade'), cls=val('ch-class'), sel=document.getElementById('ch-student'); if(!sel)return;
+  var list=sortByNum(_allStudents.filter(function(s){ return s.active!==false&&(!g||String(s.grade_level)===String(g))&&(!cls||(s.class_name||'').toLowerCase()===cls.toLowerCase()); }));
+  sel.innerHTML='<option value="">'+t('chStudent')+'</option>'+list.map(function(s){ return '<option value="'+esc(s.student_id)+'">'+esc(s.full_name)+' ('+esc(s.student_id)+')</option>'; }).join(''); }
+async function loadCharacter(){
+  var g=val('ch-grade'), cls=val('ch-class'), body=document.getElementById('chBody'); if(!body)return;
+  try{ var d=await api('get-behavior',{params:(g&&cls)?{gradeLevel:g,className:cls}:{}}); _chRecs=d.records||[];
+    body.innerHTML=_chRecs.length?'<div class="tbl-wrap" id="chSheet"><table><thead><tr><th>'+t('date')+'</th><th>'+t('name')+'</th><th>'+t('chType')+'</th><th>'+t('chCategory')+'</th><th>'+t('chSeverity')+'</th><th>'+t('chDesc')+'</th><th>'+t('chAction')+'</th><th></th></tr></thead><tbody>'+
+      _chRecs.map(function(r){ var dt=String(r.incident_date||r.created_at||'').slice(0,10); return '<tr><td>'+esc(dt)+'</td><td><b>'+esc(r.full_name)+'</b><div style="font-size:0.72rem;color:var(--soft)">'+esc(r.student_id)+'</div></td><td>'+(r.type==='positive'?'<span class="badge b-green">'+t('chPositive')+'</span>':'<span class="badge b-red">'+t('chNegative')+'</span>')+'</td><td>'+esc(r.category||'')+'</td><td>'+esc(r.severity||'')+'</td><td style="text-align:start">'+esc(r.description||'')+'</td><td style="text-align:start">'+esc(r.action_taken||'')+'</td><td><button class="btn bad sm no-print" onclick="delCharacter('+r.id+')"><i class="fas fa-trash"></i></button></td></tr>'; }).join('')+'</tbody></table></div>':emptyBox();
+  }catch(e){ body.innerHTML=errBox('characterReports','loadCharacter'); }
+}
+async function saveCharacter(){
+  hide('ch-ok','ch-err');
+  var b={ studentId:val('ch-student'), type:val('ch-type'), category:val('ch-cat'), severity:val('ch-sev'), description:val('ch-desc'), actionTaken:val('ch-act'), incidentDate:val('ch-date') };
+  if(!b.studentId||!b.description){ show('ch-err',t('required')); return; }
+  var btn=document.getElementById('chBtn'); btn.disabled=true;
+  try{ await api('add-behavior',{method:'POST',body:b}); show('ch-ok','✅ '+t('saved')); document.getElementById('ch-desc').value=''; document.getElementById('ch-act').value=''; loadCharacter(); }
+  catch(e){ show('ch-err','❌ '+e.message); }
+  btn.disabled=false;
+}
+async function delCharacter(id){ if(!confirm(t('confirm'))) return; try{ await api('delete-behavior',{method:'DELETE',body:{id:id}}); loadCharacter(); }catch(e){ alert(e.message); } }
+function printCharacter(){ var sh=document.getElementById('chSheet'); if(!sh)return; var w=window.open('','_blank'); if(!w)return;
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif}table{width:100%;border-collapse:collapse;font-size:10pt}th,td{border:1px solid #000;padding:4px 6px;text-align:center}th{background:#eef2f7}.no-print{display:none}@page{size:A4 landscape;margin:10mm}</style></head><body><h3 style="text-align:center">NURR · '+esc(t('characterReports'))+'</h3>'+sh.innerHTML+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>'); w.document.close(); }
 
 /* ======================= STUDENT HISTORY ======================= */
 async function pageStudentHistory(c){
@@ -1607,21 +1701,32 @@ function pickPhoto(sid){
 async function pageClassList(c){
   c.innerHTML='<div class="card"><h3><i class="fas fa-list"></i> '+t('printClassList')+'</h3>'+
     '<div class="filters"><div><label>'+t('stage')+'</label><select id="cls-grade"></select></div><div><label>'+t('className')+'</label><select id="cls-class"></select></div>'+
+    '<div><label>'+t('academicYear')+'</label><select id="cls-year"></select></div><div><label>'+t('payStatus')+'</label><select id="cls-pay"><option value="">'+t('allStudentsOpt')+'</option><option value="paid">'+t('paidInFull')+'</option><option value="partial">'+t('partial')+'</option><option value="unpaid">'+t('unpaid')+'</option></select></div>'+
     '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadClassList()"><i class="fas fa-magnifying-glass"></i></button></div></div>'+
     '<div class="msg err" id="cls-err"></div><div id="cls-out"></div></div>';
-  await loadClassesData(); fillStageSelect('cls-grade'); fillClassSelect('cls-class','');
+  await loadClassesData(); await loadYears(); fillYearSelect('cls-year'); fillStageSelect('cls-grade'); fillClassSelect('cls-class','');
   document.getElementById('cls-grade').onchange=function(){ fillClassSelect('cls-class',this.value); };
 }
 async function loadClassList(){
   hide('cls-err');
   var g=val('cls-grade'), cls=val('cls-class'); if(!g||!cls){ show('cls-err',t('required')); return; }
   var out=document.getElementById('cls-out'); out.innerHTML=skeleton();
+  var pay=val('cls-pay'), year=val('cls-year');
   try{ var d=await api('class-list',{params:{gradeLevel:g,className:cls}}); var rows=d.students||[];
+    if(pay){
+      var fp=await api('get-all-fee-payments'), ft=await api('get-fee-targets'), paidBy={};
+      (fp.payments||[]).forEach(function(x){ if(x.academic_year===year) paidBy[x.student_id]=(paidBy[x.student_id]||0)+(Number(x.amount)||0); });
+      var tgt=(ft.targets||[]).find(function(x){ return (x.class_name||'')===cls&&x.academic_year===year; });
+      var due=tgt?(Number(tgt.institute_amount)||0)+(Number(tgt.exam_amount)||0)+(Number(tgt.registration_amount)||0):0;
+      rows=rows.map(function(s){ var pd=paidBy[s.student_id]||0; s._paid=pd; s._due=due; s._bal=Math.max(due-pd,0); s._st=(due>0&&pd>=due)?'paid':(pd>0?(due>0?'partial':'paid'):'unpaid'); return s; }).filter(function(s){ return s._st===pay; });
+    }
     if(!rows.length){ out.innerHTML=emptyBox(); return; }
+    var payHead=pay?'<th>'+t('paidCol')+'</th><th>'+t('dueCol')+'</th><th>'+t('balanceCol')+'</th>':'';
+    var payLabel=pay?' — '+year+' — '+({paid:t('paidInFull'),partial:t('partial'),unpaid:t('unpaid')})[pay]:'';
     out.innerHTML='<div style="text-align:center;margin:0.6rem 0"><button class="btn" onclick="printClassList()"><i class="fas fa-print"></i> '+t('print')+'</button></div>'+
-      '<div id="clSheet" style="background:#fff;padding:10mm;border:1px solid #000"><h3 style="text-align:center">NURR · '+t('printClassList')+' — Grade '+esc(g)+' / '+esc(cls)+'</h3>'+
-      '<div class="tbl-wrap"><table class="cl"><thead><tr><th>#</th><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('guardian')+'</th><th>'+t('phone')+'</th><th>'+t('nationality')+'</th></tr></thead><tbody>'+
-      rows.map(function(s,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(s.student_id)+'</td><td class="s">'+esc(s.full_name)+'</td><td>'+esc(s.guardian_name||'')+'</td><td>'+esc(s.guardian_phone||'')+'</td><td>'+esc(s.nationality||'')+'</td></tr>';}).join('')+'</tbody></table></div><p style="margin-top:0.5rem">'+t('total')+': '+rows.length+'</p></div>';
+      '<div id="clSheet" style="background:#fff;padding:10mm;border:1px solid #000"><h3 style="text-align:center">NURR · '+t('printClassList')+' — Grade '+esc(g)+' / '+esc(cls)+esc(payLabel)+'</h3>'+
+      '<div class="tbl-wrap"><table class="cl"><thead><tr><th>#</th><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('guardian')+'</th><th>'+t('phone')+'</th><th>'+t('nationality')+'</th>'+payHead+'</tr></thead><tbody>'+
+      rows.map(function(s,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(s.student_id)+'</td><td class="s">'+esc(s.full_name)+'</td><td>'+esc(s.guardian_name||'')+'</td><td>'+esc(s.guardian_phone||'')+'</td><td>'+esc(s.nationality||'')+'</td>'+(pay?'<td>'+money(s._paid)+'</td><td>'+money(s._due)+'</td><td>'+money(s._bal)+'</td>':'')+'</tr>';}).join('')+'</tbody></table></div><p style="margin-top:0.5rem">'+t('total')+': '+rows.length+'</p></div>';
     if(!document.getElementById('clStyle')){ var st=document.createElement('style'); st.id='clStyle'; st.textContent='.cl{width:100%;border-collapse:collapse;font-size:10pt}.cl th,.cl td{border:1px solid #000;padding:4px 6px;text-align:center}.cl td.s{text-align:right;white-space:nowrap}.cl th{background:#eef2f7}'; document.head.appendChild(st); }
   }catch(e){ out.innerHTML=errBox('printClassList','loadClassList'); }
 }
@@ -1692,8 +1797,8 @@ async function pageFeeTargets(c){
 }
 async function loadTargets(){
   try{ var d=await api('get-fee-targets'); var rows=d.targets||[];
-    document.getElementById('ftBody').innerHTML = rows.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('className')+'</th><th>'+t('academicYear')+'</th><th>'+t('instituteAmount')+'</th><th>'+t('examAmount')+'</th><th>'+t('total')+'</th></tr></thead><tbody>'+
-      rows.map(function(x){ var tot=(Number(x.institute_amount)||0)+(Number(x.exam_amount)||0); return '<tr><td><b>'+esc(x.class_name)+'</b></td><td>'+esc(x.academic_year)+'</td><td>'+money(x.institute_amount)+'</td><td>'+money(x.exam_amount)+'</td><td><b>'+money(tot)+'</b></td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
+    document.getElementById('ftBody').innerHTML = rows.length? '<div class="tbl-wrap"><table><thead><tr><th>'+t('className')+'</th><th>'+t('academicYear')+'</th><th>'+t('registrationFee')+'</th><th>'+t('instituteAmount')+'</th><th>'+t('examAmount')+'</th><th>'+t('total')+'</th></tr></thead><tbody>'+
+      rows.map(function(x){ var tot=(Number(x.registration_amount)||0)+(Number(x.institute_amount)||0)+(Number(x.exam_amount)||0); return '<tr><td><b>'+esc(x.class_name)+'</b></td><td>'+esc(x.academic_year)+'</td><td>'+money(x.registration_amount)+'</td><td>'+money(x.institute_amount)+'</td><td>'+money(x.exam_amount)+'</td><td><b>'+money(tot)+'</b></td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
   }catch(e){ document.getElementById('ftBody').innerHTML=errBox('feeTargets','loadTargets'); }
 }
 async function saveTarget(){
@@ -1783,8 +1888,8 @@ async function loadFeesOverview(){
     renderFeesOverview(year);
   }catch(e){ body.innerHTML='<div class="card">'+errBox('fees','loadFeesOverview')+'</div>'; }
 }
-function targetFor(cls,year){ var t=_feeTargets.find(function(x){ return (x.class_name||'')===cls && x.academic_year===year; }); return t?{inst:Number(t.institute_amount)||0,exam:Number(t.exam_amount)||0}:null; }
-function feeRowStatus(r,year){ var tg=targetFor(r.class_name,year); var paid=r.institute+r.exam; if(!tg){ return paid>0?'paid':'unpaid'; } var due=tg.inst+tg.exam; if(paid>=due&&due>0) return 'paid'; if(paid>0) return 'partial'; return 'unpaid'; }
+function targetFor(cls,year){ var t=_feeTargets.find(function(x){ return (x.class_name||'')===cls && x.academic_year===year; }); return t?{inst:Number(t.institute_amount)||0,exam:Number(t.exam_amount)||0,reg:Number(t.registration_amount)||0}:null; }
+function feeRowStatus(r,year){ var tg=targetFor(r.class_name,year); var paid=r.institute+r.exam; if(!tg){ return paid>0?'paid':'unpaid'; } var due=tg.inst+tg.exam+tg.reg; if(paid>=due&&due>0) return 'paid'; if(paid>0) return 'partial'; return 'unpaid'; }
 function renderFeesOverview(year){
   var body=document.getElementById('fo-body');
   var stage=val('fo-stage'), cls=val('fo-class'), q=(document.getElementById('fo-search')?document.getElementById('fo-search').value:'').toLowerCase().trim();
