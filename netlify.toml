@@ -20,8 +20,20 @@
   status = 200
   force  = true
 
-# Keep the admin panel out of search engines
+# Admin panel: keep out of search engines, never allow framing (clickjacking)
 [[headers]]
   for = "/admin.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+
+# Teacher page: the access key travels in the URL, so never send it as a Referer
+[[headers]]
+  for = "/staff/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"

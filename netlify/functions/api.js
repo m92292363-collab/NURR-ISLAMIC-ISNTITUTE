@@ -125,7 +125,7 @@ const ROUTE_AUTH = {
   'promote-students':'admin', 'promote-entire-school':'admin', 'send-sms':'admin',
   'teacher-login':'public', 'staff-links':'any', 'teacher-me':'teacher',
   'create-staff-link':'admin', 'revoke-staff-link':'admin', 'delete-staff-link':'admin',
-  'staff-save-scores':'teacher', 'staff-save-attendance':'teacher', 'staff-roster':'teacher',
+  'staff-save-scores':'teacher', 'staff-save-attendance':'teacher', 'staff-roster':'teacher', 'staff-assignments':'teacher',
   'get-remarks':'any', 'save-remarks':'admin',
   'student-history':'any', 'archive-student':'admin', 'get-student-photo':'any', 'admin-upload-photo':'admin', 'class-list':'any',
   'get-years':'any',
@@ -136,10 +136,10 @@ const ROUTE_AUTH = {
 
 // ---------- small helpers ----------
 function ok(data, statusCode = 200) {
-  return { statusCode, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ success: true, ...data }) };
+  return { statusCode, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, body: JSON.stringify({ success: true, ...data }) };
 }
 function err(message, statusCode = 400) {
-  return { statusCode, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ success: false, error: message }) };
+  return { statusCode, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, body: JSON.stringify({ success: false, error: message }) };
 }
 function plainText(body, statusCode = 200) {
   // the ZKTeco ADMS protocol is plain text, not JSON — this is what the
@@ -280,6 +280,75 @@ async function ensureLinkSchema() {
 }
 function hashKey(k){ return crypto.createHash('sha256').update(String(k)).digest('hex'); }
 
+// ---------- login throttling (brute-force protection) ----------
+// A failed login is recorded per (client IP + account). After MAX_FAILS
+// failures inside the window the login answers 429 until the window
+// passes. If the throttle table is unavailable the login still works
+// (fail-open) so a database permission problem can never lock everyone out.
+const MAX_FAILS = 10;
+let _throttleReady = false;
+async function ensureThrottle() {
+  if (_throttleReady) return;
+  await sql`CREATE TABLE IF NOT EXISTS login_attempts (id SERIAL PRIMARY KEY, bucket TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`;
+  await sql`CREATE INDEX IF NOT EXISTS login_attempts_bucket_idx ON login_attempts (bucket, created_at)`;
+  _throttleReady = true;
+}
+function clientIp(event) {
+  const h = (event && event.headers) || {};
+  return String(h['x-nf-client-connection-ip'] || String(h['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown');
+}
+function throttleKey(scope, event, ident) {
+  return `${scope}:${clientIp(event)}:${String(ident == null ? '' : ident).trim().toLowerCase().slice(0, 80)}`;
+}
+async function isThrottled(bucket) {
+  try {
+    await ensureThrottle();
+    const r = await sql`SELECT COUNT(*)::int AS n FROM login_attempts WHERE bucket = ${bucket} AND created_at > NOW() - INTERVAL '15 minutes'`;
+    return r[0].n >= MAX_FAILS;
+  } catch (e) { console.error('throttle check failed:', e.message); return false; }
+}
+async function recordFail(bucket) {
+  try {
+    await ensureThrottle();
+    await sql`INSERT INTO login_attempts (bucket) VALUES (${bucket})`;
+    if (Math.random() < 0.05) await sql`DELETE FROM login_attempts WHERE created_at < NOW() - INTERVAL '1 day'`;
+  } catch (e) { console.error('throttle record failed:', e.message); }
+}
+async function clearFails(bucket) {
+  try { await sql`DELETE FROM login_attempts WHERE bucket = ${bucket}`; } catch (e) {}
+}
+
+// ---------- teacher helpers ----------
+// Verified against a fixed hash when the username does not exist, so a
+// wrong username and a wrong password take the same time to answer.
+const DUMMY_HASH = hashPassword('timing-equaliser-not-a-real-password');
+function pwFingerprint(stored) { return crypto.createHash('sha256').update(String(stored || '')).digest('hex').slice(0, 12); }
+function normName(v) { return String(v == null ? '' : v).trim().toLowerCase(); }
+function classKey(grade, cls) { return normName(grade) + '|' + normName(cls); }
+const USERNAME_RE = /^\S{3,40}$/;
+
+// Teacher tokens are stateless, so on EVERY teacher request the server
+// re-checks that the account is still active, the link is still valid and
+// the password has not changed since the token was issued. This is what
+// makes disable / revoke-link / reset-password take effect immediately.
+async function checkTeacherSession(auth) {
+  await ensureLinkSchema();
+  if (!auth || !auth.tid || !auth.lid) return err('انتهت الجلسة، سجّل الدخول من جديد', 401);
+  const r = (await sql`SELECT t.teacher_password, COALESCE(t.active, TRUE) AS active, l.revoked, l.expires_at
+                       FROM teachers t JOIN staff_links l ON l.teacher_id = t.id
+                       WHERE t.id = ${auth.tid} AND l.id = ${auth.lid} LIMIT 1`)[0];
+  if (!r) return err('انتهت الجلسة، سجّل الدخول من جديد', 401);
+  if (r.active === false) return err('تم تعطيل هذا الحساب. تواصل مع المدير.', 401);
+  if (r.revoked) return err('تم إلغاء هذا الرابط من قبل المدير.', 401);
+  if (new Date(r.expires_at).getTime() <= Date.now()) return err('انتهت صلاحية هذا الرابط.', 401);
+  if (!auth.pwf || auth.pwf !== pwFingerprint(r.teacher_password)) return err('تغيّرت بيانات الدخول، سجّل الدخول من جديد', 401);
+  return null;
+}
+async function teacherAssignmentRows(tid) {
+  await ensureLinkSchema();
+  return await sql`SELECT academic_year, grade_level, class_name, subject FROM teacher_assignments WHERE teacher_id = ${tid} ORDER BY academic_year DESC, grade_level, class_name, subject`;
+}
+
 const routes = {
 
   // ---------------- AUTH ----------------
@@ -394,21 +463,29 @@ const routes = {
     const students = await sql`SELECT student_id, full_name, guardian_name, guardian_phone, nationality, date_of_birth FROM students WHERE grade_level = ${gradeLevel} AND LOWER(class_name) = LOWER(${className}) AND active IS NOT FALSE ORDER BY full_name`;
     return ok({ students });
   }},
-  'teacher-login': {
- POST: async (event) => {
+  'teacher-login': { POST: async (event) => {
     await ensureLinkSchema();
-    const { username, password, key } = readBody(event);
+    const body = readBody(event);
+    const username = String(body.username == null ? '' : body.username).trim();
+    const password = body.password == null ? '' : String(body.password);
+    const key = body.key == null ? '' : String(body.key).trim();
     if (!username || !password) return err('اسم المستخدم وكلمة المرور مطلوبان');
     if (!key) return err('يرجى فتح رابط الوصول الذي أرسله المدير', 403);
+    const bucket = throttleKey('teacher', event, username);
+    if (await isThrottled(bucket)) return err('محاولات خاطئة كثيرة. انتظر 15 دقيقة ثم حاول مرة أخرى.', 429);
     const link = (await sql`SELECT id, teacher_id, revoked, expires_at FROM staff_links WHERE key_hash = ${hashKey(key)} LIMIT 1`)[0];
     if (!link) return err('هذا الرابط غير صالح. اطلب رابطاً جديداً من المدير.', 403);
     if (link.revoked) return err('تم إلغاء هذا الرابط من قبل المدير.', 403);
     if (new Date(link.expires_at).getTime() <= Date.now()) return err('انتهت صلاحية هذا الرابط.', 403);
-    const trow = (await sql`SELECT id, full_name, username, teacher_password, subject FROM teachers WHERE username = ${username} LIMIT 1`)[0];
-    if (!trow || !trow.teacher_password || !verifyPassword(password, trow.teacher_password)) return err('بيانات الدخول غير صحيحة', 401);
+    // case-insensitive: phone keyboards often capitalise the first letter
+    const trow = (await sql`SELECT id, full_name, username, teacher_password, subject, COALESCE(active, TRUE) AS active FROM teachers WHERE lower(username) = lower(${username}) LIMIT 1`)[0];
+    const passOk = verifyPassword(password, trow && trow.teacher_password ? trow.teacher_password : DUMMY_HASH);
+    if (!trow || !trow.teacher_password || !passOk) { await recordFail(bucket); return err('بيانات الدخول غير صحيحة', 401); }
+    if (trow.active === false) return err('تم تعطيل هذا الحساب. تواصل مع المدير.', 403);
     if (link.teacher_id !== trow.id) return err('هذا الرابط يخص معلماً آخر.', 403);
+    await clearFails(bucket);
     await sql`UPDATE staff_links SET last_used_at = NOW() WHERE id = ${link.id}`;
-    const token = signToken({ role:'teacher', tid: trow.id, sub: trow.username, lid: link.id, exp: new Date(link.expires_at).getTime() });
+    const token = signToken({ role:'teacher', tid: trow.id, sub: trow.username, lid: link.id, pwf: pwFingerprint(trow.teacher_password), exp: new Date(link.expires_at).getTime() });
     return ok({ token, teacher: { id: trow.id, full_name: trow.full_name, username: trow.username, subject: trow.subject }, accessUntil: link.expires_at });
   }},
   'staff-links': { GET: async () => {
@@ -422,8 +499,10 @@ const routes = {
     if (!teacherId || !/^\d{4}-\d{2}-\d{2}$/.test(validUntil||'')) return err('المعلم وتاريخ الانتهاء مطلوبان');
     const expires = new Date(validUntil + 'T23:59:59Z');
     if (isNaN(expires.getTime()) || expires.getTime() <= Date.now()) return err('يجب أن يكون التاريخ اليوم أو بعده');
-    const t = (await sql`SELECT id, full_name, username, teacher_password FROM teachers WHERE id = ${parseInt(teacherId)}`)[0];
+    if (expires.getTime() > Date.now() + 366 * 86400000) return err('لا يمكن أن تزيد صلاحية الرابط عن سنة واحدة');
+    const t = (await sql`SELECT id, full_name, username, teacher_password, COALESCE(active, TRUE) AS active FROM teachers WHERE id = ${parseInt(teacherId)}`)[0];
     if (!t) return err('المعلم غير موجود', 404);
+    if (t.active === false) return err('هذا الحساب معطّل. فعّله أولاً ثم أنشئ الرابط.');
     let generatedPassword = null;
     if (!t.username || !t.teacher_password) {
       let uname = t.username;
@@ -478,46 +557,98 @@ const routes = {
     await sql`INSERT INTO report_remarks (student_id, academic_year, term, conduct, teacher_remark, head_remark, next_term_date, updated_at) VALUES (${b.studentId}, ${b.academicYear}, ${b.term}, ${b.conduct||null}, ${b.teacherRemark||null}, ${b.headRemark||null}, ${b.nextTermDate||null}, now()) ON CONFLICT (student_id, academic_year, term) DO UPDATE SET conduct = EXCLUDED.conduct, teacher_remark = EXCLUDED.teacher_remark, head_remark = EXCLUDED.head_remark, next_term_date = EXCLUDED.next_term_date, updated_at = now()`;
     return ok({ message: 'تم حفظ الملاحظات' });
   }},
+  'staff-assignments': { GET: async (event, auth) => {
+    return ok({ assignments: await teacherAssignmentRows(auth.tid) });
+  }},
   'staff-roster': { GET: async (event, auth) => {
     const { gradeLevel, className } = event.queryStringParameters || {};
     if (!gradeLevel || !className) return err('المرحلة والفصل مطلوبان');
-    const students = await sql`SELECT student_id, full_name FROM students WHERE grade_level = ${gradeLevel} AND LOWER(class_name) = LOWER(${className}) AND active IS NOT FALSE ORDER BY full_name`;
+    const mine = await teacherAssignmentRows(auth.tid);
+    if (!mine.length) return err('لم يتم إسناد أي فصل لك بعد. تواصل مع المدير.', 403);
+    if (!mine.some(a => classKey(a.grade_level, a.class_name) === classKey(gradeLevel, className))) return err('هذا الفصل غير مُسنَد إليك.', 403);
+    const students = await sql`SELECT student_id, full_name FROM students WHERE LOWER(TRIM(grade_level::text)) = ${normName(gradeLevel)} AND LOWER(TRIM(class_name)) = ${normName(className)} AND active IS NOT FALSE ORDER BY full_name`;
     return ok({ students });
   }},
   'staff-save-scores': { POST: async (event, auth) => {
-    const { subject, academicYear, term, scores } = readBody(event);
-    if (!subject || !academicYear || !term || !Array.isArray(scores)) return err('بيانات ناقصة');
+    const b = readBody(event);
+    const subj = String(b.subject == null ? '' : b.subject).trim();
+    const year = String(b.academicYear == null ? '' : b.academicYear).trim();
+    const term = String(b.term == null ? '' : b.term).trim();
+    if (!subj || !year || !term || !Array.isArray(b.scores)) return err('بيانات ناقصة');
+    if (b.scores.length > 300) return err('عدد كبير جداً من الدرجات في طلب واحد');
+    const rows = [];
+    for (const row of b.scores) {
+      if (!row || row.studentId == null || row.score == null || row.score === '') continue;
+      const sc = Number(row.score);
+      if (!Number.isFinite(sc) || sc < 0 || sc > 100) continue;
+      rows.push({ sid: String(row.studentId), sc });
+    }
+    if (!rows.length) return ok({ message: 'لم يتم حفظ أي درجة (لا توجد قيم صالحة)', saved: 0 });
+    // a teacher may only enter marks for the subject + class + year assigned to them
+    const mine = await teacherAssignmentRows(auth.tid);
+    const allowed = new Set(mine.filter(a => String(a.academic_year).trim() === year && normName(a.subject) === normName(subj)).map(a => classKey(a.grade_level, a.class_name)));
+    if (!allowed.size) return err('هذه المادة أو هذا العام غير مُسنَد إليك. تواصل مع المدير.', 403);
+    const ids = [...new Set(rows.map(r => r.sid))];
+    const studs = await sql`SELECT student_id, class_name, grade_level FROM students WHERE student_id = ANY(${ids})`;
+    const byId = new Map(studs.map(s => [String(s.student_id), s]));
+    for (const r of rows) {
+      const st = byId.get(r.sid);
+      if (st && !allowed.has(classKey(st.grade_level, st.class_name))) return err('لا يمكنك إدخال درجات لطالب خارج فصولك المُسنَدة. لم يُحفظ شيء.', 403);
+    }
     let n = 0;
-    for (const row of scores) {
-      if (!row.studentId || row.score == null || row.score === '') continue;
-      const sc = Number(row.score); if (isNaN(sc) || sc < 0 || sc > 100) continue;
-      const stud = (await sql`SELECT class_name, grade_level FROM students WHERE student_id = ${row.studentId}`)[0];
-      if (!stud) continue;
-      await sql`INSERT INTO results (student_id, subject, score, grade, academic_year, term, class_name, grade_level, updated_at) VALUES (${row.studentId}, ${subject}, ${sc}, ${gradeFor(sc)}, ${academicYear}, ${term}, ${stud.class_name}, ${stud.grade_level}, now()) ON CONFLICT (student_id, subject, academic_year, term) DO UPDATE SET score = EXCLUDED.score, grade = EXCLUDED.grade, updated_at = now()`;
+    for (const r of rows) {
+      const stud = byId.get(r.sid); if (!stud) continue;
+      await sql`INSERT INTO results (student_id, subject, score, grade, academic_year, term, class_name, grade_level, updated_at) VALUES (${r.sid}, ${subj}, ${r.sc}, ${gradeFor(r.sc)}, ${year}, ${term}, ${stud.class_name}, ${stud.grade_level}, now()) ON CONFLICT (student_id, subject, academic_year, term) DO UPDATE SET score = EXCLUDED.score, grade = EXCLUDED.grade, updated_at = now()`;
       n++;
     }
+    await logActivity(`معلم: حفظ ${n} درجة — ${subj} (${year} ${term})`, auth.sub);
     return ok({ message: 'تم حفظ ' + n + ' درجة', saved: n });
   }},
   'staff-save-attendance': { POST: async (event, auth) => {
     const { date, marks } = readBody(event);
-    if (!date || !marks || typeof marks !== 'object') return err('بيانات ناقصة');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || '')) || isNaN(new Date(date + 'T00:00:00Z').getTime())) return err('تاريخ غير صالح');
+    if (new Date(date + 'T00:00:00Z').getTime() > Date.now() + 36 * 3600 * 1000) return err('لا يمكن تسجيل الحضور لتاريخ مستقبلي');
+    if (!marks || typeof marks !== 'object' || Array.isArray(marks)) return err('بيانات ناقصة');
+    // the admin side stores p / a / l; the staff page historically sent present / absent
+    const CODE = { p: 'p', present: 'p', a: 'a', absent: 'a', l: 'l', late: 'l' };
+    const entries = [];
+    for (const [sid, st] of Object.entries(marks)) {
+      const code = CODE[String(st == null ? '' : st).toLowerCase()];
+      if (code) entries.push([String(sid), code]);
+    }
+    if (!entries.length) return err('لا توجد بيانات حضور لحفظها');
+    if (entries.length > 300) return err('عدد كبير جداً من الطلاب في طلب واحد');
+    const mine = await teacherAssignmentRows(auth.tid);
+    if (!mine.length) return err('لم يتم إسناد أي فصل لك بعد. تواصل مع المدير.', 403);
+    const classes = new Set(mine.map(a => classKey(a.grade_level, a.class_name)));
+    const studs = await sql`SELECT student_id, class_name, grade_level FROM students WHERE student_id = ANY(${entries.map(e => e[0])})`;
+    const byId = new Map(studs.map(s => [String(s.student_id), s]));
+    for (const [sid] of entries) {
+      const st = byId.get(sid);
+      if (st && !classes.has(classKey(st.grade_level, st.class_name))) return err('لا يمكنك تسجيل حضور طالب خارج فصولك المُسنَدة. لم يُحفظ شيء.', 403);
+    }
     let n = 0;
-    for (const sid of Object.keys(marks)) {
-      const st = marks[sid]; if (!st) continue;
-      await sql`INSERT INTO attendance (att_date, student_id, status, recorded_at) VALUES (${date}, ${sid}, ${st}, now()) ON CONFLICT (student_id, att_date) DO UPDATE SET status = EXCLUDED.status, recorded_at = now()`;
+    for (const [sid, code] of entries) {
+      if (!byId.has(sid)) continue;
+      await sql`INSERT INTO attendance (att_date, student_id, status, recorded_at) VALUES (${date}, ${sid}, ${code}, now()) ON CONFLICT (student_id, att_date) DO UPDATE SET status = EXCLUDED.status, recorded_at = now()`;
       n++;
     }
+    await logActivity(`معلم: حفظ حضور ${n} طالب (${date})`, auth.sub);
     return ok({ message: 'تم حفظ الحضور', saved: n });
   }},
+
   'admin-login': { POST: async (event) => {
     const { username, password } = readBody(event);
     if (!username || !password) return err('اسم المستخدم وكلمة المرور مطلوبان');
+    const bucket = throttleKey('admin', event, username);
+    if (await isThrottled(bucket)) return err('محاولات خاطئة كثيرة. انتظر 15 دقيقة ثم حاول مرة أخرى.', 429);
     const rows = await sql`SELECT username, role, display_name FROM admins WHERE username = ${username}`;
-    if (!rows.length) return err('بيانات الدخول غير صحيحة', 401);
+    if (!rows.length) { await recordFail(bucket); return err('بيانات الدخول غير صحيحة', 401); }
     const match = await sql`
       SELECT (password_hash = crypt(${password}, password_hash)) AS matched
       FROM admins WHERE username = ${username}`;
-    if (!match.length || !match[0].matched) return err('بيانات الدخول غير صحيحة', 401);
+    if (!match.length || !match[0].matched) { await recordFail(bucket); return err('بيانات الدخول غير صحيحة', 401); }
+    await clearFails(bucket);
     await logActivity(`تسجيل دخول: ${username}`, username);
     const token = signToken({ username: rows[0].username, role: rows[0].role, exp: Date.now() + SESSION_TTL_MS });
     return ok({ username: rows[0].username, role: rows[0].role, displayName: rows[0].display_name, token });
@@ -994,40 +1125,65 @@ const routes = {
   }},
   'add-teacher': { POST: async (event) => {
     const _b = readBody(event);
-    const { fullName, subject, gradeLevel, phone, username, password, id, active, actor } = _b;
-    // enable/disable only
+    const { subject, gradeLevel, phone, id, active, actor } = _b;
+    const fullName = typeof _b.fullName === 'string' ? _b.fullName.trim() : '';
+    const username = typeof _b.username === 'string' ? _b.username.trim() : '';
+    const password = typeof _b.password === 'string' ? _b.password : '';
+    // enable / disable only
     if (id && typeof active === 'boolean') {
-      const r = await sql`UPDATE teachers SET active = ${active} WHERE id = ${parseInt(id)} RETURNING id`;
+      const r = await sql`UPDATE teachers SET active = ${active} WHERE id = ${parseInt(id)} RETURNING id, full_name`;
       if (!r.length) return err('المعلم غير موجود', 404);
+      await logActivity(`${active ? 'تفعيل' : 'تعطيل'} حساب معلم: ${r[0].full_name}`, actor);
       return ok({ message: active ? 'تم تفعيل الحساب' : 'تم تعطيل الحساب' });
     }
     // edit existing
     if (id) {
+      const tid = parseInt(id);
+      if (!Number.isInteger(tid)) return err('المعرّف مطلوب');
       await ensureLinkSchema();
-      if (username) { const dupU = await sql`SELECT 1 FROM teachers WHERE username = ${username.trim()} AND id <> ${parseInt(id)}`; if (dupU.length) return err('اسم المستخدم مستخدم بالفعل'); }
-      await sql`UPDATE teachers SET full_name = ${(fullName||'').trim()}, subject = COALESCE(${subject||null}, subject), grade_level = COALESCE(${gradeLevel||null}, grade_level), phone = ${phone||null}${username?sql`, username = ${username.trim()}`:sql``} WHERE id = ${parseInt(id)}`;
-      if (password) await sql`UPDATE teachers SET teacher_password = ${hashPassword(password)} WHERE id = ${parseInt(id)}`;
+      if (!fullName) return err('اسم المعلم مطلوب');
+      if (username) {
+        if (!USERNAME_RE.test(username)) return err('اسم المستخدم يجب أن يكون من 3 إلى 40 حرفاً بدون مسافات');
+        const dupU = await sql`SELECT 1 FROM teachers WHERE lower(username) = lower(${username}) AND id <> ${tid}`;
+        if (dupU.length) return err('اسم المستخدم مستخدم بالفعل');
+      }
+      if (password && password.length < 6) return err('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      // (no nested sql fragments: @neondatabase/serverless cannot take a query as a parameter)
+      const upd = await sql`UPDATE teachers SET full_name = ${fullName}, subject = COALESCE(${subject || null}::text, subject), grade_level = COALESCE(${gradeLevel || null}::text, grade_level), phone = ${phone || null} WHERE id = ${tid} RETURNING id`;
+      if (!upd.length) return err('المعلم غير موجود', 404);
+      if (username) await sql`UPDATE teachers SET username = ${username} WHERE id = ${tid}`;
+      if (password) await sql`UPDATE teachers SET teacher_password = ${hashPassword(password)} WHERE id = ${tid}`;
+      await logActivity(`تعديل معلم: ${fullName}${password ? ' (إعادة تعيين كلمة المرور)' : ''}`, actor);
       return ok({ message: 'تم تحديث المعلم' });
     }
-    if (!fullName || !fullName.trim()) return err('اسم المعلم مطلوب');
-    if (username || password) { await ensureLinkSchema();
+    if (!fullName) return err('اسم المعلم مطلوب');
+    if (username || password) {
+      await ensureLinkSchema();
       if (!username || !password) return err('اسم المستخدم وكلمة المرور معاً مطلوبان للروابط');
-      const dup = await sql`SELECT 1 FROM teachers WHERE username = ${username.trim()}`;
+      if (!USERNAME_RE.test(username)) return err('اسم المستخدم يجب أن يكون من 3 إلى 40 حرفاً بدون مسافات');
+      if (password.length < 6) return err('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      const dup = await sql`SELECT 1 FROM teachers WHERE lower(username) = lower(${username})`;
       if (dup.length) return err('اسم المستخدم مستخدم بالفعل');
-      await sql`INSERT INTO teachers (full_name, subject, grade_level, phone, username, teacher_password) VALUES (${fullName.trim()}, ${subject||null}, ${gradeLevel||null}, ${phone||null}, ${username.trim()}, ${hashPassword(password)})`;
-      return ok({ message: 'تمت إضافة المعلم' });
+      const created = await sql`INSERT INTO teachers (full_name, subject, grade_level, phone, username, teacher_password) VALUES (${fullName}, ${subject || null}, ${gradeLevel || null}, ${phone || null}, ${username}, ${hashPassword(password)}) RETURNING id`;
+      await logActivity(`إضافة معلم: ${fullName}`, actor);
+      return ok({ message: 'تمت إضافة المعلم', teacherId: created[0].id });
     }
     await sql`INSERT INTO teachers (full_name, subject, grade_level, phone)
-              VALUES (${fullName.trim()}, ${subject || null}, ${gradeLevel || null}, ${phone || null})`;
-    await logActivity(`إضافة معلم: ${fullName.trim()}`, actor);
+              VALUES (${fullName}, ${subject || null}, ${gradeLevel || null}, ${phone || null})`;
+    await logActivity(`إضافة معلم: ${fullName}`, actor);
     return ok({ message: 'تمت إضافة المعلم' });
   }},
   'delete-teacher': { DELETE: async (event) => {
     const { id, actor } = readBody(event);
-    if (!id) return err('المعرّف مطلوب');
-    const res = await sql`DELETE FROM teachers WHERE id = ${id} RETURNING id`;
+    const tid = parseInt(id);
+    if (!Number.isInteger(tid)) return err('المعرّف مطلوب');
+    await ensureLinkSchema();
+    const res = await sql`DELETE FROM teachers WHERE id = ${tid} RETURNING id`;
     if (!res.length) return err('لا يوجد معلم بهذا المعرّف', 404);
-    await logActivity(`حذف معلم #${id}`, actor);
+    // do not leave dead links / assignments behind
+    await sql`DELETE FROM staff_links WHERE teacher_id = ${tid}`;
+    await sql`DELETE FROM teacher_assignments WHERE teacher_id = ${tid}`;
+    await logActivity(`حذف معلم #${tid}`, actor);
     return ok({ message: 'تم الحذف' });
   }},
 
@@ -1629,11 +1785,13 @@ const routes = {
   'student-results': { POST: async (event) => {
     const { studentId, password } = readBody(event);
     if (!studentId || !password) return err('يرجى إدخال رقم الطالب وكلمة المرور');
+    const bucket = throttleKey('student', event, studentId);
+    if (await isThrottled(bucket)) return err('محاولات خاطئة كثيرة. انتظر 15 دقيقة ثم حاول مرة أخرى.', 429);
     const rows = await sql`
       SELECT student_id, full_name, password, grade_level, class_name, active, status,
              guardian_name, guardian_phone, date_of_birth
       FROM students WHERE student_id = ${studentId}`;
-    if (!rows.length) return err('بيانات الدخول غير صحيحة', 401);
+    if (!rows.length) { await recordFail(bucket); return err('بيانات الدخول غير صحيحة', 401); }
     const student = rows[0];
     // [FIX 11] Graduating sets active = false, which used to lock every leaver
     // out of the results they had just sat. A graduate keeps access to their own
@@ -1642,7 +1800,8 @@ const routes = {
     if (student.active === false && student.status !== 'graduated') {
       return err('هذا الحساب موقوف، تواصلوا مع الإدارة', 403);
     }
-    if (!verifyPassword(password, student.password)) return err('بيانات الدخول غير صحيحة', 401);
+    if (!verifyPassword(password, student.password)) { await recordFail(bucket); return err('بيانات الدخول غير صحيحة', 401); }
+    await clearFails(bucket);
 
     const results = await sql`
       SELECT subject, score, grade, academic_year, term,
@@ -1726,14 +1885,26 @@ export const handler = async (event) => {
     if (!auth) return err('يجب تسجيل الدخول', 401);
     _auth = auth;
     if (authLevel === 'admin' && auth.role !== 'admin') return err('هذا الإجراء متاح للمدير فقط', 403);
-    if (authLevel === 'teacher' && auth.role !== 'teacher') return err('هذا الإجراء متاح للمعلمين فقط', 403);
+    // 'any' means any ADMIN-side account (admin / master). A teacher token must
+    // never reach the admin read routes (students, fees, payments, audit log...).
+    if (authLevel === 'any' && auth.role === 'teacher') return err('هذا الإجراء غير متاح للمعلمين', 403);
+    if (authLevel === 'teacher') {
+      if (auth.role !== 'teacher') return err('هذا الإجراء متاح للمعلمين فقط', 403);
+      try {
+        const bad = await checkTeacherSession(auth);
+        if (bad) return bad;
+      } catch (e) {
+        console.error('[teacher-session]', e);
+        return err('خطأ في الخادم: ' + (e.message || 'unknown'), 500);
+      }
+    }
     // stamp the verified username as `actor` so every route's existing
     // logActivity(..., actor) call is trustworthy — the client can no
     // longer claim to be someone else by sending a different `actor`.
     if (method !== 'GET') {
       try {
         const body = event.body ? JSON.parse(event.body) : {};
-        body.actor = auth.username;
+        body.actor = auth.username || auth.sub || null;
         event = { ...event, body: JSON.stringify(body) };
       } catch (e) { /* non-JSON body — leave untouched */ }
     }

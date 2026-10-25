@@ -916,9 +916,10 @@ async function pageTeachers(c){
    '<div class="card"><h3><i class="fas fa-chalkboard-user"></i> '+t('teacherAccounts')+'</h3>'+
     '<p style="color:var(--soft);font-size:0.88rem;margin-bottom:0.8rem">'+t('teacherAccountsDesc')+'</p>'+
     '<input type="hidden" id="tc-id">'+
-    '<div class="form-grid">'+field('tc-username',t('username'))+field('tc-name',t('fullName'))+field('tc-phone',t('teacherPhone'))+field('tc-password',t('passwordField'))+'</div>'+
+    '<div class="form-grid">'+field('tc-username',t('username'))+field('tc-name',t('fullName'))+field('tc-phone',t('teacherPhone'))+field('tc-password',t('passwordField'))+'<div><label>'+t('validUntil')+'</label><input type="date" id="tc-until"></div></div>'+
     '<div style="display:flex;gap:0.5rem;margin-top:0.9rem"><button class="btn" id="tcSaveBtn" onclick="saveTeacher()"><i class="fas fa-save"></i> <span id="tcSaveLabel">'+t('createTeacher')+'</span></button><button class="btn ghost" onclick="clearTeacherForm()"><i class="fas fa-xmark"></i> '+t('clear')+'</button></div>'+
     '<div class="msg ok" id="tc-ok"></div><div class="msg err" id="tc-err"></div>'+
+    '<div id="tc-link" style="display:none;margin-top:1rem" class="card"><h3><i class="fas fa-check-circle" style="color:var(--ok)"></i> '+t('linkReady')+'</h3><div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center"><code id="tc-link-url" style="background:#f4f9ff;border:1px solid var(--line);padding:0.5rem 0.8rem;border-radius:8px;font-size:0.8rem;word-break:break-all;flex:1;min-width:220px"></code><button class="btn ghost sm" onclick="copyLink()"><i class="fas fa-copy"></i> '+t('copy')+'</button><a class="btn ghost sm" id="tc-link-wa" target="_blank" style="text-decoration:none"><i class="fab fa-whatsapp"></i> '+t('whatsapp')+'</a></div></div>'+
     '<div id="tcBody" style="margin-top:1rem">'+skeleton()+'</div></div>'+
    '<div class="card"><h3><i class="fas fa-list-check"></i> '+t('assignClasses')+'</h3>'+
     '<div class="form-grid">'+
@@ -931,6 +932,7 @@ async function pageTeachers(c){
     '<button class="btn" onclick="addAssignment()" style="margin-top:0.9rem"><i class="fas fa-plus"></i> '+t('assign')+'</button>'+
     '<div class="msg ok" id="ta-ok"></div><div class="msg err" id="ta-err"></div>'+
     '<div id="ta-body" style="margin-top:1rem"><div class="muted" style="text-align:center;padding:1rem">'+t('selectTeacherFirst')+'</div></div></div>';
+  var tu=document.getElementById('tc-until'); if(tu){ var d14=new Date(); d14.setDate(d14.getDate()+14); tu.value=d14.toISOString().slice(0,10); tu.min=new Date().toISOString().slice(0,10); }
   await loadClassesData(); await loadYears();
   fillStageSelect('ta-grade'); fillClassSelect('ta-class',''); fillYearSelect('ta-year');
   document.getElementById('ta-grade').onchange=function(){ fillClassSelect('ta-class',this.value); renderTaSubjects(this.value); };
@@ -978,7 +980,25 @@ async function saveTeacher(){
   if(id) b.id=parseInt(id);
   if(!b.username||!b.fullName){ show('tc-err',t('required')); return; }
   if(!id && !b.password){ show('tc-err',t('passwordRequiredNew')); return; }
-  try{ var d=await api('add-teacher',{method:'POST',body:b}); show('tc-ok','✅ '+(d.message||t('saved'))); clearTeacherForm(); loadTeachers(); }
+  var until=val('tc-until');
+  if(!id && !until){ show('tc-err',t('required')); return; }
+  var linkBox=document.getElementById('tc-link'); if(linkBox) linkBox.style.display='none';
+  try{ var d=await api('add-teacher',{method:'POST',body:b}); show('tc-ok','✅ '+(d.message||t('saved')));
+    var pw=b.password, ph=b.phone, un=b.username;
+    clearTeacherForm(); loadTeachers();
+    /* new teacher: the login only works together with an access link, so create it now */
+    if(!id && d.teacherId){
+      try{
+        var l=await api('create-staff-link',{method:'POST',body:{teacherId:d.teacherId,validUntil:until}});
+        _lastLink=location.origin+'/t/'+l.key;
+        document.getElementById('tc-link-url').textContent=_lastLink;
+        var msg=waLinkMessage(_lastLink, un, until, pw||'');
+        document.getElementById('tc-link-wa').href=(ph?('https://wa.me/'+waNormalize(ph)+'?text='):'https://wa.me/?text=')+encodeURIComponent(msg);
+        linkBox.style.display='';
+        linkBox.scrollIntoView({behavior:'smooth',block:'nearest'});
+      }catch(le){ show('tc-err','⚠️ '+(lang==='ar'?'تم إنشاء المعلم لكن تعذّر إنشاء الرابط: ':'Teacher created, but the link failed: ')+le.message+(lang==='ar'?' — أنشئ الرابط من صفحة الروابط.':' — create it from the Links page.')); }
+    }
+  }
   catch(e){ show('tc-err','❌ '+e.message); }
 }
 async function toggleTeacher(id,enable){ try{ await api('add-teacher',{method:'POST',body:{id:id,active:!!enable}}); loadTeachers(); }catch(e){ alert(e.message); } }

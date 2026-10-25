@@ -68,7 +68,7 @@ label{display:block;font-size:0.82rem;font-weight:700;color:var(--soft);margin:0
     <h1>تطبيق المعلم</h1>
     <p>معهد النور الإسلامي</p>
     <div class="err" id="noLink"><i class="fas fa-link"></i> يرجى فتح <b>رابط الوصول</b> الذي أرسله المدير (واتساب أو رسالة). لا يمكن استخدام هذه الصفحة بدونه.</div>
-    <label>اسم المستخدم</label><input id="lu" autocapitalize="none">
+    <label>اسم المستخدم</label><input id="lu" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username">
     <label>كلمة المرور</label><input id="lp" type="password">
     <button class="btn" id="lgBtn" style="margin-top:1rem" onclick="doLogin()"><i class="fas fa-right-to-bracket"></i> دخول</button>
     <div class="err" id="lgErr"></div>
@@ -86,6 +86,7 @@ label{display:block;font-size:0.82rem;font-weight:700;color:var(--soft);margin:0
 
   <div id="scoresView">
     <div class="card">
+      <div id="asgScores"></div>
       <label>المادة</label><input id="scSubject" placeholder="مثال: الرياضيات">
       <label>العام الدراسي</label><input id="scYear">
       <label>الفصل الدراسي</label><select id="scTerm"><option>Term 1</option><option>Term 2</option></select>
@@ -98,6 +99,7 @@ label{display:block;font-size:0.82rem;font-weight:700;color:var(--soft);margin:0
 
   <div id="attView" style="display:none">
     <div class="card">
+      <div id="asgAtt"></div>
       <label>التاريخ</label><input id="atDate" type="date">
       <label>المرحلة</label><input id="atGrade" placeholder="مثال: 7">
       <label>الفصل</label><input id="atClass" placeholder="مثال: 7A">
@@ -129,9 +131,10 @@ async function api(action,opts){
   if(opts.body){ init.headers['Content-Type']='application/json'; init.body=JSON.stringify(opts.body); }
   var qs=opts.params?('?'+new URLSearchParams(opts.params)):'';
   var res=await fetch(API+action+qs,init);
-  var data=await res.json();
-  if(res.status===401 && action!=='teacher-login'){ if(data&&data.error&&/رابط|صلاح|إلغاء/.test(data.error)){ store('nurr_linkkey',null);} store('nurr_staff_token',null); showLogin(data.error||'انتهت الجلسة'); throw new Error('401'); }
-  if(!data.success) throw new Error(data.error||'خطأ');
+  var data=null; try{ data=await res.json(); }catch(pe){}
+  if(!data){ var ne=new Error('تعذّر الاتصال بالخادم'); ne.status=res.status; throw ne; }
+  if(res.status===401 && action!=='teacher-login'){ if(data&&data.error&&/رابط|صلاح|إلغاء/.test(data.error)){ store('nurr_linkkey',null);} store('nurr_staff_token',null); showLogin(data.error||'انتهت الجلسة'); var ue=new Error('401'); ue.status=401; throw ue; }
+  if(!data.success){ var se=new Error(data.error||'خطأ'); se.status=res.status; throw se; }
   return data;
 }
 
@@ -153,10 +156,29 @@ function showLogin(msg){ $('app').style.display='none'; $('loginView').style.dis
 function showApp(teacher,until){ me=teacher; $('loginView').style.display='none'; $('app').style.display='block';
   $('tName').textContent=teacher.full_name; var untilTxt=until?(/^\d{4}-/.test(String(until))?new Date(until).toLocaleDateString('ar',{day:'numeric',month:'long',year:'numeric'}):until):''; $('tSub').textContent=(teacher.subject||'')+(untilTxt?' · حتى '+untilTxt:'');
   var yr=new Date().getFullYear(); $('scYear').value=yr+'-'+(yr+1); $('atDate').value=new Date().toISOString().slice(0,10);
-  flushOutbox(); updateSent();
+  flushOutbox(); updateSent(); loadAssignments();
 }
 function setTab(t){ tab=t; $('tabScores').classList.toggle('on',t==='scores'); $('tabAtt').classList.toggle('on',t==='att');
   $('scoresView').style.display=t==='scores'?'':'none'; $('attView').style.display=t==='att'?'':'none'; }
+
+/* ---- my assigned classes ---- */
+var assignments=[];
+async function loadAssignments(){
+  try{ var d=await api('staff-assignments'); assignments=d.assignments||[]; }catch(e){ return; }
+  var sc=$('asgScores'), at=$('asgAtt'); if(!sc||!at) return;
+  if(!assignments.length){
+    var none='<div class="empty" style="padding:0.6rem 0">لم يتم إسناد أي فصل أو مادة لك بعد. تواصل مع المدير.</div>';
+    sc.innerHTML=none; at.innerHTML=none; return;
+  }
+  var btn=function(fn,i,txt){ return '<button type="button" class="btn ghost" style="width:auto;padding:0.45rem 0.8rem;font-size:0.82rem;margin:0.2rem 0.3rem 0.2rem 0" onclick="'+fn+'('+i+')">'+esc(txt)+'</button>'; };
+  sc.innerHTML='<label>موادّي وفصولي — اضغط للاختيار</label><div>'+assignments.map(function(a,i){ return btn('pickScore',i,a.subject+' · '+a.class_name+' · '+a.academic_year); }).join('')+'</div>';
+  var seen={}, h='';
+  assignments.forEach(function(a,i){ var k=normKey(a.grade_level)+'|'+normKey(a.class_name); if(seen[k]) return; seen[k]=1; h+=btn('pickAtt',i,a.class_name); });
+  at.innerHTML='<label>فصولي — اضغط للاختيار</label><div>'+h+'</div>';
+}
+function normKey(v){ return String(v==null?'':v).trim().toLowerCase(); }
+function pickScore(i){ var a=assignments[i]; if(!a) return; $('scSubject').value=a.subject; $('scYear').value=a.academic_year; $('scGrade').value=a.grade_level; $('scClass').value=a.class_name; $('scList').innerHTML=''; }
+function pickAtt(i){ var a=assignments[i]; if(!a) return; $('atGrade').value=a.grade_level; $('atClass').value=a.class_name; $('atList').innerHTML=''; attState={}; }
 
 /* ---- scores ---- */
 async function loadScores(){
@@ -218,19 +240,34 @@ async function flushOutbox(){
   while(o.length){
     var entry=o[0];
     try{ await api(entry.item.action,{method:'POST',body:entry.item.body}); o.shift(); setOutbox(o); }
-    catch(e){ break; }
+    catch(e){
+      var st=e&&e.status;
+      /* server said "no" for good (bad data / not allowed): drop it and tell the teacher,
+         otherwise it would be retried forever and block every item queued after it */
+      if(st>=400&&st<500&&st!==401&&st!==408&&st!==429){ o.shift(); setOutbox(o); rejected(entry,e.message); continue; }
+      break; /* offline, server error, rate limit or logged out: keep it and retry later */
+    }
   }
   sending=false; updateSent();
 }
 function updateSent(){ var n=outbox().length; var b=$('sentBadge'); if(!b)return;
   b.textContent = n===0?'تم الإرسال ✓':(n+' بانتظار الإرسال'); b.style.background=n?'rgba(201,130,10,.9)':'rgba(30,158,90,.9)'; }
-function showOutbox(){ var n=outbox().length; if(n) alert(n+' عنصر بانتظار الإنترنت.'); }
+function rejected(entry,msg){
+  toast('لم يُحفظ ('+(entry.label||'')+'): '+msg, 7000);
+  try{ var r=JSON.parse(get('nurr_rejected')||'[]'); r.push({ts:Date.now(),label:entry.label||'',msg:msg}); store('nurr_rejected',JSON.stringify(r.slice(-20))); }catch(x){}
+}
+function showOutbox(){
+  var n=outbox().length, r=[]; try{ r=JSON.parse(get('nurr_rejected')||'[]'); }catch(x){}
+  var t=''; if(n) t+=n+' عنصر بانتظار الإنترنت.';
+  if(r.length){ t+=(t?'\n\n':'')+'لم تُحفظ هذه العناصر:\n'+r.map(function(x){ return '• '+x.label+' — '+x.msg; }).join('\n'); store('nurr_rejected',null); }
+  if(t) alert(t);
+}
 window.addEventListener('online',function(){ $('offlineBar').classList.remove('show'); flushOutbox(); });
 window.addEventListener('offline',function(){ $('offlineBar').classList.add('show'); });
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 var tt;
-function toast(m){ var el=$('toast'); el.textContent=m; el.classList.add('show'); clearTimeout(tt); tt=setTimeout(function(){el.classList.remove('show');},2200); }
+function toast(m,ms){ var el=$('toast'); el.textContent=m; el.classList.add('show'); clearTimeout(tt); tt=setTimeout(function(){el.classList.remove('show');},ms||2200); }
 
 $('lp').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
 /* boot */
