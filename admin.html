@@ -1338,7 +1338,7 @@ async function buildPrintResults(){
     if(fmt==='broadsheet'){ renderBroadsheet(studs,grade,cls,year,term); return; }
     // one report-card per student, page-break between
     injectPrintCardCSS();
-    var pages=studs.map(function(s){
+    var pages=studs.map(function(s){ return a4Card(s,grade,classSize,year,term);
       var rowsHtml=s.subs.map(function(x){ return '<tr><td class="pc-s">'+esc(x.subject)+'</td><td>'+(x.score!=null?esc(x.score):'')+'</td><td>'+esc(x.grade||'')+'</td></tr>'; }).join('');
       var avg=s.subs.length?(s.total/s.subs.length):0;
       return '<div class="pc-page"><div class="pc">'+
@@ -1353,6 +1353,102 @@ async function buildPrintResults(){
     }).join('');
     out.innerHTML='<div style="text-align:center;margin-bottom:0.8rem"><button class="btn" onclick="printCards()"><i class="fas fa-print"></i> '+t('print')+' ('+studs.length+' '+t('students')+')</button></div><div id="pcSheets" style="background:#e9eef5;padding:1rem;border-radius:12px;max-height:70vh;overflow:auto;text-align:center">'+pages+'</div>';
   }catch(e){ show('pb-err','❌ '+e.message); }
+}
+function a4Grade(x){ return x>=90?'ممتاز':x>=75?'جيد جداً':x>=60?'جيد':x>=50?'مقبول':'ضعيف'; }
+function a4Term(t){ var m=String(t==null?'':t).match(/[1-9]/); var o=['','الأول','الثاني','الثالث','الرابع']; return (m&&o[m[0]])?('الفصل الدراسي '+o[m[0]]):t; }
+function a4Stretch(raw,n){
+  if(!n) return raw;
+  var J='بتثجحخسشصضطظعغفقكلمنهيئ', D=/[\u064B-\u0652\u0670]/, ch=raw.split(''), slots=[], i;
+  for(i=0;i<ch.length;i++){
+    if(J.indexOf(ch[i])<0) continue;
+    var k=i+1; while(k<ch.length && D.test(ch[k])) k++;
+    if(k>=ch.length || !/[\u0621-\u064A]/.test(ch[k])) continue;
+    if(ch[i]==='ل' && 'اأإآ'.indexOf(ch[k])>=0) continue;
+    slots.push(k);
+  }
+  var S=slots.length; if(!S) return raw;
+  var base=Math.floor(n/S), rem=n%S, cnt=[], order=[], mid=(S-1)/2;
+  for(i=0;i<S;i++){ cnt.push(base); order.push(i); }
+  order.sort(function(a,b){ return Math.abs(a-mid)-Math.abs(b-mid); });
+  for(i=0;i<rem;i++) cnt[order[i]]++;
+  var map={}, out=''; slots.forEach(function(k,ix){ map[k]=cnt[ix]; });
+  for(i=0;i<ch.length;i++){ if(map[i]) out+=new Array(map[i]+1).join('\u0640'); out+=ch[i]; }
+  return out;
+}
+function a4K(raw,fill,max,grow){
+  raw=String(raw==null?'':raw); if(!/[\u0600-\u06FF]/.test(raw)) return esc(raw);
+  return '<span class="a4k" data-raw="'+esc(raw)+'" data-fill="'+(fill||0.9)+'" data-grow="'+(grow||1.7)+'"'+(max?' data-max="'+max+'"':'')+'>'+esc(raw)+'</span>';
+}
+function a4Fit(){
+  var els=document.querySelectorAll('.a4k'); if(!els.length) return;
+  var cv=a4Fit.cv||(a4Fit.cv=document.createElement('canvas')), cx=cv.getContext('2d');
+  Array.prototype.forEach.call(els,function(el){
+    var raw=el.getAttribute('data-raw'), p=el.parentElement; if(!raw||!p||!p.clientWidth) return;
+    var cs=getComputedStyle(el), pc=getComputedStyle(p);
+    var inner=p.clientWidth-parseFloat(pc.paddingLeft)-parseFloat(pc.paddingRight)-4;
+    var mx=parseFloat(el.getAttribute('data-max')), avail=mx?Math.min(inner,mx*3.7795):inner*(parseFloat(el.getAttribute('data-fill'))||0.9);
+    cx.font=cs.fontWeight+' '+cs.fontSize+' '+cs.fontFamily; cx.direction='rtl';
+    avail=Math.min(avail,cx.measureText(raw).width*(parseFloat(el.getAttribute('data-grow'))||1.7));
+    var lo=0, hi=60, m;
+    while(lo<hi){ m=(lo+hi+1)>>1; if(cx.measureText(a4Stretch(raw,m)).width<=avail) lo=m; else hi=m-1; }
+    el.textContent=a4Stretch(raw,lo);
+  });
+}
+function a4Card(s,gradeLevel,classSize,year,term){
+  var MAXS=100, MINS=50; /* full mark and pass mark per subject */
+  var NF='"Noto Naskh Arabic","Simplified Arabic",Arial,sans-serif';
+  var A4CSS='/*a4v3*/'+
+    '.pc-page{width:210mm!important}'+
+    '.a4,.a4 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+    '.a4{box-sizing:border-box;width:100%;height:296mm;padding:8mm 14mm;display:flex;flex-direction:column;direction:rtl;text-align:right;color:#000;font-family:'+NF+';font-size:13pt;line-height:1.3;overflow:hidden;background:#fff}'+
+    '.a4bis{text-align:center;font-size:16pt;font-weight:700}'+
+    '.a4h{display:grid;grid-template-columns:1fr 50mm 1fr;align-items:center;margin-top:1mm}'+
+    '.a4r{line-height:1.4}.a4r .n{font-size:21pt;font-weight:700;color:#1a3a6b;line-height:1.3;white-space:nowrap}.a4r .s{font-size:10.5pt;font-weight:700}'+
+    '.a4c{text-align:center;line-height:0}.a4c img{width:48mm;height:auto;display:inline-block}'+
+    '.a4l{direction:ltr;text-align:left;font-family:Arial,Helvetica,sans-serif;font-size:7.5pt;font-weight:bold;line-height:1.5}'+
+    '.a4tt{text-align:center;font-size:16pt;font-weight:700;color:#1a3a6b;margin:2mm 0 1mm;white-space:nowrap}'+
+    '.a4k{display:block;white-space:nowrap;overflow:hidden}'+
+    '.a4i{display:flex;justify-content:space-between;align-items:baseline;font-size:13pt;margin-bottom:.5mm;white-space:nowrap}.a4i b{font-weight:700}'+
+    '.a4st{display:flex;justify-content:space-between;border:1.2pt solid #000;padding:.8mm 4mm;margin:1.5mm 0 2.5mm;font-size:13pt}'+
+    '.a4 .a4tb{font-size:13pt}'+
+    '.a4tb{width:100%;table-layout:fixed;border-collapse:collapse;border:1.5pt solid #000;font-size:13pt}'+
+    '.a4tb th,.a4tb td{border:1pt solid #000;padding:.4mm 1.5mm;text-align:center;line-height:1.3;overflow:hidden}'+
+    '.a4tb th{background:#e8e8e8;font-weight:700;font-size:13pt;position:static;letter-spacing:0;text-transform:none}'+
+    '.a4tb td.a4s{text-align:right;font-weight:700;font-size:13pt;white-space:nowrap}'+
+    '.a4tb td.a4n{font-family:Arial,sans-serif;font-size:11pt;font-weight:bold}'+
+    '.a4t td{font-weight:700;background:#f2f2f2;font-size:13pt}'+
+    '.a4sg{margin-top:auto;display:flex;justify-content:space-between;text-align:center;font-size:13pt;font-weight:700}'+
+    '.a4sg i{display:block;width:42mm;height:11mm;border-bottom:1pt solid #000;margin-top:2mm}'+
+    '.a4 table,.a4 th,.a4 td{color:#000}';
+  var ps=document.getElementById('pcStyle');
+  if(ps && ps.textContent.indexOf('/*a4v3*/')<0){ ps.textContent+=A4CSS; }
+  var e=esc, n=s.subs.length, maxT=n*MAXS, minT=n*MINS;
+  var pct=maxT?(s.total/maxT*100):0, overall=a4Grade(pct);
+  var rowH=Math.max(7.6,Math.min(22,Math.floor(150/(n+2)*10)/10));
+  var d=new Date(), dd=('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear();
+  var lvl=s.grade||gradeLevel||'', cls=s.cls||'';
+  var forCls=(lvl&&cls&&lvl!==cls)?('<bdi>'+e(lvl)+'</bdi> / <bdi>'+e(cls)+'</bdi>'):('<bdi>'+e(cls||lvl)+'</bdi>');
+  var rows=s.subs.map(function(x,i){ var sc=x.score; var ok=(sc!=null&&!isNaN(sc));
+    return '<tr style="height:'+rowH+'mm"><td class="a4n">'+(i+1)+'</td><td class="a4s">'+a4K(x.subject,0.94)+'</td><td class="a4n">'+MINS+'</td><td class="a4n">'+MAXS+'</td><td class="a4n" style="font-size:13pt">'+(ok?e(sc):'')+'</td><td></td></tr>'; }).join('');
+  if(!a4Card.hooked){ a4Card.hooked=1; if(document.fonts&&document.fonts.addEventListener) document.fonts.addEventListener('loadingdone',a4Fit); }
+  clearTimeout(a4Card.t1); a4Card.t1=setTimeout(a4Fit,250); clearTimeout(a4Card.t2); a4Card.t2=setTimeout(a4Fit,2000);
+  return '<div class="pc-page"><style>@import url("https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap");</style><div class="a4">'+
+    '<div class="a4bis">بسم الله الرحمن الرحيم</div>'+
+    '<div class="a4h">'+
+      '<div class="a4r"><div class="n">معهد النور الإسلامي</div><div class="s">التابع لجمعية الأمة الإسلامية<br>لنشر الثقافة الإسلامية</div><div class="s">كانفينغ – غامبيا – غرب أفريقيا</div></div>'+
+      '<div class="a4c"><img src="'+location.origin+'/nurry.png" onerror="this.style.display=\'none\'"></div>'+
+      '<div class="a4l">AN-NURR ISLAMIC INSTITUTE<br>UNDER THE ISLAMIC UMMAH SOCIETY<br>FOR SPREADING ISLAMIC CULTURE<br>KANIFING SOUTH - THE GAMBIA WA</div>'+
+    '</div>'+
+    '<div class="a4tt">'+a4K('كشف الدرجات',1,80)+'</div>'+
+    '<div class="a4i"><span>نتائج الامتحانات للصف: <b>'+forCls+'</b></span><span style="font-size:11pt">التاريخ: <bdi>'+dd+'</bdi></span></div>'+
+    '<div class="a4i"><span>اسم الطالب/ة: <b>'+e(s.name)+'</b></span><span>للعام الدراسي: <b><bdi>'+e(year)+'</bdi>م</b> &nbsp;·&nbsp; <b>'+e(a4Term(term))+'</b></span></div>'+
+    '<div class="a4st"><span>الترتيب: <b>'+s.position+'</b></span><span>عدد طلاب الصف: <b>'+classSize+'</b></span></div>'+
+    '<table class="a4tb"><colgroup><col style="width:10mm"><col><col style="width:21mm"><col style="width:21mm"><col style="width:34mm"><col style="width:32mm"></colgroup>'+
+      '<thead><tr><th rowspan="2">م</th><th rowspan="2">'+a4K('المواد',0.85)+'</th><th colspan="3">'+a4K('الدرجات',0.85)+'</th><th rowspan="2">'+a4K('الملحوظات',0.9)+'</th></tr>'+
+      '<tr><th>'+a4K('الصغرى',0.9)+'</th><th>'+a4K('الكبرى',0.9)+'</th><th>'+a4K('الدرجات المكتسبة',0.94)+'</th></tr></thead><tbody>'+rows+
+      '<tr class="a4t" style="height:'+rowH+'mm"><td colspan="2">'+a4K('المجموع الكلي',0.7)+'</td><td class="a4n">'+minT+'</td><td class="a4n">'+maxT+'</td><td class="a4n">'+s.total+'</td><td></td></tr></tbody></table>'+
+    '<div class="a4sg"><div>توقيع مدير المعهد<i></i></div><div>ختم المعهد الرسمي<i></i></div><div>توقيع مدير الامتحانات<i></i></div></div>'+
+  '</div></div>';
 }
 function injectPrintCardCSS(){
   if(document.getElementById('pcStyle'))return; var st=document.createElement('style'); st.id='pcStyle';
