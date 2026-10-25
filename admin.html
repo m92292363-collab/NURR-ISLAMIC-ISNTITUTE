@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0d3b6e">
 <link rel="apple-touch-icon" href="/app-icons/icon-192.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --blue:#1e6fd9; --blue-dark:#0d3b6e; --blue-soft:#e8f2fe; --blue-mid:#cfe3fa;
@@ -20,7 +20,9 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
-body.rtl{direction:rtl;font-family:'Amiri','Nunito',serif;font-size:1.06rem}
+html[lang="ar"]{font-size:18px}
+body.rtl{direction:rtl;font-family:'Nunito','Noto Sans Arabic','Cairo',sans-serif;font-size:1rem;line-height:1.7}
+body.rtl h1,body.rtl h2,body.rtl h3,body.rtl .sb-item,body.rtl label,body.rtl th{font-weight:700}
 body.rtl td,body.rtl th,body.rtl .sb-item,body.rtl label,body.rtl select,body.rtl input{font-weight:700;letter-spacing:0}
 body.rtl table{font-size:0.98rem}
 a{color:var(--blue)}
@@ -65,9 +67,14 @@ label{display:block;font-size:0.8rem;font-weight:700;color:var(--soft);margin:0 
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
 .topbar{background:#fff;border-bottom:1px solid var(--line);padding:0.7rem 1.2rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:20}
 .topbar h2{font-size:1.1rem;color:var(--blue-dark);flex:1;display:flex;align-items:center;gap:0.5rem}
-.lang-toggle{display:flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden}
-.lang-toggle button{border:0;background:#fff;color:var(--soft);padding:0.3rem 0.8rem;font-weight:800;font-size:0.8rem;cursor:pointer}
-.lang-toggle button.on{background:var(--blue);color:#fff}
+.lang-toggle{position:relative;width:80px;height:34px;border-radius:999px;background:#c7c7cc;cursor:pointer;direction:ltr;flex:none;user-select:none;-webkit-tap-highlight-color:transparent;transition:background .25s ease;outline:none}
+.lang-toggle.ar{background:#34c759}
+.lang-toggle:focus-visible{box-shadow:0 0 0 3px rgba(10,132,255,.45)}
+.lang-toggle .lt-knob{position:absolute;top:3px;left:3px;width:36px;height:28px;border-radius:999px;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.28);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:1}
+.lang-toggle.ar .lt-knob{transform:translateX(38px)}
+.lang-toggle span{position:absolute;top:0;width:40px;height:34px;line-height:34px;text-align:center;font-size:.8rem;font-weight:800;color:#fff;z-index:2;transition:color .2s}
+.lang-toggle .lt-en{left:0}.lang-toggle .lt-ar{left:40px;font-family:'Noto Sans Arabic','Nunito',sans-serif;font-size:.82rem}
+.lang-toggle:not(.ar) .lt-en,.lang-toggle.ar .lt-ar{color:#1c1c1e}
 .content{padding:1.2rem;max-width:1180px;width:100%;margin:0 auto}
 .page{display:none;animation:fade .2s ease}
 .page.on{display:block}
@@ -155,7 +162,7 @@ body.eye{filter:sepia(0.18) brightness(0.97)}
     <div class="topbar">
       <button class="menu-btn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
       <h2><i class="fas fa-gauge-high"></i> <span id="pageTitle">Dashboard</span></h2>
-      <div class="lang-toggle"><button id="enBtn" class="on" onclick="setLang('en')">EN</button><button id="arBtn" onclick="setLang('ar')">عربي</button></div>
+      <div class="lang-toggle" id="langSw" role="switch" tabindex="0" aria-label="Language / اللغة" aria-checked="false" onclick="toggleLang()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleLang();}"><i class="lt-knob"></i><span class="lt-en">EN</span><span class="lt-ar">عربي</span></div>
       <button class="btn ghost sm" onclick="logout()"><i class="fas fa-right-from-bracket"></i> <span data-t="logout">Log out</span></button>
     </div>
     <div class="content"><div class="install-bar" id="installBar" style="display:none">
@@ -265,8 +272,7 @@ function applyLang(){
   document.documentElement.dir = lang==='ar'?'rtl':'ltr';
   document.body.classList.toggle('rtl', lang==='ar');
   document.querySelectorAll('[data-t]').forEach(function(el){ el.textContent = t(el.getAttribute('data-t')); });
-  document.getElementById('enBtn').classList.toggle('on', lang==='en');
-  document.getElementById('arBtn').classList.toggle('on', lang==='ar');
+  var sw=document.getElementById('langSw'); if(sw){ sw.classList.toggle('ar', lang==='ar'); sw.setAttribute('aria-checked', lang==='ar'?'true':'false'); }
   var fl=document.getElementById('langFlipLogin'); if(fl) fl.textContent = lang==='en'?'عربي':'English';
   buildNav();
   if(document.getElementById('app').style.display==='block') openPage(currentPage,true);
