@@ -6,6 +6,13 @@
   publish   = "."
   functions = "netlify/functions"
 
+# Short teacher link:  /t/<key>  ->  staff page
+[[redirects]]
+  from   = "/t/:k"
+  to     = "/staff/?k=:k"
+  status = 302
+  force  = true
+
 # Browser calls /api/get-all-students  ->  the api function
 [[redirects]]
   from   = "/api/*"
