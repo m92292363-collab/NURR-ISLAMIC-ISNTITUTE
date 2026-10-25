@@ -439,7 +439,7 @@ const routes = {
       }
       t.username = uname;
     }
-    const key = crypto.randomBytes(24).toString('base64url');
+    const key = crypto.randomBytes(15).toString('base64url');
     const r = (await sql`INSERT INTO staff_links (teacher_id, key_hash, expires_at) VALUES (${t.id}, ${hashKey(key)}, ${expires.toISOString()}) RETURNING id`)[0];
     return ok({ id: r.id, key, validUntil, teacher: t.full_name, username: t.username, password: generatedPassword });
   }},
