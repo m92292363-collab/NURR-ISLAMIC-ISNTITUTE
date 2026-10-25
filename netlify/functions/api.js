@@ -1004,7 +1004,8 @@ const routes = {
     // edit existing
     if (id) {
       await ensureLinkSchema();
-      await sql`UPDATE teachers SET full_name = ${(fullName||'').trim()}, subject = ${subject||null}, grade_level = ${gradeLevel||null}, phone = ${phone||null}${username?sql`, username = ${username.trim()}`:sql``} WHERE id = ${parseInt(id)}`;
+      if (username) { const dupU = await sql`SELECT 1 FROM teachers WHERE username = ${username.trim()} AND id <> ${parseInt(id)}`; if (dupU.length) return err('اسم المستخدم مستخدم بالفعل'); }
+      await sql`UPDATE teachers SET full_name = ${(fullName||'').trim()}, subject = COALESCE(${subject||null}, subject), grade_level = COALESCE(${gradeLevel||null}, grade_level), phone = ${phone||null}${username?sql`, username = ${username.trim()}`:sql``} WHERE id = ${parseInt(id)}`;
       if (password) await sql`UPDATE teachers SET teacher_password = ${hashPassword(password)} WHERE id = ${parseInt(id)}`;
       return ok({ message: 'تم تحديث المعلم' });
     }
