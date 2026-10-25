@@ -188,7 +188,8 @@ var T = {
     studentHistory:'Student History', studentPhoto:'Student Photo', classList:'Print Class List', printClassList:'Print Class List', transcript:'Transcript', archive:'Archive', restore:'Restore', archived:'Archived', uploadPhoto:'Upload Photo', archiveReasonPrompt:'Reason (optional):',
     showTop:'Show Top', total:'Total', average:'Average', all:'All', view:'View', print:'Print', position:'Position', principal:'Principal',
     conduct:'Conduct', teacherRemark:'Teacher Remark', headRemark:'Head Remark', nextTermDate:'Next term begins', bulkDesc:'Enter one subject for a whole class at once.', bulkGridDesc:'Tick subjects, load the class, then fill scores in the grid — many subjects at once.', loadGrid:'Load grid', pickOneSubject:'Pick at least one subject', enterOneScore:'Enter at least one score', receipt:'Receipt', cashier:'Cashier', editAmountPrompt:'New amount:', appearance:'Appearance', theme:'Theme colour', darkMode:'Dark mode', eyeComfort:'Eye comfort (warm)', changePassword:'Change password', currentPassword:'Current password', newPassword:'New password', confirmPassword:'Confirm new password', passwordMismatch:'Passwords do not match', passwordTooShort:'Password too short', passwordChanged:'Password changed', schoolName:'School name', printList:'Print list', feeList:'Fee list', addYear:'Add another year…', enterYear:'Enter academic year (e.g. 2027-2028):', yearFormat:'Use format like 2027-2028', levels:'Levels', allLevels:'All levels', levelsFor:'Levels for', levelsHint:'Tick the levels that learn this subject. Leave all unticked to allow all levels.', cancel:'Cancel', noSubjectsForLevel:'No subjects set for this level yet (assign them in Subjects).',
-    announce:'Announcements', announceDesc:'Write a message (Arabic on top, English below) and send it to teachers on WhatsApp — for staff meetings or any notice.', messageArabic:'Message (Arabic)', messageEnglish:'Message (English)', messageArabicPh:'نص الرسالة بالعربية…', messageEnglishPh:'Message in English…', whatsappNo:'WhatsApp number', selectAll:'Select all', selectNone:'None', selected:'selected', noPhoneNote:'No WhatsApp number (skipped)', sendWhatsapp:'Send on WhatsApp', waHint:'This opens WhatsApp with your message ready — you just press send. No charge.', writeMessage:'Write a message first', pickRecipient:'Pick at least one teacher', waClickEach:'Click each teacher to open their WhatsApp with the message ready:', done:'Done', format:'Format', oneCardPerStudent:'One report card per student (A4)', broadsheet:'Broadsheet (one table)',
+    announce:'Announcements',
+    statistics:'Statistics', byLevel:'Students by level', principalView:"Principal's View", importStudents:'Import Students', importDesc:'Paste or upload a CSV: student ID, name, password, guardian, phone, nationality. Pick the stage and class first.', pasteCsv:'Paste CSV rows', csvPlaceholder:'NR0001, Student Name, password, Guardian, 7001234, Gambian', uploadCsv:'Upload file', importNow:'Import now', csvEmpty:'Nothing to import', csvNoRows:'No valid rows found', imported:'Imported', classResults:'Class Results', newIntake:'New Intake', newIntakeDesc:'Newly enrolled students, newest first.', enrolled:'Enrolled', exportData:'Export Data', exportDataDesc:'Download your data as CSV (opens in Excel).', exported:'Downloaded', attendanceBook:'Attendance Book', month:'Month', notMarked:'not marked', announceDesc:'Write a message (Arabic on top, English below) and send it to teachers on WhatsApp — for staff meetings or any notice.', messageArabic:'Message (Arabic)', messageEnglish:'Message (English)', messageArabicPh:'نص الرسالة بالعربية…', messageEnglishPh:'Message in English…', whatsappNo:'WhatsApp number', selectAll:'Select all', selectNone:'None', selected:'selected', noPhoneNote:'No WhatsApp number (skipped)', sendWhatsapp:'Send on WhatsApp', waHint:'This opens WhatsApp with your message ready — you just press send. No charge.', writeMessage:'Write a message first', pickRecipient:'Pick at least one teacher', waClickEach:'Click each teacher to open their WhatsApp with the message ready:', done:'Done', format:'Format', oneCardPerStudent:'One report card per student (A4)', broadsheet:'Broadsheet (one table)',
     teacherAccounts:'Teacher Accounts', teacherAccountsDesc:'Create the teacher account here, assign their classes below, then send them a personal access link in Teacher Links.', createTeacher:'Create Teacher', saveChanges:'Save changes', clear:'Clear', thisYear:'This year', assignClasses:'Assign Classes & Subjects', subjectsTick:'Subjects (tick one or more)', assign:'Assign', selectTeacherFirst:'Select a teacher', selectTeacher:'-- Select Teacher --', subjectsWord:'subject(s)', enable:'Enable', disable:'Disable', disabled:'Disabled', noAssignments:'No assignments yet', assignRequired:'Teacher, grade, class and at least one subject are required', passwordRequiredNew:'A password is required for a new teacher',
     feeTargets:'Fee Targets', feeTargetsDesc:'Official yearly fee per class — institute fee + exam fee.', instituteAmount:'Institute fee', examAmount:'Exam fee',
     expectedTotal:'Expected (total)', collectedTotal:'Collected', outstanding:'Outstanding', paidInFull:'Paid in full', partial:'Partial', unpaid:"Haven't paid", exportCsv:'Export CSV', feesByClass:'Fees by Class', instituteByClass:'Institute fees by class', examByClass:'Exam fees by class', paymentLedger:'Payment Ledger', studentFees:'Student Fees', instituteFee:'Institute fee', examFee:'Exam fee', instituteCollected:'Institute fees collected — Dalasi', examCollected:'Exam fees collected — Dalasi',
@@ -229,7 +230,8 @@ var T = {
     studentHistory:'سجل الطالب', studentPhoto:'صورة الطالب', classList:'طباعة قائمة الفصل', printClassList:'طباعة قائمة الفصل', transcript:'كشف النتائج', archive:'أرشفة', restore:'استعادة', archived:'مؤرشف', uploadPhoto:'رفع صورة', archiveReasonPrompt:'السبب (اختياري):',
     showTop:'عرض أفضل', total:'المجموع', average:'المعدل', all:'الكل', view:'عرض', print:'طباعة', position:'الترتيب', principal:'المدير',
     conduct:'السلوك', teacherRemark:'ملاحظة المعلم', headRemark:'ملاحظة المدير', nextTermDate:'بداية الفصل القادم', bulkDesc:'أدخل مادة واحدة لفصل كامل دفعة واحدة.', bulkGridDesc:'اختر المواد، حمّل الفصل، ثم أدخل الدرجات في الجدول — عدة مواد دفعة واحدة.', loadGrid:'تحميل الجدول', pickOneSubject:'اختر مادة واحدة على الأقل', enterOneScore:'أدخل درجة واحدة على الأقل', receipt:'إيصال', cashier:'أمين الصندوق', editAmountPrompt:'المبلغ الجديد:', appearance:'المظهر', theme:'لون الواجهة', darkMode:'الوضع الليلي', eyeComfort:'راحة العين (دافئ)', changePassword:'تغيير كلمة المرور', currentPassword:'كلمة المرور الحالية', newPassword:'كلمة المرور الجديدة', confirmPassword:'تأكيد كلمة المرور', passwordMismatch:'كلمتا المرور غير متطابقتين', passwordTooShort:'كلمة المرور قصيرة جداً', passwordChanged:'تم تغيير كلمة المرور', schoolName:'اسم المدرسة', printList:'طباعة القائمة', feeList:'قائمة الرسوم', addYear:'إضافة عام آخر…', enterYear:'أدخل العام الدراسي (مثال 2027-2028):', yearFormat:'استخدم صيغة مثل 2027-2028', levels:'المراحل', allLevels:'كل المراحل', levelsFor:'مراحل', levelsHint:'اختر المراحل التي تدرس هذه المادة. اترك الكل فارغاً للسماح لكل المراحل.', cancel:'إلغاء', noSubjectsForLevel:'لا توجد مواد لهذه المرحلة بعد (كلّفها في المواد).',
-    announce:'الإعلانات', announceDesc:'اكتب رسالة (العربية في الأعلى، الإنجليزية أسفلها) وأرسلها للمعلمين عبر واتساب — للاجتماعات أو أي إشعار.', messageArabic:'الرسالة (عربي)', messageEnglish:'الرسالة (إنجليزي)', messageArabicPh:'نص الرسالة بالعربية…', messageEnglishPh:'الرسالة بالإنجليزية…', whatsappNo:'رقم واتساب', selectAll:'تحديد الكل', selectNone:'لا شيء', selected:'محدد', noPhoneNote:'بدون رقم واتساب (تم تخطيه)', sendWhatsapp:'إرسال عبر واتساب', waHint:'يفتح واتساب ورسالتك جاهزة — تضغط إرسال فقط. بدون رسوم.', writeMessage:'اكتب الرسالة أولاً', pickRecipient:'اختر معلماً واحداً على الأقل', waClickEach:'اضغط على كل معلم لفتح واتساب ورسالته جاهزة:', done:'تم', format:'الصيغة', oneCardPerStudent:'كشف لكل طالب (A4)', broadsheet:'جدول شامل',
+    announce:'الإعلانات',
+    statistics:'الإحصائيات', byLevel:'الطلاب حسب المرحلة', principalView:'لوحة المدير', importStudents:'استيراد الطلاب', importDesc:'الصق أو ارفع ملف CSV: رقم الطالب، الاسم، كلمة المرور، ولي الأمر، الهاتف، الجنسية. اختر المرحلة والفصل أولاً.', pasteCsv:'الصق صفوف CSV', csvPlaceholder:'NR0001, اسم الطالب, كلمة المرور, ولي الأمر, 7001234, غامبي', uploadCsv:'رفع ملف', importNow:'استيراد الآن', csvEmpty:'لا يوجد ما يُستورد', csvNoRows:'لم توجد صفوف صالحة', imported:'تم الاستيراد', classResults:'نتائج الفصل', newIntake:'المستجدون', newIntakeDesc:'الطلاب المسجلون حديثاً، الأحدث أولاً.', enrolled:'تاريخ التسجيل', exportData:'تصدير البيانات', exportDataDesc:'نزّل بياناتك كملف CSV (يفتح في Excel).', exported:'تم التنزيل', attendanceBook:'دفتر الحضور', month:'الشهر', notMarked:'لم يُسجل', announceDesc:'اكتب رسالة (العربية في الأعلى، الإنجليزية أسفلها) وأرسلها للمعلمين عبر واتساب — للاجتماعات أو أي إشعار.', messageArabic:'الرسالة (عربي)', messageEnglish:'الرسالة (إنجليزي)', messageArabicPh:'نص الرسالة بالعربية…', messageEnglishPh:'الرسالة بالإنجليزية…', whatsappNo:'رقم واتساب', selectAll:'تحديد الكل', selectNone:'لا شيء', selected:'محدد', noPhoneNote:'بدون رقم واتساب (تم تخطيه)', sendWhatsapp:'إرسال عبر واتساب', waHint:'يفتح واتساب ورسالتك جاهزة — تضغط إرسال فقط. بدون رسوم.', writeMessage:'اكتب الرسالة أولاً', pickRecipient:'اختر معلماً واحداً على الأقل', waClickEach:'اضغط على كل معلم لفتح واتساب ورسالته جاهزة:', done:'تم', format:'الصيغة', oneCardPerStudent:'كشف لكل طالب (A4)', broadsheet:'جدول شامل',
     teacherAccounts:'حسابات المعلمين', teacherAccountsDesc:'أنشئ حساب المعلم هنا، كلّفه بالفصول أدناه، ثم أرسل له رابط الوصول الشخصي من روابط المعلمين.', createTeacher:'إنشاء معلم', saveChanges:'حفظ التغييرات', clear:'مسح', thisYear:'هذا العام', assignClasses:'تكليف الفصول والمواد', subjectsTick:'المواد (اختر واحدة أو أكثر)', assign:'تكليف', selectTeacherFirst:'اختر معلماً', selectTeacher:'-- اختر المعلم --', subjectsWord:'مادة', enable:'تفعيل', disable:'تعطيل', disabled:'معطّل', noAssignments:'لا توجد تكليفات بعد', assignRequired:'المعلم والمرحلة والفصل ومادة واحدة على الأقل مطلوبة', passwordRequiredNew:'كلمة المرور مطلوبة للمعلم الجديد',
     feeTargets:'الرسوم الرسمية', feeTargetsDesc:'الرسوم السنوية لكل فصل — رسوم المعهد + رسوم الامتحان.', instituteAmount:'رسوم المعهد', examAmount:'رسوم الامتحان',
     expectedTotal:'المطلوب (الإجمالي)', collectedTotal:'المحصّل', outstanding:'المتبقي', paidInFull:'مدفوع كاملاً', partial:'جزئي', unpaid:'لم يدفع', exportCsv:'تصدير CSV', feesByClass:'الرسوم حسب الفصل', instituteByClass:'رسوم المعهد حسب الفصل', examByClass:'رسوم الامتحان حسب الفصل', paymentLedger:'سجل المدفوعات', studentFees:'رسوم الطلاب', instituteFee:'رسوم المعهد', examFee:'رسوم الامتحان', instituteCollected:'رسوم المعهد المحصّلة — دلاسي', examCollected:'رسوم الامتحان المحصّلة — دلاسي',
@@ -306,10 +308,12 @@ function logout(){ sessionStorage.clear(); location.reload(); }
 
 /* ============ NAV ============ */
 var NAV=[
-  {g:'grpMain', items:[{id:'dashboard',icon:'fa-gauge-high'}]},
+  {g:'grpMain', items:[{id:'dashboard',icon:'fa-gauge-high'},{id:'statistics',icon:'fa-chart-pie'},{id:'principal',icon:'fa-user-tie'}]},
   {g:'grpStudents', items:[
     {id:'students',icon:'fa-users'},
     {id:'addStudent',icon:'fa-user-plus'},
+    {id:'importStudents',icon:'fa-file-import'},
+    {id:'newIntake',icon:'fa-user-clock'},
     {id:'editStudent',icon:'fa-user-pen'},
     {id:'studentHistory',icon:'fa-clock-rotate-left'},
     {id:'studentPhoto',icon:'fa-image-portrait'},
@@ -321,6 +325,7 @@ var NAV=[
     {id:'results',icon:'fa-table-list'},
     {id:'addMarks',icon:'fa-pen-to-square'},
     {id:'bulkResults',icon:'fa-layer-group'},
+    {id:'classResults',icon:'fa-table-cells'},
     {id:'topStudents',icon:'fa-trophy'},
     {id:'viewReport',icon:'fa-file-lines'},
     {id:'printResults',icon:'fa-print'},
@@ -335,7 +340,8 @@ var NAV=[
     {id:'feeTargets',icon:'fa-bullseye'}
   ]},
   {g:'grpAttend', items:[
-    {id:'attendance',icon:'fa-clipboard-check'}
+    {id:'attendance',icon:'fa-clipboard-check'},
+    {id:'attendanceBook',icon:'fa-book'}
   ]},
   {g:'grpStaff', items:[
     {id:'teachers',icon:'fa-chalkboard-user'},
@@ -346,6 +352,7 @@ var NAV=[
     {id:'news',icon:'fa-bullhorn'}
   ]},
   {g:'grpSystem', items:[
+    {id:'exportData',icon:'fa-download'},
     {id:'audit',icon:'fa-shield-halved'},
     {id:'settings',icon:'fa-gear'}
   ]}
@@ -379,7 +386,7 @@ function openPage(id, keep){
   document.getElementById('pageTitle').textContent=t(id);
   document.querySelectorAll('.sb-item').forEach(function(x){ x.classList.toggle('on', x.dataset.page===id); });
   var c=document.getElementById('content');
-  var fn={dashboard:pageDashboard,students:pageStudents,results:pageResults,fees:pageFees,attendance:pageAttendance,
+  var fn={dashboard:pageDashboard,statistics:pageStatistics,principal:pagePrincipal,importStudents:pageImport,newIntake:pageNewIntake,classResults:pageClassResults,exportData:pageExport,attendanceBook:pageAttendanceBook,students:pageStudents,results:pageResults,fees:pageFees,attendance:pageAttendance,
     addStudent:pageAddStudent,editStudent:pageEditStudent,studentHistory:pageStudentHistory,studentPhoto:pageStudentPhoto,classList:pageClassList,promotion:pagePromotion,classes:pageClasses,addMarks:pageAddMarks,subjects:pageSubjects,
     recordPayment:pageRecordPayment,feeSchedule:pageFeeSchedule,feeTargets:pageFeeTargets,payments:pagePayments,topStudents:pageTopStudents,reportRemarks:pageRemarks,viewReport:pageViewReport,printResults:pagePrintResults,bulkResults:pageBulkResults,teachers:pageTeachers,announce:pageAnnounce,links:pageLinks,news:pageNews,
     audit:pageAudit,settings:pageSettings}[id];
@@ -780,7 +787,7 @@ function showReceipt(r){
   var amtWords=numToArabicWords(r.amount)+' دلاسي';
   function copy(){
     return '<div class="rc-copy">'+
-      '<div class="rc-head"><img src="'+origin+'/nurry.png" onerror="this.style.display=\'none\'">'+
+      '<div class="rc-head"><img src="'+origin+'/favicon.png" onerror="this.style.display=\'none\'">'+
         '<div class="rc-school-ar">معهد النور الإسلامي بكانفنغ</div>'+
         '<div class="rc-school-en">THE ISLAMIC NURR INSTITUTE KANIFING SOUTH</div>'+
         '<div class="rc-tel">TEL: +2209611997/ 7540656 p.o. box</div></div>'+
@@ -1263,7 +1270,7 @@ function renderReportCard(stu, myResults, allResults, remarks, year, term){
   var r=remarks||{};
   var rows=subj.map(function(x){ return '<tr><td class="s">'+e(x.subject)+'</td><td>'+(x.score!=null?e(x.score):'')+'</td><td>'+e(x.grade||'')+'</td></tr>'; }).join('');
   var sheet='<div id="rcSheet" class="rc">'+
-    '<div class="rc-head"><img src="'+origin+'/nurry.png" onerror="this.style.display=\'none\'"><div><div class="rc-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="rc-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
+    '<div class="rc-head"><img src="'+origin+'/favicon.png" onerror="this.style.display=\'none\'"><div><div class="rc-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="rc-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
     '<div class="rc-title">كشف الدرجات · REPORT CARD</div>'+
     '<div class="rc-info"><span><b>'+t('name')+':</b> '+e(stu.full_name)+'</span><span><b>'+t('studentId')+':</b> '+e(stu.student_id)+'</span><span><b>'+t('grade')+':</b> '+e(stu.grade_level||'')+' / '+e(stu.class_name||'')+'</span><span><b>'+t('term')+':</b> '+e(term)+' · '+e(year)+'</span></div>'+
     '<table class="rc-table"><thead><tr><th>'+t('subject')+'</th><th>'+t('score')+'</th><th>'+t('gradeCol')+'</th></tr></thead><tbody>'+rows+
@@ -1338,11 +1345,11 @@ async function buildPrintResults(){
     if(fmt==='broadsheet'){ renderBroadsheet(studs,grade,cls,year,term); return; }
     // one report-card per student, page-break between
     injectPrintCardCSS();
-    var pages=studs.map(function(s){ return a4Card(s,grade,classSize,year,term);
+    var pages=studs.map(function(s){
       var rowsHtml=s.subs.map(function(x){ return '<tr><td class="pc-s">'+esc(x.subject)+'</td><td>'+(x.score!=null?esc(x.score):'')+'</td><td>'+esc(x.grade||'')+'</td></tr>'; }).join('');
       var avg=s.subs.length?(s.total/s.subs.length):0;
       return '<div class="pc-page"><div class="pc">'+
-        '<div class="pc-head"><img src="'+location.origin+'/nurry.png" onerror="this.style.display=\'none\'"><div><div class="pc-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="pc-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
+        '<div class="pc-head"><img src="'+location.origin+'/favicon.png" onerror="this.style.display=\'none\'"><div><div class="pc-school">معهد النور الإسلامي · NURR ISLAMIC INSTITUTE</div><div class="pc-sub">MDI Road Kanifing · The Gambia</div></div></div>'+
         '<div class="pc-title">كشف الدرجات · REPORT CARD</div>'+
         '<div class="pc-info"><span><b>'+t('name')+':</b> '+esc(s.name)+'</span><span><b>'+t('studentId')+':</b> '+esc(s.id)+'</span><span><b>'+t('grade')+':</b> '+esc(s.grade||'')+' / '+esc(s.cls||'')+'</span><span><b>'+t('term')+':</b> '+esc(term)+' · '+esc(year)+'</span></div>'+
         '<table class="pc-tbl"><thead><tr><th>'+t('subject')+'</th><th>'+t('score')+'</th><th>'+t('gradeCol')+'</th></tr></thead><tbody>'+rowsHtml+
@@ -1353,102 +1360,6 @@ async function buildPrintResults(){
     }).join('');
     out.innerHTML='<div style="text-align:center;margin-bottom:0.8rem"><button class="btn" onclick="printCards()"><i class="fas fa-print"></i> '+t('print')+' ('+studs.length+' '+t('students')+')</button></div><div id="pcSheets" style="background:#e9eef5;padding:1rem;border-radius:12px;max-height:70vh;overflow:auto;text-align:center">'+pages+'</div>';
   }catch(e){ show('pb-err','❌ '+e.message); }
-}
-function a4Grade(x){ return x>=90?'ممتاز':x>=75?'جيد جداً':x>=60?'جيد':x>=50?'مقبول':'ضعيف'; }
-function a4Term(t){ var m=String(t==null?'':t).match(/[1-9]/); var o=['','الأول','الثاني','الثالث','الرابع']; return (m&&o[m[0]])?('الفصل الدراسي '+o[m[0]]):t; }
-function a4Stretch(raw,n){
-  if(!n) return raw;
-  var J='بتثجحخسشصضطظعغفقكلمنهيئ', D=/[\u064B-\u0652\u0670]/, ch=raw.split(''), slots=[], i;
-  for(i=0;i<ch.length;i++){
-    if(J.indexOf(ch[i])<0) continue;
-    var k=i+1; while(k<ch.length && D.test(ch[k])) k++;
-    if(k>=ch.length || !/[\u0621-\u064A]/.test(ch[k])) continue;
-    if(ch[i]==='ل' && 'اأإآ'.indexOf(ch[k])>=0) continue;
-    slots.push(k);
-  }
-  var S=slots.length; if(!S) return raw;
-  var base=Math.floor(n/S), rem=n%S, cnt=[], order=[], mid=(S-1)/2;
-  for(i=0;i<S;i++){ cnt.push(base); order.push(i); }
-  order.sort(function(a,b){ return Math.abs(a-mid)-Math.abs(b-mid); });
-  for(i=0;i<rem;i++) cnt[order[i]]++;
-  var map={}, out=''; slots.forEach(function(k,ix){ map[k]=cnt[ix]; });
-  for(i=0;i<ch.length;i++){ if(map[i]) out+=new Array(map[i]+1).join('\u0640'); out+=ch[i]; }
-  return out;
-}
-function a4K(raw,fill,max,grow){
-  raw=String(raw==null?'':raw); if(!/[\u0600-\u06FF]/.test(raw)) return esc(raw);
-  return '<span class="a4k" data-raw="'+esc(raw)+'" data-fill="'+(fill||0.9)+'" data-grow="'+(grow||1.7)+'"'+(max?' data-max="'+max+'"':'')+'>'+esc(raw)+'</span>';
-}
-function a4Fit(){
-  var els=document.querySelectorAll('.a4k'); if(!els.length) return;
-  var cv=a4Fit.cv||(a4Fit.cv=document.createElement('canvas')), cx=cv.getContext('2d');
-  Array.prototype.forEach.call(els,function(el){
-    var raw=el.getAttribute('data-raw'), p=el.parentElement; if(!raw||!p||!p.clientWidth) return;
-    var cs=getComputedStyle(el), pc=getComputedStyle(p);
-    var inner=p.clientWidth-parseFloat(pc.paddingLeft)-parseFloat(pc.paddingRight)-4;
-    var mx=parseFloat(el.getAttribute('data-max')), avail=mx?Math.min(inner,mx*3.7795):inner*(parseFloat(el.getAttribute('data-fill'))||0.9);
-    cx.font=cs.fontWeight+' '+cs.fontSize+' '+cs.fontFamily; cx.direction='rtl';
-    avail=Math.min(avail,cx.measureText(raw).width*(parseFloat(el.getAttribute('data-grow'))||1.7));
-    var lo=0, hi=60, m;
-    while(lo<hi){ m=(lo+hi+1)>>1; if(cx.measureText(a4Stretch(raw,m)).width<=avail) lo=m; else hi=m-1; }
-    el.textContent=a4Stretch(raw,lo);
-  });
-}
-function a4Card(s,gradeLevel,classSize,year,term){
-  var MAXS=100, MINS=50; /* full mark and pass mark per subject */
-  var NF='"Noto Naskh Arabic","Simplified Arabic",Arial,sans-serif';
-  var A4CSS='/*a4v3*/'+
-    '.pc-page{width:210mm!important}'+
-    '.a4,.a4 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
-    '.a4{box-sizing:border-box;width:100%;height:296mm;padding:8mm 14mm;display:flex;flex-direction:column;direction:rtl;text-align:right;color:#000;font-family:'+NF+';font-size:13pt;line-height:1.3;overflow:hidden;background:#fff}'+
-    '.a4bis{text-align:center;font-size:16pt;font-weight:700}'+
-    '.a4h{display:grid;grid-template-columns:1fr 50mm 1fr;align-items:center;margin-top:1mm}'+
-    '.a4r{line-height:1.4}.a4r .n{font-size:21pt;font-weight:700;color:#1a3a6b;line-height:1.3;white-space:nowrap}.a4r .s{font-size:10.5pt;font-weight:700}'+
-    '.a4c{text-align:center;line-height:0}.a4c img{width:48mm;height:auto;display:inline-block}'+
-    '.a4l{direction:ltr;text-align:left;font-family:Arial,Helvetica,sans-serif;font-size:7.5pt;font-weight:bold;line-height:1.5}'+
-    '.a4tt{text-align:center;font-size:16pt;font-weight:700;color:#1a3a6b;margin:2mm 0 1mm;white-space:nowrap}'+
-    '.a4k{display:block;white-space:nowrap;overflow:hidden}'+
-    '.a4i{display:flex;justify-content:space-between;align-items:baseline;font-size:13pt;margin-bottom:.5mm;white-space:nowrap}.a4i b{font-weight:700}'+
-    '.a4st{display:flex;justify-content:space-between;border:1.2pt solid #000;padding:.8mm 4mm;margin:1.5mm 0 2.5mm;font-size:13pt}'+
-    '.a4 .a4tb{font-size:13pt}'+
-    '.a4tb{width:100%;table-layout:fixed;border-collapse:collapse;border:1.5pt solid #000;font-size:13pt}'+
-    '.a4tb th,.a4tb td{border:1pt solid #000;padding:.4mm 1.5mm;text-align:center;line-height:1.3;overflow:hidden}'+
-    '.a4tb th{background:#e8e8e8;font-weight:700;font-size:13pt;position:static;letter-spacing:0;text-transform:none}'+
-    '.a4tb td.a4s{text-align:right;font-weight:700;font-size:13pt;white-space:nowrap}'+
-    '.a4tb td.a4n{font-family:Arial,sans-serif;font-size:11pt;font-weight:bold}'+
-    '.a4t td{font-weight:700;background:#f2f2f2;font-size:13pt}'+
-    '.a4sg{margin-top:auto;display:flex;justify-content:space-between;text-align:center;font-size:13pt;font-weight:700}'+
-    '.a4sg i{display:block;width:42mm;height:11mm;border-bottom:1pt solid #000;margin-top:2mm}'+
-    '.a4 table,.a4 th,.a4 td{color:#000}';
-  var ps=document.getElementById('pcStyle');
-  if(ps && ps.textContent.indexOf('/*a4v3*/')<0){ ps.textContent+=A4CSS; }
-  var e=esc, n=s.subs.length, maxT=n*MAXS, minT=n*MINS;
-  var pct=maxT?(s.total/maxT*100):0, overall=a4Grade(pct);
-  var rowH=Math.max(7.6,Math.min(22,Math.floor(150/(n+2)*10)/10));
-  var d=new Date(), dd=('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear();
-  var lvl=s.grade||gradeLevel||'', cls=s.cls||'';
-  var forCls=(lvl&&cls&&lvl!==cls)?('<bdi>'+e(lvl)+'</bdi> / <bdi>'+e(cls)+'</bdi>'):('<bdi>'+e(cls||lvl)+'</bdi>');
-  var rows=s.subs.map(function(x,i){ var sc=x.score; var ok=(sc!=null&&!isNaN(sc));
-    return '<tr style="height:'+rowH+'mm"><td class="a4n">'+(i+1)+'</td><td class="a4s">'+a4K(x.subject,0.94)+'</td><td class="a4n">'+MINS+'</td><td class="a4n">'+MAXS+'</td><td class="a4n" style="font-size:13pt">'+(ok?e(sc):'')+'</td><td></td></tr>'; }).join('');
-  if(!a4Card.hooked){ a4Card.hooked=1; if(document.fonts&&document.fonts.addEventListener) document.fonts.addEventListener('loadingdone',a4Fit); }
-  clearTimeout(a4Card.t1); a4Card.t1=setTimeout(a4Fit,250); clearTimeout(a4Card.t2); a4Card.t2=setTimeout(a4Fit,2000);
-  return '<div class="pc-page"><style>@import url("https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap");</style><div class="a4">'+
-    '<div class="a4bis">بسم الله الرحمن الرحيم</div>'+
-    '<div class="a4h">'+
-      '<div class="a4r"><div class="n">معهد النور الإسلامي</div><div class="s">التابع لجمعية الأمة الإسلامية<br>لنشر الثقافة الإسلامية</div><div class="s">كانفينغ – غامبيا – غرب أفريقيا</div></div>'+
-      '<div class="a4c"><img src="'+location.origin+'/nurry.png" onerror="this.style.display=\'none\'"></div>'+
-      '<div class="a4l">AN-NURR ISLAMIC INSTITUTE<br>UNDER THE ISLAMIC UMMAH SOCIETY<br>FOR SPREADING ISLAMIC CULTURE<br>KANIFING SOUTH - THE GAMBIA WA</div>'+
-    '</div>'+
-    '<div class="a4tt">'+a4K('كشف الدرجات',1,80)+'</div>'+
-    '<div class="a4i"><span>نتائج الامتحانات للصف: <b>'+forCls+'</b></span><span style="font-size:11pt">التاريخ: <bdi>'+dd+'</bdi></span></div>'+
-    '<div class="a4i"><span>اسم الطالب/ة: <b>'+e(s.name)+'</b></span><span>للعام الدراسي: <b><bdi>'+e(year)+'</bdi>م</b> &nbsp;·&nbsp; <b>'+e(a4Term(term))+'</b></span></div>'+
-    '<div class="a4st"><span>الترتيب: <b>'+s.position+'</b></span><span>عدد طلاب الصف: <b>'+classSize+'</b></span></div>'+
-    '<table class="a4tb"><colgroup><col style="width:10mm"><col><col style="width:21mm"><col style="width:21mm"><col style="width:34mm"><col style="width:32mm"></colgroup>'+
-      '<thead><tr><th rowspan="2">م</th><th rowspan="2">'+a4K('المواد',0.85)+'</th><th colspan="3">'+a4K('الدرجات',0.85)+'</th><th rowspan="2">'+a4K('الملحوظات',0.9)+'</th></tr>'+
-      '<tr><th>'+a4K('الصغرى',0.9)+'</th><th>'+a4K('الكبرى',0.9)+'</th><th>'+a4K('الدرجات المكتسبة',0.94)+'</th></tr></thead><tbody>'+rows+
-      '<tr class="a4t" style="height:'+rowH+'mm"><td colspan="2">'+a4K('المجموع الكلي',0.7)+'</td><td class="a4n">'+minT+'</td><td class="a4n">'+maxT+'</td><td class="a4n">'+s.total+'</td><td></td></tr></tbody></table>'+
-    '<div class="a4sg"><div>توقيع مدير المعهد<i></i></div><div>ختم المعهد الرسمي<i></i></div><div>توقيع مدير الامتحانات<i></i></div></div>'+
-  '</div></div>';
 }
 function injectPrintCardCSS(){
   if(document.getElementById('pcStyle'))return; var st=document.createElement('style'); st.id='pcStyle';
@@ -1847,6 +1758,176 @@ function printFeeList(){
 function exportLedgerCsv(){ csvDownload('payment-ledger.csv',[t('receipt'),t('date'),t('studentId'),t('name'),t('className'),t('amountField'),t('method')], _feePayments.map(function(p){return [p.receipt_number,p.paid_at,p.student_id,p.full_name,p.class_name,p.amount,p.method];})); }
 async function editPayment(id,cur){ var v=prompt(t('editAmountPrompt')||'New amount:',cur); if(v===null) return; var amt=parseFloat(v); if(isNaN(amt)||amt<0){ alert(t('required')); return; } try{ await api('update-payment',{method:'POST',body:{id:id,amount:amt}}); loadFeesOverview(); }catch(e){ alert('❌ '+e.message); } }
 async function delPaymentFO(id){ if(!confirm(t('confirmDeletePayment'))) return; try{ await api('delete-payment',{method:'DELETE',body:{id:id}}); loadFeesOverview(); }catch(e){ alert('❌ '+e.message); } }
+
+
+/* ======================= STATISTICS ======================= */
+async function pageStatistics(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-chart-pie"></i> '+t('statistics')+'</h3><div id="stStats">'+skeleton()+'</div></div>';
+  try{ var d=await api('dashboard-stats');
+    var cards='<div class="stat-cards">'+
+      '<div class="stat"><div class="n">'+d.students+'</div><div class="l">'+t('totalStudents')+'</div></div>'+
+      '<div class="stat green"><div class="n">'+d.results+'</div><div class="l">'+t('results')+'</div></div>'+
+      '<div class="stat gold"><div class="n">'+d.teachers+'</div><div class="l">'+t('teachers')+'</div></div>'+
+      '<div class="stat"><div class="n">'+d.subjects+'</div><div class="l">'+t('subjectsWord')+'</div></div></div>';
+    var maxN=Math.max.apply(null,[1].concat((d.byStage||[]).map(function(x){return x.n;})));
+    var bars='<div class="card"><h3><i class="fas fa-users"></i> '+t('byLevel')+'</h3>'+(d.byStage||[]).map(function(x){ var pct=Math.round(x.n/maxN*100); return '<div style="margin-bottom:0.5rem"><div style="display:flex;justify-content:space-between;font-size:0.9rem"><span>'+esc(x.stage||'—')+'</span><b>'+x.n+'</b></div><div style="height:12px;background:#eef2f7;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--blue),#15529a)"></div></div></div>'; }).join('')+'</div>';
+    document.getElementById('stStats').innerHTML=cards; c.insertAdjacentHTML('beforeend',bars);
+  }catch(e){ document.getElementById('stStats').innerHTML=errBox('statistics','pageStatistics'); }
+}
+
+/* ======================= IMPORT STUDENTS (CSV) ======================= */
+async function pageImport(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-file-import"></i> '+t('importStudents')+'</h3>'+
+    '<p style="color:var(--soft);font-size:0.9rem;margin-bottom:0.8rem">'+t('importDesc')+'</p>'+
+    '<div class="form-grid">'+selField('im-grade',t('stage'))+selField('im-class',t('className'))+'</div>'+
+    '<label style="margin-top:0.6rem">'+t('pasteCsv')+'</label><textarea id="im-csv" rows="8" placeholder="'+t('csvPlaceholder')+'" style="font-family:monospace"></textarea>'+
+    '<div style="display:flex;gap:0.5rem;margin-top:0.8rem"><button class="btn ghost" onclick="pickCsvFile()"><i class="fas fa-upload"></i> '+t('uploadCsv')+'</button><button class="btn" onclick="doImport()"><i class="fas fa-file-import"></i> '+t('importNow')+'</button></div>'+
+    '<div class="msg ok" id="im-ok"></div><div class="msg err" id="im-err"></div><div id="im-preview" style="margin-top:1rem"></div></div>';
+  await loadClassesData(); fillStageSelect('im-grade'); fillClassSelect('im-class','');
+  document.getElementById('im-grade').onchange=function(){ fillClassSelect('im-class',this.value); };
+}
+function pickCsvFile(){ var inp=document.createElement('input'); inp.type='file'; inp.accept='.csv,text/csv,text/plain'; inp.onchange=function(){ var f=inp.files[0]; if(!f)return; var rd=new FileReader(); rd.onload=function(){ document.getElementById('im-csv').value=rd.result; }; rd.readAsText(f); }; inp.click(); }
+function parseCsv(text){ var lines=text.trim().split(/\r?\n/).filter(function(l){return l.trim();}); return lines.map(function(l){ return l.split(',').map(function(x){return x.trim();}); }); }
+async function doImport(){
+  hide('im-ok','im-err');
+  var g=val('im-grade'), cls=val('im-class'), raw=document.getElementById('im-csv').value;
+  if(!g||!cls){ show('im-err',t('required')); return; }
+  var parsed=parseCsv(raw); if(!parsed.length){ show('im-err',t('csvEmpty')); return; }
+  // detect header: if first row contains 'id' or 'number' skip it
+  var start=0; var h=parsed[0].join(',').toLowerCase(); if(/id|number|name|رقم|اسم/.test(h)) start=1;
+  var rows=parsed.slice(start).map(function(cols){ return { studentId:cols[0], fullName:cols[1]||'', password:cols[2]||cols[0], gradeLevel:g, className:cls, guardianName:cols[3]||'', guardianPhone:cols[4]||'', nationality:cols[5]||'' }; }).filter(function(r){return r.studentId&&r.fullName;});
+  if(!rows.length){ show('im-err',t('csvNoRows')); return; }
+  document.getElementById('im-preview').innerHTML='<div class="tbl-wrap"><table><thead><tr><th>'+t('studentId')+'</th><th>'+t('name')+'</th></tr></thead><tbody>'+rows.slice(0,50).map(function(r){return '<tr><td>'+esc(r.studentId)+'</td><td>'+esc(r.fullName)+'</td></tr>';}).join('')+'</tbody></table></div>';
+  try{ var d=await api('bulk-import-students',{method:'POST',body:{rows:rows}}); show('im-ok','✅ '+(d.message||t('imported'))+' ('+rows.length+')'); _allStudents=[]; }
+  catch(e){ show('im-err','❌ '+e.message); }
+}
+
+/* ======================= CLASS RESULTS ======================= */
+async function pageClassResults(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-table-cells"></i> '+t('classResults')+'</h3>'+
+    '<div class="filters">'+selField('cr-grade',t('stage'))+selField('cr-class',t('className'))+
+      '<div><label>'+t('academicYear')+'</label><select id="cr-year"></select></div>'+
+      '<div><label>'+t('term')+'</label><select id="cr-term"><option>Term 1</option><option>Term 2</option></select></div>'+
+      '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadClassResults()"><i class="fas fa-eye"></i></button></div>'+
+    '</div><div class="msg err" id="cr-err"></div><div id="cr-out"></div></div>';
+  await loadClassesData(); await loadYears(); fillStageSelect('cr-grade'); fillClassSelect('cr-class',''); fillYearSelect('cr-year');
+  document.getElementById('cr-grade').onchange=function(){ fillClassSelect('cr-class',this.value); };
+}
+async function loadClassResults(){
+  hide('cr-err'); var g=val('cr-grade'),cls=val('cr-class'),year=val('cr-year'),term=val('cr-term');
+  if(!g||!cls){ show('cr-err',t('required')); return; }
+  document.getElementById('cr-out').innerHTML=skeleton();
+  try{ var res=await (await fetch('/api/get-all-results?academicYear='+encodeURIComponent(year)+'&term='+encodeURIComponent(term)+'&gradeLevel='+encodeURIComponent(g),{headers:{'Authorization':'Bearer '+tok()}})).json();
+    var rows=(res.results||[]).filter(function(r){return String(r.class_name).toLowerCase()===cls.toLowerCase();});
+    if(!rows.length){ document.getElementById('cr-out').innerHTML=emptyBox(); return; }
+    var subjects=[]; rows.forEach(function(r){ if(subjects.indexOf(r.subject)<0)subjects.push(r.subject); });
+    var byStu={}; rows.forEach(function(r){ if(!byStu[r.student_id])byStu[r.student_id]={name:r.full_name,scores:{},total:0,count:0}; byStu[r.student_id].scores[r.subject]=r.score; byStu[r.student_id].total+=Number(r.score||0); byStu[r.student_id].count++; });
+    var studs=Object.keys(byStu).map(function(k){return {id:k,v:byStu[k]};}).sort(function(a,b){return b.v.total-a.v.total;});
+    var head='<tr><th>#</th><th>'+t('name')+'</th>'+subjects.map(function(s){return '<th>'+esc(s)+'</th>';}).join('')+'<th>'+t('total')+'</th><th>'+t('average')+'</th></tr>';
+    var body=studs.map(function(s,i){ return '<tr><td>'+(i+1)+'</td><td style="text-align:right;white-space:nowrap"><b>'+esc(s.v.name)+'</b></td>'+subjects.map(function(sub){return '<td>'+(s.v.scores[sub]!=null?esc(s.v.scores[sub]):'')+'</td>';}).join('')+'<td><b>'+s.v.total+'</b></td><td>'+(s.v.total/s.v.count).toFixed(1)+'%</td></tr>'; }).join('');
+    document.getElementById('cr-out').innerHTML='<div class="tbl-wrap"><table><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>';
+  }catch(e){ show('cr-err','❌ '+e.message); }
+}
+
+/* ======================= PRINCIPAL'S VIEW ======================= */
+async function pagePrincipal(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-user-tie"></i> '+t('principalView')+'</h3><div id="pvBody">'+skeleton()+'</div></div>';
+  try{ var d=await api('dashboard-stats');
+    var html='<div class="stat-cards">'+
+      '<div class="stat"><div class="n">'+d.students+'</div><div class="l">'+t('totalStudents')+'</div></div>'+
+      '<div class="stat green"><div class="n">'+d.teachers+'</div><div class="l">'+t('teachers')+'</div></div>'+
+      '<div class="stat gold"><div class="n">'+d.subjects+'</div><div class="l">'+t('subjectsWord')+'</div></div>'+
+      '<div class="stat"><div class="n">'+d.results+'</div><div class="l">'+t('results')+'</div></div></div>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>'+t('stage')+'</th><th>'+t('totalStudents')+'</th></tr></thead><tbody>'+(d.byStage||[]).map(function(x){return '<tr><td>'+esc(x.stage||'—')+'</td><td><b>'+x.n+'</b></td></tr>';}).join('')+'</tbody></table></div>';
+    document.getElementById('pvBody').innerHTML=html;
+  }catch(e){ document.getElementById('pvBody').innerHTML=errBox('principalView','pagePrincipal'); }
+}
+
+/* ======================= NEW INTAKE (المستجدون) ======================= */
+async function pageNewIntake(c){
+  var yr=new Date().getFullYear();
+  c.innerHTML='<div class="card"><h3><i class="fas fa-user-plus"></i> '+t('newIntake')+'</h3>'+
+    '<p style="color:var(--soft);font-size:0.9rem;margin-bottom:0.8rem">'+t('newIntakeDesc')+'</p>'+
+    '<div class="filters">'+selField('ni-grade',t('stage'))+selField('ni-class',t('className'))+'<div style="flex:2"><label>'+t('search')+'</label><input id="ni-search" placeholder="'+t('search')+'…"></div></div>'+
+    '<div id="ni-count" style="color:var(--soft);font-size:0.85rem;margin-bottom:0.5rem"></div>'+
+    '<div style="text-align:center;margin-bottom:0.6rem"><button class="btn ghost sm" onclick="exportIntakeCsv()"><i class="fas fa-file-csv"></i> '+t('exportCsv')+'</button></div>'+
+    '<div id="ni-body">'+skeleton()+'</div></div>';
+  await loadClassesData(); fillStageSelect('ni-grade',true); fillClassSelect('ni-class','');
+  var all=[]; try{ var d=await api('get-all-students'); all=(d.students||[]).slice(); }catch(e){ document.getElementById('ni-body').innerHTML=errBox('newIntake'); return; }
+  // newest first by created_at (fallback student_id)
+  all.sort(function(a,b){ var da=a.created_at||'', db=b.created_at||''; if(da&&db) return db.localeCompare(da); return String(b.student_id).localeCompare(String(a.student_id)); });
+  window._intakeAll=all;
+  function render(list){
+    document.getElementById('ni-count').innerHTML='<i class="fas fa-user-plus"></i> '+t('newIntake')+': <b>'+list.length+'</b>';
+    document.getElementById('ni-body').innerHTML = list.length? '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>'+t('studentId')+'</th><th>'+t('name')+'</th><th>'+t('stage')+'</th><th>'+t('className')+'</th><th>'+t('enrolled')+'</th></tr></thead><tbody>'+
+      list.map(function(s,i){ var dt=s.created_at?new Date(s.created_at).toLocaleDateString('en-GB'):(s.enrolled_year||''); return '<tr><td>'+(i+1)+'</td><td>'+esc(s.student_id)+'</td><td><b>'+esc(s.full_name)+'</b></td><td>'+esc(s.grade_level||'')+'</td><td>'+esc(s.class_name||'')+'</td><td>'+esc(dt)+'</td></tr>'; }).join('')+'</tbody></table></div>' : emptyBox();
+  }
+  function apply(){ var stage=val('ni-grade'),cls=val('ni-class'),q=(document.getElementById('ni-search').value||'').toLowerCase().trim(); render(window._intakeAll.filter(function(s){ if(stage&&String(s.grade_level)!==String(stage))return false; if(cls&&(s.class_name||'')!==cls)return false; if(q&&(s.full_name||'').toLowerCase().indexOf(q)<0&&(s.student_id||'').toLowerCase().indexOf(q)<0)return false; return true; })); }
+  document.getElementById('ni-grade').onchange=function(){ fillClassSelect('ni-class',this.value); apply(); };
+  document.getElementById('ni-class').onchange=apply; document.getElementById('ni-search').oninput=apply;
+  render(all);
+}
+function exportIntakeCsv(){ csvDownload('new-intake.csv',[t('studentId'),t('name'),t('stage'),t('className'),t('enrolled')], (window._intakeAll||[]).map(function(s){return [s.student_id,s.full_name,s.grade_level,s.class_name,s.created_at||s.enrolled_year||''];})); }
+
+/* ======================= EXPORT DATA ======================= */
+async function pageExport(c){
+  c.innerHTML='<div class="card"><h3><i class="fas fa-download"></i> '+t('exportData')+'</h3>'+
+    '<p style="color:var(--soft);font-size:0.9rem;margin-bottom:0.8rem">'+t('exportDataDesc')+'</p>'+
+    '<div style="display:flex;gap:0.6rem;flex-wrap:wrap">'+
+      '<button class="btn" onclick="exportAll(\'students\')"><i class="fas fa-users"></i> '+t('students')+'</button>'+
+      '<button class="btn" onclick="exportAll(\'results\')"><i class="fas fa-table-list"></i> '+t('results')+'</button>'+
+      '<button class="btn" onclick="exportAll(\'payments\')"><i class="fas fa-receipt"></i> '+t('payments')+'</button>'+
+    '</div><div class="msg ok" id="ex-ok"></div><div class="msg err" id="ex-err"></div></div>';
+}
+async function exportAll(kind){
+  hide('ex-ok','ex-err');
+  try{
+    if(kind==='students'){ var d=await api('get-all-students'); csvDownload('students.csv',[t('studentId'),t('name'),t('stage'),t('className'),t('guardian'),t('phone'),t('nationality')],(d.students||[]).map(function(s){return [s.student_id,s.full_name,s.grade_level,s.class_name,s.guardian_name,s.guardian_phone||s.student_phone,s.nationality];})); }
+    else if(kind==='results'){ var d=await api('get-all-results'); csvDownload('results.csv',[t('studentId'),t('name'),t('stage'),t('className'),t('subject'),t('score'),t('gradeCol'),t('year'),t('term')],(d.results||[]).map(function(r){return [r.student_id,r.full_name,r.grade_level,r.class_name,r.subject,r.score,r.grade,r.academic_year,r.term];})); }
+    else if(kind==='payments'){ var d=await api('get-all-fee-payments'); csvDownload('payments.csv',[t('receipt'),t('date'),t('studentId'),t('name'),t('className'),t('amountField'),t('method'),t('year')],(d.payments||[]).map(function(p){return [p.receipt_number,p.paid_at,p.student_id,p.full_name,p.class_name,p.amount,p.method,p.academic_year];})); }
+    show('ex-ok','✅ '+t('exported'));
+  }catch(e){ show('ex-err','❌ '+e.message); }
+}
+
+/* ======================= ATTENDANCE BOOK ======================= */
+async function pageAttendanceBook(c){
+  var now=new Date(); var ym=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  c.innerHTML='<div class="card"><h3><i class="fas fa-book"></i> '+t('attendanceBook')+'</h3>'+
+    '<div class="filters">'+selField('ab-grade',t('stage'))+selField('ab-class',t('className'))+
+      '<div><label>'+t('month')+'</label><input type="month" id="ab-month" value="'+ym+'"></div>'+
+      '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="loadAttendanceBook()"><i class="fas fa-eye"></i></button></div>'+
+    '</div><div class="msg err" id="ab-err"></div><div id="ab-out"></div></div>';
+  await loadClassesData(); fillStageSelect('ab-grade'); fillClassSelect('ab-class','');
+  document.getElementById('ab-grade').onchange=function(){ fillClassSelect('ab-class',this.value); };
+}
+async function loadAttendanceBook(){
+  hide('ab-err'); var g=val('ab-grade'),cls=val('ab-class'),ym=val('ab-month');
+  if(!g||!cls||!ym){ show('ab-err',t('required')); return; }
+  document.getElementById('ab-out').innerHTML=skeleton();
+  var y=parseInt(ym.split('-')[0]), mo=parseInt(ym.split('-')[1]);
+  var daysInMonth=new Date(y,mo,0).getDate();
+  var from=ym+'-01', to=ym+'-'+String(daysInMonth).padStart(2,'0');
+  try{ var d=await api('attendance-book',{params:{gradeLevel:g,className:cls,fromDate:from,toDate:to}});
+    var students=d.students||[], marks=d.marks||{};
+    if(!students.length){ document.getElementById('ab-out').innerHTML=emptyBox(); return; }
+    // weekdays Mon-Fri columns
+    var days=[]; for(var dd=1;dd<=daysInMonth;dd++){ var dt=new Date(y,mo-1,dd); var wd=dt.getDay(); if(wd>=1&&wd<=5) days.push(dd); }
+    var head='<tr><th style="position:sticky;right:0;background:#eef2f7">#</th><th style="position:sticky;right:30px;background:#eef2f7">'+t('name')+'</th>'+days.map(function(dd){return '<th>'+dd+'</th>';}).join('')+'<th>%</th></tr>';
+    var body=students.map(function(s,i){
+      var present=0,total=0;
+      var cells=days.map(function(dd){ var key=ym+'-'+String(dd).padStart(2,'0'); var st=(marks[s.student_id]||{})[key];
+        if(st==='present'){present++;total++;return '<td style="background:#e6f7ec;color:#1e9e5a;font-weight:800">P</td>';}
+        if(st==='absent'){total++;return '<td style="background:#fdeaea;color:#d64545;font-weight:800">A</td>';}
+        return '<td style="color:#bbb">·</td>'; });
+      var pct=total?Math.round(present/total*100):0;
+      return '<tr><td style="position:sticky;right:0;background:#fff">'+(i+1)+'</td><td style="position:sticky;right:30px;background:#fff;text-align:right;white-space:nowrap"><b>'+esc(s.full_name)+'</b></td>'+cells.join('')+'<td><b>'+pct+'%</b></td></tr>';
+    }).join('');
+    document.getElementById('ab-out').innerHTML='<div style="text-align:center;margin:0.6rem 0"><button class="btn" onclick="printAttBook()"><i class="fas fa-print"></i> '+t('print')+'</button></div>'+
+      '<div id="abSheet" style="background:#fff;padding:6mm;border:1px solid #000"><h3 style="text-align:center">NURR · '+t('attendanceBook')+' — '+esc(g)+' / '+esc(cls)+' · '+esc(ym)+'</h3><div class="tbl-wrap"><table class="ab-tbl">'+'<thead>'+head+'</thead><tbody>'+body+'</tbody></table></div><p style="font-size:0.8rem;margin-top:0.4rem">P = '+t('present')+' · A = '+t('absent')+' · · = '+t('notMarked')+'</p></div>';
+    if(!document.getElementById('abStyle')){ var stl=document.createElement('style'); stl.id='abStyle'; stl.textContent='.ab-tbl{border-collapse:collapse;font-size:9pt}.ab-tbl th,.ab-tbl td{border:1px solid #999;padding:2px 5px;text-align:center;min-width:22px}'; document.head.appendChild(stl); }
+  }catch(e){ show('ab-err','❌ '+e.message); }
+}
+function printAttBook(){ var sheet=document.getElementById('abSheet'); if(!sheet)return; var css=document.getElementById('abStyle').textContent; var win=window.open('','_blank'); if(!win)return; win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>'+css+'@page{size:A4 landscape;margin:8mm}h3{text-align:center}</style></head><body>'+sheet.innerHTML+'<'+'script>window.onload=function(){window.print()}<'+'/script></body></html>'); win.document.close(); }
 
 /* ============ INSTALL (desktop app) ============ */
 var deferredPrompt=null, isApp=false;

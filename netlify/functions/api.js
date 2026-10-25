@@ -131,6 +131,7 @@ const ROUTE_AUTH = {
   'get-years':'any',
   'teacher-assignment':'admin', 'get-teacher-assignments':'any',
   'get-subject-stages':'any', 'set-subject-stages':'admin',
+  'attendance-book':'any', 'dashboard-stats':'any',
 };
 
 // ---------- small helpers ----------
@@ -301,6 +302,23 @@ const routes = {
     await sql`DELETE FROM subject_stages WHERE subject = ${subject}`;
     for (const st of stages) { if (st) await sql`INSERT INTO subject_stages (subject, stage) VALUES (${subject}, ${st}) ON CONFLICT DO NOTHING`; }
     return ok({ message: 'تم حفظ مراحل المادة' });
+  }},
+  'attendance-book': { GET: async (event) => {
+    const { gradeLevel, className, fromDate, toDate } = event.queryStringParameters || {};
+    if (!gradeLevel || !className || !fromDate || !toDate) return err('بيانات ناقصة');
+    const students = await sql`SELECT student_id, full_name FROM students WHERE grade_level = ${gradeLevel} AND LOWER(class_name)=LOWER(${className}) AND active IS NOT FALSE ORDER BY full_name`;
+    const rows = await sql`SELECT a.student_id, to_char(a.att_date,'YYYY-MM-DD') AS d, a.status FROM attendance a JOIN students s ON s.student_id = a.student_id WHERE s.grade_level = ${gradeLevel} AND LOWER(s.class_name)=LOWER(${className}) AND a.att_date >= ${fromDate}::date AND a.att_date <= ${toDate}::date`;
+    const marks = {};
+    rows.forEach(r => { (marks[r.student_id] = marks[r.student_id] || {})[r.d] = r.status; });
+    return ok({ students, marks });
+  }},
+  'dashboard-stats': { GET: async () => {
+    const st = (await sql`SELECT COUNT(*)::int AS n FROM students WHERE active IS NOT FALSE`)[0].n;
+    const te = (await sql`SELECT COUNT(*)::int AS n FROM teachers`)[0].n;
+    const re = (await sql`SELECT COUNT(*)::int AS n FROM results`)[0].n;
+    let su = 0; try { su = (await sql`SELECT COUNT(*)::int AS n FROM subjects`)[0].n; } catch(e){}
+    const byStage = await sql`SELECT grade_level AS stage, COUNT(*)::int AS n FROM students WHERE active IS NOT FALSE GROUP BY grade_level ORDER BY grade_level`;
+    return ok({ students: st, teachers: te, results: re, subjects: su, byStage });
   }},
   'get-teacher-assignments': { GET: async () => {
     await ensureLinkSchema();
