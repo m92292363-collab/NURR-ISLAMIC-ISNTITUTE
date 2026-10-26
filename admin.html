@@ -1154,12 +1154,11 @@ function renderAnnounceList(){
 function anSelectAll(on){ document.querySelectorAll('.an-chk').forEach(function(c){c.checked=on;}); anUpdateCount(); }
 function anUpdateCount(){ var n=document.querySelectorAll('.an-chk:checked').length; var el=document.getElementById('an-count'); if(el) el.textContent=n+' '+t('selected'); }
 function waLinkMessage(link, username, until, pw){
-  var I=function(x){ return '\u2066'+x+'\u2069'; }; /* keeps English values from scrambling the Arabic lines */
+  /* short, no emojis (wa.me on iPhone turns them into "?") */
   var p=String(until||'').split('-'), mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var dAr=p.length===3?p[2]+'-'+p[1]+'-'+p[0]:until, dEn=p.length===3?p[2]+' '+mo[parseInt(p[1],10)-1]+' '+p[0]:until;
-  var ar='*معهد النور الإسلامي*\nالسلام عليكم، هذا رابطك الشخصي لإدخال الدرجات وتسجيل الحضور.\n\n👤 اسم المستخدم:\n'+username+'\n'+(pw?'🔑 كلمة المرور:\n'+pw+'\n':'')+'📅 صالح حتى: '+I(dAr)+'\n⚠️ لا تشارك هذا الرابط مع أحد.';
-  var en='*NURR ISLAMIC INSTITUTE*\nAssalaamu alaikum. This is your personal link to enter scores and mark attendance.\n\n👤 Username: '+username+'\n'+(pw?'🔑 Password: '+pw+'\n':'')+'📅 Valid until: '+dEn+'\n⚠️ Please do not share this link.';
-  return ar+'\n\n━━━━━━━━━━\n\n'+en+'\n\n🔗 '+link;
+  var d=p.length===3?p[2]+' '+mo[parseInt(p[1],10)-1]+' '+p[0]:until;
+  if(lang==='ar') return '*معهد النور الإسلامي*\nرابط بوابة المعلم:\n'+link+'\n\nاسم المستخدم: '+username+(pw?'\nكلمة المرور: '+pw:'')+'\nصالح حتى: '+d;
+  return '*NURR Islamic Institute*\nYour teacher portal link:\n'+link+'\n\nUsername: '+username+(pw?'\nPassword: '+pw:'')+'\nValid until: '+d;
 }
 function buildAnnounceText(){
   var ar=val('an-ar').trim(), en=val('an-en').trim();
