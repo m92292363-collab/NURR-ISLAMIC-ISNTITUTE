@@ -1320,19 +1320,133 @@ async function saveRemarks(){
   catch(e){ show('rm-err','❌ '+e.message); }
 }
 
-/* ======================= VIEW REPORT (report card) ======================= */
+/* ======================= VIEW REPORT (PDF tiles, same card as Print Results) ======================= */
+function vrT(en,ar){ return lang==='ar'?ar:en; }
+var _vr={studs:[],grade:'',cls:'',year:'',term:'',size:0,cur:-1};
 async function pageViewReport(c){
-  var yr=new Date().getFullYear();
+  injectVrCSS();
   c.innerHTML='<div class="card"><h3><i class="fas fa-file-lines"></i> '+t('viewReport')+'</h3>'+
     '<div class="filters">'+
-      studentPickerFilters('vr','vr-list')+'<div><label>'+t('studentId')+'</label><input id="vr-student" list="vr-list" placeholder="'+t('studentId')+' / '+t('name')+'"><datalist id="vr-list"></datalist></div>'+
+      '<div><label>'+t('stage')+'</label><select id="vr-grade"></select></div>'+
+      '<div><label>'+t('className')+'</label><select id="vr-class"></select></div>'+
       '<div><label>'+t('academicYear')+'</label><select id="vr-year"></select></div>'+
       '<div><label>'+t('term')+'</label><select id="vr-term"><option>Term 1</option><option>Term 2</option></select></div>'+
-      '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="buildReport()"><i class="fas fa-eye"></i> '+t('view')+'</button></div>'+
+      '<div style="flex:0"><label>&nbsp;</label><button class="btn" onclick="vrLoad()"><i class="fas fa-eye"></i> '+t('view')+'</button></div>'+
     '</div><div class="msg err" id="vr-err"></div></div>'+
-    '<div id="vr-sheet-wrap" style="display:none"><div style="text-align:center;margin-bottom:0.8rem"><button class="btn" onclick="printSheet(\'rcSheet\')"><i class="fas fa-print"></i> '+t('print')+'</button></div><div id="rcCanvas" style="overflow:auto;background:#e9eef5;padding:1rem;border-radius:12px;text-align:center"><div id="rcBody"></div></div></div>';
-  await wireStudentPicker('vr','vr-list');
-  await loadYears(); fillYearSelect('vr-year');
+    '<div id="vr-out"></div>';
+  loadClassesData().then(function(){ fillStageSelect('vr-grade'); fillClassSelect('vr-class',''); document.getElementById('vr-grade').onchange=function(){ fillClassSelect('vr-class',this.value); }; });
+  loadYears().then(function(){ fillYearSelect('vr-year'); });
+}
+async function vrLoad(){
+  hide('vr-err');
+  var grade=val('vr-grade'), cls=val('vr-class'), year=val('vr-year'), term=val('vr-term');
+  if(!grade||!cls){ show('vr-err',t('required')); return; }
+  var out=document.getElementById('vr-out'); out.innerHTML='<div class="card">'+skeleton()+'</div>';
+  try{
+    var qp=['academicYear='+encodeURIComponent(year),'term='+encodeURIComponent(term),'gradeLevel='+encodeURIComponent(grade)];
+    var res=await fetch('/api/get-all-results?'+qp.join('&'),{headers:{'Authorization':'Bearer '+tok()}}); var d=await res.json();
+    var rows=(d.results||[]).filter(function(r){ return String(r.class_name).toLowerCase()===cls.toLowerCase(); });
+    if(!rows.length){ out.innerHTML='<div class="card">'+emptyBox()+'</div>'; return; }
+    /* same grouping + ranking as Print Results, so both pages always agree */
+    var by={}; rows.forEach(function(r){ if(!by[r.student_id])by[r.student_id]={id:r.student_id,name:r.full_name,grade:r.grade_level,cls:r.class_name,subs:[],total:0}; by[r.student_id].subs.push({subject:r.subject,score:Number(r.score),grade:r.grade}); by[r.student_id].total+=Number(r.score||0); });
+    var studs=Object.keys(by).map(function(k){return by[k];}).sort(function(a,b){return b.total-a.total;});
+    studs.forEach(function(s,i){ s.position=i+1; });
+    _vr={studs:studs,grade:grade,cls:cls,year:year,term:term,size:studs.length,cur:-1};
+    out.innerHTML='<div class="card"><div class="vr-bar"><div class="vr-count"><b>'+studs.length+'</b> '+vrT('report cards','كشف درجات')+' · '+esc(cls)+' · '+esc(term)+' '+esc(year)+'</div>'+
+      '<div class="vr-search"><i class="fas fa-magnifying-glass"></i><input id="vr-q" placeholder="'+vrT('Search name or ID','ابحث بالاسم أو الرقم')+'" oninput="vrRender()"></div>'+
+      '<select id="vr-sort" onchange="vrRender()"><option value="pos">'+vrT('By position','حسب الترتيب')+'</option><option value="name">'+vrT('By name','حسب الاسم')+'</option></select></div>'+
+      '<div class="vr-grid" id="vr-grid"></div></div>';
+    vrRender();
+  }catch(e){ out.innerHTML=''; show('vr-err','❌ '+e.message); }
+}
+function vrRender(){
+  var g=document.getElementById('vr-grid'); if(!g) return;
+  var q=(val('vr-q')||'').toLowerCase(), so=val('vr-sort')||'pos';
+  var list=_vr.studs.map(function(s,i){return {s:s,i:i};}).filter(function(x){ return !q||String(x.s.name||'').toLowerCase().indexOf(q)>=0||String(x.s.id).toLowerCase().indexOf(q)>=0; });
+  if(so==='name') list.sort(function(a,b){ return String(a.s.name).localeCompare(String(b.s.name)); });
+  if(!list.length){ g.innerHTML='<div class="vr-none">'+t('noData')+'</div>'; return; }
+  g.innerHTML=list.map(function(x){ var s=x.s;
+    return '<button class="vr-tile" onclick="vrOpen('+x.i+')" title="'+esc(s.name)+'">'+
+      '<span class="vr-doc"><span class="vr-fold"></span><i class="fas fa-file-pdf"></i><span class="vr-tag">PDF</span></span>'+
+      '<span class="vr-name">'+esc(s.name)+'</span>'+
+      '<span class="vr-meta"><bdi>'+esc(s.id)+'</bdi> · #'+s.position+'</span></button>';
+  }).join('');
+}
+function vrOpen(i){
+  var s=_vr.studs[i]; if(!s) return; _vr.cur=i;
+  injectPrintCardCSS();
+  var m=document.getElementById('vrModal');
+  if(!m){ m=document.createElement('div'); m.id='vrModal'; document.body.appendChild(m);
+    m.addEventListener('click',function(e){ if(e.target===m) vrClose(); });
+    document.addEventListener('keydown',function(e){ if(!document.getElementById('vrModal'))return; if(e.key==='Escape')vrClose(); if(e.key==='ArrowRight')vrStep(lang==='ar'?-1:1); if(e.key==='ArrowLeft')vrStep(lang==='ar'?1:-1); });
+  }
+  m.innerHTML='<div class="vr-view">'+
+    '<div class="vr-top"><div class="vr-file"><i class="fas fa-file-pdf"></i><div><b>'+esc(s.name)+'</b><span><bdi>'+esc(s.id)+'</bdi> · '+vrT('Position','الترتيب')+' '+s.position+' / '+_vr.size+'</span></div></div>'+
+      '<div class="vr-act">'+
+        '<button class="btn ghost sm" onclick="vrStep(-1)" '+(i<=0?'disabled':'')+' title="'+vrT('Previous','السابق')+'"><i class="fas fa-chevron-'+(lang==='ar'?'right':'left')+'"></i></button>'+
+        '<span class="vr-pg">'+(i+1)+' / '+_vr.size+'</span>'+
+        '<button class="btn ghost sm" onclick="vrStep(1)" '+(i>=_vr.size-1?'disabled':'')+' title="'+vrT('Next','التالي')+'"><i class="fas fa-chevron-'+(lang==='ar'?'left':'right')+'"></i></button>'+
+        '<button class="btn sm" onclick="vrPrint()"><i class="fas fa-print"></i> <span class="vr-hide-sm">'+t('print')+' / PDF</span></button>'+
+        '<button class="btn ghost sm" onclick="vrClose()" title="'+vrT('Close','إغلاق')+'"><i class="fas fa-xmark"></i></button>'+
+      '</div></div>'+
+    '<div class="vr-canvas" id="vr-canvas"><div class="vr-paper" id="vr-paper">'+a4Card(s,_vr.grade,_vr.size,_vr.year,_vr.term)+'</div></div>'+
+  '</div>';
+  document.body.style.overflow='hidden';
+  vrFit(); setTimeout(vrFit,300);
+}
+function vrFit(){
+  var cv=document.getElementById('vr-canvas'), p=document.getElementById('vr-paper'); if(!cv||!p) return;
+  var pg=p.querySelector('.pc-page'); if(!pg) return;
+  pg.style.transform='none'; var w=pg.offsetWidth, h=pg.offsetHeight; if(!w) return;
+  var sc=Math.min(1,(cv.clientWidth-24)/w);
+  pg.style.transformOrigin='top left'; pg.style.transform='scale('+sc+')';
+  p.style.width=(w*sc)+'px'; p.style.height=(h*sc)+'px';
+}
+window.addEventListener('resize',function(){ if(document.getElementById('vrModal')) vrFit(); });
+function vrStep(d){ var n=_vr.cur+d; if(n>=0&&n<_vr.size) vrOpen(n); }
+function vrClose(){ var m=document.getElementById('vrModal'); if(m) m.remove(); document.body.style.overflow=''; }
+function vrPrint(){
+  var p=document.getElementById('vr-paper'); if(!p) return;
+  var pg=p.querySelector('.pc-page'); var prev=pg.style.transform; pg.style.transform='none';
+  var html=p.innerHTML; pg.style.transform=prev;
+  var s=_vr.studs[_vr.cur]||{};
+  var css=document.getElementById('pcStyle').textContent;
+  var win=window.open('','_blank'); if(!win){ alert('Allow popups'); return; }
+  win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>'+esc((s.id||'')+' - '+(s.name||''))+'</title><style>'+css+'@page{size:A4 portrait;margin:0}body{margin:0}.pc-page{box-shadow:none!important;margin:0!important;width:210mm;min-height:297mm;display:block;transform:none!important}</style></head><body>'+html+'<'+'script>window.onload=function(){setTimeout(function(){window.print()},400)}<'+'/script></body></html>');
+  win.document.close();
+}
+function injectVrCSS(){
+  if(document.getElementById('vrStyle')) return;
+  var st=document.createElement('style'); st.id='vrStyle';
+  st.textContent=
+    '.vr-bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:1rem}'+
+    '.vr-count{flex:1;min-width:180px;color:var(--soft);font-size:.9rem}.vr-count b{color:var(--ink);font-size:1.05rem}'+
+    '.vr-search{position:relative;flex:1;min-width:180px;max-width:300px}.vr-search i{position:absolute;inset-inline-start:.75rem;top:50%;transform:translateY(-50%);color:var(--soft);font-size:.85rem}.vr-search input{padding-inline-start:2.1rem}'+
+    '#vr-sort{width:auto;min-width:140px}'+
+    '.vr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:.9rem}'+
+    '.vr-tile{display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:1rem .6rem .8rem;border:1.5px solid var(--line);border-radius:14px;background:var(--card);cursor:pointer;text-align:center;font-family:inherit;color:var(--ink);transition:transform .12s,box-shadow .15s,border-color .15s}'+
+    '.vr-tile:hover{border-color:var(--blue);box-shadow:0 6px 18px rgba(13,59,110,.12);transform:translateY(-2px)}'+
+    '.vr-tile:active{transform:scale(.98)}'+
+    '.vr-doc{position:relative;width:54px;height:68px;border-radius:6px;background:#fff;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;margin-bottom:.3rem;box-shadow:0 2px 6px rgba(0,0,0,.06)}'+
+    '.vr-doc i{font-size:1.7rem;color:#e5322d}'+
+    '.vr-fold{position:absolute;top:-1.5px;inset-inline-end:-1.5px;width:16px;height:16px;background:linear-gradient(225deg,var(--card) 50%,#e2e8f0 50%);border-bottom-left-radius:4px}'+
+    '.vr-tag{position:absolute;bottom:7px;inset-inline-start:-8px;background:#e5322d;color:#fff;font-size:.6rem;font-weight:800;padding:1px 5px;border-radius:3px;letter-spacing:.5px}'+
+    '.vr-name{font-weight:800;font-size:.86rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}'+
+    '.vr-meta{font-size:.74rem;color:var(--soft)}'+
+    '.vr-none{grid-column:1/-1;text-align:center;color:var(--soft);padding:2rem}'+
+    '#vrModal{position:fixed;inset:0;z-index:200;background:rgba(13,30,52,.72);display:flex;align-items:stretch;justify-content:center;padding:1rem;animation:vrIn .18s ease}'+
+    '@keyframes vrIn{from{opacity:0}to{opacity:1}}'+
+    '.vr-view{width:100%;max-width:900px;display:flex;flex-direction:column;background:#525659;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}'+
+    '.vr-top{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;background:var(--card);flex-wrap:wrap}'+
+    '.vr-file{display:flex;align-items:center;gap:.6rem;flex:1;min-width:0}.vr-file>i{font-size:1.5rem;color:#e5322d}'+
+    '.vr-file b{display:block;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vr-file span{font-size:.78rem;color:var(--soft)}.vr-file div{min-width:0}'+
+    '.vr-act{display:flex;align-items:center;gap:.4rem}.vr-act .btn[disabled]{opacity:.4;cursor:default}'+
+    '.vr-pg{font-size:.82rem;font-weight:800;color:var(--soft);min-width:52px;text-align:center}'+
+    '.vr-canvas{flex:1;overflow:auto;padding:12px;text-align:center;-webkit-overflow-scrolling:touch}'+
+    '.vr-paper{display:inline-block;overflow:hidden;text-align:initial;vertical-align:top}'+
+    '.vr-paper .pc-page{margin:0!important;box-shadow:0 4px 20px rgba(0,0,0,.35)}'+
+    '@media(max-width:600px){#vrModal{padding:0}.vr-view{border-radius:0}.vr-hide-sm{display:none}.vr-grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:.6rem}.vr-doc{width:46px;height:58px}.vr-pg{min-width:40px}}';
+  document.head.appendChild(st);
 }
 async function buildReport(){
   hide('vr-err');
