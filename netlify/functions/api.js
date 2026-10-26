@@ -326,6 +326,9 @@ function pwFingerprint(stored) { return crypto.createHash('sha256').update(Strin
 function normName(v) { return String(v == null ? '' : v).trim().toLowerCase(); }
 function classKey(grade, cls) { return normName(grade) + '|' + normName(cls); }
 const USERNAME_RE = /^\S{3,40}$/;
+// WhatsApp / phone copy-paste can carry invisible direction marks (U+2066..U+2069,
+// U+200E/F, zero-width spaces). JS .trim() does NOT remove them, so strip them.
+function clean(v) { return String(v == null ? '' : v).replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF\u00A0]/g, '').trim(); }
 
 // Teacher tokens are stateless, so on EVERY teacher request the server
 // re-checks that the account is still active, the link is still valid and
@@ -466,9 +469,9 @@ const routes = {
   'teacher-login': { POST: async (event) => {
     await ensureLinkSchema();
     const body = readBody(event);
-    const username = String(body.username == null ? '' : body.username).trim();
-    const password = body.password == null ? '' : String(body.password);
-    const key = body.key == null ? '' : String(body.key).trim();
+    const username = clean(body.username);
+    const password = clean(body.password);
+    const key = clean(body.key);
     if (!username || !password) return err('اسم المستخدم وكلمة المرور مطلوبان');
     if (!key) return err('يرجى فتح رابط الوصول الذي أرسله المدير', 403);
     const bucket = throttleKey('teacher', event, username);
@@ -482,7 +485,7 @@ const routes = {
     const passOk = verifyPassword(password, trow && trow.teacher_password ? trow.teacher_password : DUMMY_HASH);
     if (!trow || !trow.teacher_password || !passOk) { await recordFail(bucket); return err('بيانات الدخول غير صحيحة', 401); }
     if (trow.active === false) return err('تم تعطيل هذا الحساب. تواصل مع المدير.', 403);
-    if (link.teacher_id !== trow.id) return err('هذا الرابط يخص معلماً آخر.', 403);
+    if (Number(link.teacher_id) !== Number(trow.id)) return err('هذا الرابط يخص معلماً آخر.', 403);
     await clearFails(bucket);
     await sql`UPDATE staff_links SET last_used_at = NOW() WHERE id = ${link.id}`;
     const token = signToken({ role:'teacher', tid: trow.id, sub: trow.username, lid: link.id, pwf: pwFingerprint(trow.teacher_password), exp: new Date(link.expires_at).getTime() });
@@ -518,7 +521,7 @@ const routes = {
       }
       t.username = uname;
     }
-    const key = crypto.randomBytes(15).toString('base64url');
+    const key = crypto.randomBytes(16).toString('hex');
     const r = (await sql`INSERT INTO staff_links (teacher_id, key_hash, expires_at) VALUES (${t.id}, ${hashKey(key)}, ${expires.toISOString()}) RETURNING id`)[0];
     return ok({ id: r.id, key, validUntil, teacher: t.full_name, username: t.username, password: generatedPassword });
   }},
@@ -1127,8 +1130,8 @@ const routes = {
     const _b = readBody(event);
     const { subject, gradeLevel, phone, id, active, actor } = _b;
     const fullName = typeof _b.fullName === 'string' ? _b.fullName.trim() : '';
-    const username = typeof _b.username === 'string' ? _b.username.trim() : '';
-    const password = typeof _b.password === 'string' ? _b.password : '';
+    const username = typeof _b.username === 'string' ? clean(_b.username) : '';
+    const password = typeof _b.password === 'string' ? clean(_b.password) : '';
     // enable / disable only
     if (id && typeof active === 'boolean') {
       const r = await sql`UPDATE teachers SET active = ${active} WHERE id = ${parseInt(id)} RETURNING id, full_name`;

@@ -112,6 +112,7 @@ label{display:block;font-size:0.82rem;font-weight:700;color:var(--soft);margin:0
 
 <script>
 var $=function(id){return document.getElementById(id);};
+function clean(v){return String(v==null?'':v).replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF\u00A0]/g,'').trim();}
 var API='/api/';
 function tok(){return localStorage.getItem('nurr_staff_token');}
 function store(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v);}catch(e){}}
@@ -120,7 +121,7 @@ var me=null, tab='scores', roster=[], attState={};
 
 /* link key from URL (?k=...), hidden after */
 (function(){
-  var k=new URLSearchParams(location.search).get('k');
+  var k=clean(new URLSearchParams(location.search).get('k')||'');
   if(k){ if(get('nurr_linkkey')!==k) store('nurr_staff_token',null); store('nurr_linkkey',k); history.replaceState(null,'',location.pathname); }
 })();
 
@@ -139,7 +140,7 @@ async function api(action,opts){
 }
 
 async function doLogin(){
-  var u=$('lu').value.trim(), p=$('lp').value, e=$('lgErr'); e.classList.remove('show');
+  var u=clean($('lu').value), p=clean($('lp').value), e=$('lgErr'); e.classList.remove('show');
   if(!u||!p){ e.textContent='أدخل اسم المستخدم وكلمة المرور'; e.classList.add('show'); return; }
   var btn=$('lgBtn'); btn.disabled=true;
   try{
