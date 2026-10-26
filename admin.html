@@ -42,13 +42,50 @@ label{display:block;font-size:0.8rem;font-weight:700;color:var(--soft);margin:0 
 .msg.err{background:#fdeaea;color:#b02a2a;border:1px solid #f1c4c4}
 
 /* LOGIN */
-.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;
-  background:linear-gradient(150deg,#eaf3ff 0%,#dcebfd 0%,#dbeafe 60%,#eaf3ff 100%)}
-.login-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:2.2rem 2rem;width:100%;max-width:390px;text-align:center;box-shadow:0 18px 50px rgba(13,59,110,.14)}
-.login-card .logo{width:72px;height:72px;border-radius:18px;object-fit:contain;background:var(--blue-soft);padding:8px}
-.login-card h1{font-size:1.25rem;margin:0.7rem 0 0.2rem;color:var(--blue-dark)}
-.login-card p{color:var(--soft);font-size:0.85rem;margin-bottom:1.3rem}
-.login-card label{text-align:start;margin-top:0.8rem}
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#eaf3ff,#d6e8fd,#e6f1ff,#cfe3fa);background-size:300% 300%;animation:lgBg 14s ease infinite}
+@keyframes lgBg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.login-screen::before,.login-screen::after{content:"";position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;pointer-events:none}
+.login-screen::before{width:340px;height:340px;background:#7db4f5;top:-90px;inset-inline-start:-90px;animation:lgFloat 11s ease-in-out infinite}
+.login-screen::after{width:300px;height:300px;background:#a9d0ff;bottom:-90px;inset-inline-end:-70px;animation:lgFloat 13s ease-in-out infinite reverse}
+@keyframes lgFloat{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,30px) scale(1.12)}}
+.login-card{position:relative;z-index:1;background:rgba(255,255,255,.78);-webkit-backdrop-filter:blur(22px) saturate(160%);backdrop-filter:blur(22px) saturate(160%);border:1px solid rgba(255,255,255,.9);border-radius:26px;padding:2.4rem 2.1rem 2rem;width:100%;max-width:400px;text-align:center;
+  box-shadow:0 30px 70px rgba(13,59,110,.20),0 2px 0 rgba(255,255,255,.9) inset;animation:lgIn .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes lgIn{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+.login-card>*{animation:lgItem .6s cubic-bezier(.2,.8,.2,1) both}
+.login-card>*:nth-child(1){animation-delay:.12s}.login-card>*:nth-child(2){animation-delay:.18s}.login-card>*:nth-child(3){animation-delay:.24s}.login-card>*:nth-child(4){animation-delay:.3s}.login-card>*:nth-child(5){animation-delay:.36s}.login-card>*:nth-child(6){animation-delay:.42s}.login-card>*:nth-child(7){animation-delay:.48s}
+@keyframes lgItem{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.login-card.shake{animation:lgShake .45s ease}
+@keyframes lgShake{0%,100%{transform:none}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.login-card .logo{width:78px;height:78px;border-radius:22px;object-fit:contain;background:linear-gradient(145deg,#fff,var(--blue-soft));padding:9px;box-shadow:0 10px 26px rgba(30,111,217,.22);animation:lgItem .6s .12s both,lgLogo 5s 1s ease-in-out infinite}
+@keyframes lgLogo{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.login-card h1{font-size:1.3rem;margin:0.9rem 0 0.2rem;color:var(--blue-dark);letter-spacing:-.2px}
+.login-card p{color:var(--soft);font-size:0.86rem;margin-bottom:1.2rem}
+.login-card label{text-align:start;margin-top:0.9rem;display:block;font-size:.78rem;color:var(--soft);font-weight:800}
+.lg-field{position:relative;margin-top:.3rem}
+.lg-field>i.lg-ic{position:absolute;inset-inline-start:.9rem;top:50%;transform:translateY(-50%);color:#8fa6c2;font-size:.9rem;transition:color .2s;pointer-events:none}
+.lg-field input{padding:.8rem .9rem;padding-inline-start:2.6rem;border-radius:14px;background:rgba(255,255,255,.85);transition:border-color .2s,box-shadow .25s,transform .2s,background .2s}
+.lg-field input:focus{background:#fff;transform:translateY(-1px);box-shadow:0 0 0 4px rgba(30,111,217,.14),0 8px 20px rgba(30,111,217,.10)}
+.lg-field:focus-within>i.lg-ic{color:var(--blue)}
+.lg-eye{position:absolute;inset-inline-end:.4rem;top:50%;transform:translateY(-50%);background:none;border:0;color:#8fa6c2;width:34px;height:34px;border-radius:50%;cursor:pointer;transition:.15s}
+.lg-eye:hover{color:var(--blue);background:var(--blue-soft)}
+#lp{padding-inline-end:2.8rem}
+.lg-btn{position:relative;overflow:hidden;width:100%;margin-top:1.3rem;height:48px;border-radius:14px;font-size:.98rem;background:linear-gradient(135deg,#2b7be6,#1558b8);box-shadow:0 10px 24px rgba(30,111,217,.38);display:flex;align-items:center;justify-content:center;gap:.5rem;transition:transform .15s,box-shadow .25s,filter .2s}
+.lg-btn:hover{background:linear-gradient(135deg,#348aff,#1a63cc);transform:translateY(-2px);box-shadow:0 14px 30px rgba(30,111,217,.45)}
+.lg-btn:active{transform:scale(.98)}
+.lg-btn::after{content:"";position:absolute;top:0;inset-inline-start:-80%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.4),transparent);transform:skewX(-20deg);animation:lgShine 3.8s 1.2s infinite}
+@keyframes lgShine{0%{inset-inline-start:-80%}40%,100%{inset-inline-start:140%}}
+.lg-btn .lg-txt{display:inline-flex;align-items:center;gap:.5rem;transition:opacity .2s,transform .25s}
+.lg-btn.loading{pointer-events:none;filter:saturate(.9)}
+.lg-btn.loading .lg-txt{opacity:0;transform:scale(.85)}
+.lg-btn:disabled{opacity:1;cursor:default}
+/* Apple-style spinner */
+.apple-spin{position:absolute;width:24px;height:24px;opacity:0;transform:scale(.6);transition:opacity .2s,transform .25s}
+.lg-btn.loading .apple-spin{opacity:1;transform:scale(1)}
+.apple-spin i{position:absolute;left:50%;top:0;width:2.4px;height:6.5px;margin-left:-1.2px;border-radius:2px;background:#fff;transform-origin:50% 12px;opacity:.15;animation:appleFade 1s linear infinite}
+@keyframes appleFade{0%{opacity:1}100%{opacity:.15}}
+.apple-spin i:nth-child(1){transform:rotate(0deg);animation-delay:-1s}.apple-spin i:nth-child(2){transform:rotate(30deg);animation-delay:-.9167s}.apple-spin i:nth-child(3){transform:rotate(60deg);animation-delay:-.8333s}.apple-spin i:nth-child(4){transform:rotate(90deg);animation-delay:-.75s}.apple-spin i:nth-child(5){transform:rotate(120deg);animation-delay:-.6667s}.apple-spin i:nth-child(6){transform:rotate(150deg);animation-delay:-.5833s}.apple-spin i:nth-child(7){transform:rotate(180deg);animation-delay:-.5s}.apple-spin i:nth-child(8){transform:rotate(210deg);animation-delay:-.4167s}.apple-spin i:nth-child(9){transform:rotate(240deg);animation-delay:-.3333s}.apple-spin i:nth-child(10){transform:rotate(270deg);animation-delay:-.25s}.apple-spin i:nth-child(11){transform:rotate(300deg);animation-delay:-.1667s}.apple-spin i:nth-child(12){transform:rotate(330deg);animation-delay:-.0833s}
+@media(prefers-reduced-motion:reduce){.login-screen,.login-screen::before,.login-screen::after,.login-card,.login-card>*,.login-card .logo,.lg-btn::after{animation:none!important}}
 
 /* APP LAYOUT */
 #app{display:none;min-height:100vh}
@@ -139,11 +176,11 @@ body.eye{filter:sepia(0.18) brightness(0.97)}
     <img src="nurry.png" class="logo" alt="" onerror="this.style.display='none'">
     <h1 data-t="brand">Nurr Islamic Institute</h1>
     <p data-t="adminPanel">Administration Panel</p>
-    <label data-t="username">Username</label>
-    <input type="text" id="lu" autocomplete="username" autocapitalize="none">
-    <label data-t="password">Password</label>
-    <input type="password" id="lp" autocomplete="current-password">
-    <button class="btn" style="width:100%;margin-top:1.1rem" id="loginBtn" onclick="doLogin()"><i class="fas fa-right-to-bracket"></i> <span data-t="login">Log in</span></button>
+    <div><label data-t="username">Username</label>
+    <div class="lg-field"><i class="fas fa-user lg-ic"></i><input type="text" id="lu" autocomplete="username" autocapitalize="none"></div></div>
+    <div><label data-t="password">Password</label>
+    <div class="lg-field"><i class="fas fa-lock lg-ic"></i><input type="password" id="lp" autocomplete="current-password"><button type="button" class="lg-eye" id="lgEye" tabindex="-1" onclick="var p=document.getElementById('lp'),h=p.type==='password';p.type=h?'text':'password';this.innerHTML='<i class=\'fas fa-eye'+(h?'-slash':'')+'\'></i>'"><i class="fas fa-eye"></i></button></div></div>
+    <button class="btn lg-btn" id="loginBtn" onclick="doLogin()"><span class="lg-txt"><i class="fas fa-right-to-bracket"></i> <span data-t="login">Log in</span></span><span class="apple-spin"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
     <div class="msg err" id="loginErr"></div>
     <div style="margin-top:1rem"><button class="lang-flip" onclick="toggleLang()" style="background:none;border:0;color:var(--blue);font-weight:800;cursor:pointer" id="langFlipLogin">عربي</button></div>
   </div>
@@ -300,15 +337,17 @@ async function api(action, opts){
 async function doLogin(){
   var u=document.getElementById('lu').value.trim(), p=document.getElementById('lp').value, e=document.getElementById('loginErr');
   e.classList.remove('show');
-  if(!u||!p){ e.textContent='…'; e.classList.add('show'); return; }
-  var btn=document.getElementById('loginBtn'); btn.disabled=true;
+  var card=document.querySelector('.login-card');
+  function bad(msg){ e.textContent=msg; e.classList.add('show'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }
+  if(!u||!p){ bad('…'); return; }
+  var btn=document.getElementById('loginBtn'); btn.disabled=true; btn.classList.add('loading');
   try{
     var d=await api('admin-login',{method:'POST',body:{username:u,password:p}});
     sessionStorage.setItem('nurr_token',d.token);
     sessionStorage.setItem('nurr_user',d.displayName||d.username);
     showApp();
-  }catch(err){ e.textContent=err.message; e.classList.add('show'); }
-  btn.disabled=false;
+  }catch(err){ bad(err.message); }
+  btn.disabled=false; btn.classList.remove('loading');
 }
 document.getElementById('lp').addEventListener('keydown',function(ev){ if(ev.key==='Enter') doLogin(); });
 document.getElementById('lu').addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); document.getElementById('lp').focus(); } });
